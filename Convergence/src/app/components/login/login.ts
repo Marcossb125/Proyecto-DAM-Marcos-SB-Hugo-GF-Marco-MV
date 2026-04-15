@@ -31,7 +31,8 @@ export class Login {
       if (usuario.username === this.username() && usuario.password === this.password()) {
         this.router.navigate(['/inicio']);
       } else {
-
+        this.errorMessage.set('Usuario o contraseña incorrectos.');
+        this.isLoading.set(false);
       }
     });
   }
