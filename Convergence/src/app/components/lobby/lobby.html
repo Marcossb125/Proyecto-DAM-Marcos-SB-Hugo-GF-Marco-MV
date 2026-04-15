@@ -1,146 +1,132 @@
 <div class="lobby-wrapper">
-  <!-- ═══ HEADER BAR ═══ -->
+  <div class="sonar-contact contact-1"></div>
+  <div class="sonar-contact contact-2"></div>
+  <div class="sonar-contact contact-3"></div>
+  <div class="sonar-contact contact-4"></div>
+
   <header class="lobby-header">
     <div class="header-left">
       <div class="brand">
         <svg class="brand-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-          <path d="M12 2L2 7l10 5 10-5-10-5z"/>
-          <path d="M2 17l10 5 10-5"/>
-          <path d="M2 12l10 5 10-5"/>
+          <path d="M12 2L2 7l10 5 10-5-10-5z" />
+          <path d="M2 17l10 5 10-5" />
+          <path d="M2 12l10 5 10-5" />
         </svg>
-        <span class="brand-text">CONVERGENCE</span>
+        <span class="brand-text">CONVERGENCE TACTICS</span>
       </div>
     </div>
 
     <div class="header-right">
       <div class="user-profile">
-        <!-- Knight Avatar -->
         <div class="avatar">
           <svg viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <rect width="40" height="40" rx="6" fill="#0f1629"/>
-            <!-- Helmet -->
-            <path d="M12 16C12 10 16 6 20 6C24 6 28 10 28 16V20H12V16Z" fill="#4a4a5a" stroke="#c9a84c" stroke-width="1"/>
-            <rect x="14" y="14" width="12" height="3" rx="1" fill="#c9a84c" opacity="0.6"/>
-            <line x1="20" y1="6" x2="20" y2="14" stroke="#c9a84c" stroke-width="0.5"/>
-            <!-- Visor -->
-            <rect x="15" y="12" width="10" height="2" rx="0.5" fill="#0d1117"/>
-            <!-- Body -->
-            <path d="M14 22H26V32C26 34 24 36 20 36C16 36 14 34 14 32V22Z" fill="#4a4a5a" stroke="#c9a84c" stroke-width="0.5"/>
-            <line x1="20" y1="22" x2="20" y2="32" stroke="#c9a84c" stroke-width="0.5"/>
+            <rect width="40" height="40" rx="2" fill="#1a1a1a" />
+            <path d="M12 16C12 10 16 6 20 6C24 6 28 10 28 16V20H12V16Z" fill="#333" stroke="currentColor"
+              stroke-width="1" />
+            <rect x="15" y="12" width="10" height="2" rx="0.5" fill="#00ff41" opacity="0.5" />
+            <path d="M14 22H26V32C26 34 24 36 20 36C16 36 14 34 14 32V22Z" fill="#333" stroke="currentColor"
+              stroke-width="0.5" />
           </svg>
         </div>
         <div class="user-info">
-          <span class="user-welcome">Welcome back,</span>
+          <span class="user-welcome">OPERATOR ONLINE:</span>
           <span class="user-name">{{ playerName() }}</span>
         </div>
         <div class="user-level">
-          <span class="level-badge">Lv.{{ playerLevel() }}</span>
+          <span class="level-badge">RANK {{ playerLevel() }}</span>
         </div>
       </div>
-      <button class="btn-logout" (click)="logout()" id="lobby-logout">
+      <button class="btn-logout" (click)="logout()" id="lobby-logout" title="Abort Mission">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18">
-          <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
-          <polyline points="16 17 21 12 16 7"/>
-          <line x1="21" y1="12" x2="9" y2="12"/>
+          <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
+          <polyline points="16 17 21 12 16 7" />
+          <line x1="21" y1="12" x2="9" y2="12" />
         </svg>
       </button>
     </div>
   </header>
 
-  <!-- ═══ MAIN LOBBY PANEL ═══ -->
   <main class="lobby-main">
     <div class="lobby-panel">
-      <!-- Panel header -->
       <div class="panel-header">
         <div class="panel-title-group">
-          <h1 class="panel-title">MULTIPLAYER LOBBY</h1>
-          <span class="panel-subtitle">{{ games().length }} active sessions</span>
+          <h1 class="panel-title">AVAILABLE MISSIONS</h1>
+          <span class="panel-subtitle">{{ games().length }} SQUADRONS ACTIVE</span>
         </div>
         <div class="panel-actions">
           <div class="search-box">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16">
-              <circle cx="11" cy="11" r="8"/>
-              <line x1="21" y1="21" x2="16.65" y2="16.65"/>
+              <circle cx="11" cy="11" r="8" />
+              <line x1="21" y1="21" x2="16.65" y2="16.65" />
             </svg>
-            <input type="text" placeholder="Search games..." id="lobby-search"/>
+            <input type="text" placeholder="Filter by Intel..." id="lobby-search" />
           </div>
         </div>
       </div>
 
-      <!-- Column Headers -->
       <div class="table-header">
-        <span class="col-name">SERVER NAME</span>
-        <span class="col-mode">MODE</span>
-        <span class="col-players">PLAYERS</span>
-        <span class="col-ping">PING</span>
-        <span class="col-action">ACTION</span>
+        <span class="col-name">SECTOR / HOST</span>
+        <span class="col-mode">TYPE</span>
+        <span class="col-players">UNITS</span>
+        <span class="col-ping">SIGNAL</span>
+        <span class="col-action">STATUS</span>
       </div>
 
-      <!-- Game Slots -->
       <div class="game-list">
         @for (game of games(); track game.id) {
-          <div class="game-slot" [class.game-full]="game.status === 'full'">
-            <!-- Game Info -->
-            <div class="col-name">
-              <div class="game-name-group">
-                <span class="game-name">{{ game.name }}</span>
-                <span class="game-host">by {{ game.host }}</span>
-              </div>
-            </div>
-
-            <div class="col-mode">
-              <span class="mode-badge">{{ game.mode }}</span>
-            </div>
-
-            <div class="col-players">
-              <div class="players-info">
-                <span class="players-count" [class.players-full]="game.status === 'full'">
-                  {{ getPlayerRatio(game) }}
-                </span>
-                <div class="players-bar">
-                  <div
-                    class="players-bar-fill"
-                    [class.bar-full]="game.status === 'full'"
-                    [style.width]="getPlayerBarWidth(game)"
-                  ></div>
-                </div>
-              </div>
-            </div>
-
-            <div class="col-ping">
-              <span class="ping-indicator" [class]="getPingClass(game.ping)">
-                <span class="ping-dot"></span>
-                {{ game.ping }}ms
-              </span>
-            </div>
-
-            <div class="col-action">
-              @if (game.status === 'open') {
-                <button
-                  class="btn-join"
-                  (click)="joinGame(game)"
-                  [id]="'join-game-' + game.id"
-                >
-                  JOIN
-                </button>
-              } @else {
-                <button class="btn-full" disabled>
-                  FULL
-                </button>
-              }
+        <div class="game-slot" [class.game-full]="game.status === 'full'">
+          <div class="col-name">
+            <div class="game-name-group">
+              <span class="game-name">{{ game.name }}</span>
+              <span class="game-host">Commanded by {{ game.host }}</span>
             </div>
           </div>
+
+          <div class="col-mode">
+            <span class="mode-badge">{{ game.mode }}</span>
+          </div>
+
+          <div class="col-players">
+            <div class="players-info">
+              <span class="players-count" [class.players-full]="game.status === 'full'">
+                {{ getPlayerRatio(game) }}
+              </span>
+              <div class="players-bar">
+                <div class="players-bar-fill" [class.bar-full]="game.status === 'full'"
+                  [style.width]="getPlayerBarWidth(game)"></div>
+              </div>
+            </div>
+          </div>
+
+          <div class="col-ping">
+            <span class="ping-indicator" [class]="getPingClass(game.ping)">
+              <span class="ping-dot"></span>
+              {{ game.ping }}ms
+            </span>
+          </div>
+
+          <div class="col-action">
+            @if (game.status === 'open') {
+            <button class="btn-join" (click)="joinGame(game)" [id]="'join-game-' + game.id">
+              DEPLOY
+            </button>
+            } @else {
+            <button class="btn-full" disabled>
+              ENGAGED
+            </button>
+            }
+          </div>
+        </div>
         }
       </div>
 
-      <!-- Footer -->
       <div class="panel-footer">
         <button class="btn-create" (click)="createGame()" id="lobby-create-game">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18">
-            <line x1="12" y1="5" x2="12" y2="19"/>
-            <line x1="5" y1="12" x2="19" y2="12"/>
+            <line x1="12" y1="5" x2="12" y2="19" />
+            <line x1="5" y1="12" x2="19" y2="12" />
           </svg>
-          <span>CREATE NEW GAME</span>
+          <span>ESTABLISH NEW SECTOR</span>
         </button>
       </div>
     </div>
