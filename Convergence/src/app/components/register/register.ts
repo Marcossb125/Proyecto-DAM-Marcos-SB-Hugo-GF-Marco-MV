@@ -1,6 +1,7 @@
 import { Component, signal } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
 import { FormsModule } from '@angular/forms';
+import { PartidaService } from '../../servicios/partida.service';
 
 @Component({
   selector: 'app-register',
@@ -16,7 +17,7 @@ export class Register {
   isLoading = signal(false);
   errorMessage = signal('');
 
-  constructor(private router: Router) {}
+  constructor(private router: Router, private partidaService: PartidaService) { }
 
   onRegister(): void {
     this.errorMessage.set('');
@@ -39,9 +40,11 @@ export class Register {
     this.isLoading.set(true);
 
     // Simulate registration
-    setTimeout(() => {
-      this.isLoading.set(false);
-      this.router.navigate(['/login']);
-    }, 1500);
+    this.partidaService.guardarUsuario({
+      email: this.email(),
+      username: this.username(),
+      password: this.password(),
+    });
+    this.router.navigate(['/login']);
   }
 }

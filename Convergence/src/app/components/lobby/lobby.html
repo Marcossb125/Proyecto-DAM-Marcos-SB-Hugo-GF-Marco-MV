@@ -45,6 +45,20 @@
       <div class="section-title-line"></div>
     </div>
 
+    @if (games().length === 0) {
+    <div class="empty-state">
+      <div class="empty-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" width="48" height="48">
+          <circle cx="12" cy="12" r="10" />
+          <line x1="12" y1="8" x2="12" y2="12" />
+          <line x1="12" y1="16" x2="12.01" y2="16" />
+        </svg>
+      </div>
+      <p class="empty-text">NO HAY PARTIDAS ACTIVAS</p>
+      <p class="empty-subtext">Crea una nueva partida para comenzar</p>
+    </div>
+    } @else {
+
     <!-- Table Header (Desktop) -->
     <div class="table-header">
       <span class="col-name">SECTOR / HOST</span>
@@ -97,6 +111,7 @@
       </div>
       }
     </div>
+    }
   </section>
 
   <!-- ═══ BOTONES PRINCIPALES ═══ -->
@@ -105,6 +120,79 @@
       + CREAR NUEVA PARTIDA
     </button>
   </section>
+
+  <!-- ═══════════════════════════════════════════════════
+       MODAL — CREAR NUEVA PARTIDA
+       ═══════════════════════════════════════════════════ -->
+  @if (showModal()) {
+  <div class="modal-backdrop" (click)="onBackdropClick($event)" id="modal-create-game">
+    <div class="modal-panel">
+
+      <!-- Header -->
+      <div class="modal-header">
+        <div class="modal-header-accent"></div>
+        <h2 class="modal-title">NUEVA OPERACIÓN</h2>
+        <button class="modal-close" (click)="closeModal()" id="modal-close-btn">✕</button>
+      </div>
+
+      <!-- Body / Form -->
+      <div class="modal-body">
+
+        <!-- Nombre de la partida -->
+        <div class="form-group">
+          <label class="form-label" for="game-name-input">
+            <span class="label-icon">▸</span> NOMBRE DE LA PARTIDA
+          </label>
+          <input
+            type="text"
+            id="game-name-input"
+            class="form-input"
+            placeholder="Ej: Operación Tormenta..."
+            [(ngModel)]="newGameName"
+            maxlength="40"
+          />
+          <span class="form-hint">Máximo 40 caracteres</span>
+        </div>
+
+        <!-- Límite de jugadores -->
+        <div class="form-group">
+          <label class="form-label" for="game-players-input">
+            <span class="label-icon">▸</span> LÍMITE DE JUGADORES
+          </label>
+          <div class="players-input-row">
+            <button class="players-btn" (click)="newGameMaxPlayers = newGameMaxPlayers > 2 ? newGameMaxPlayers - 1 : 2" id="players-decrease">−</button>
+            <input
+              type="number"
+              id="game-players-input"
+              class="form-input players-number"
+              [(ngModel)]="newGameMaxPlayers"
+              min="2"
+              max="20"
+            />
+            <button class="players-btn" (click)="newGameMaxPlayers = newGameMaxPlayers < 20 ? newGameMaxPlayers + 1 : 20" id="players-increase">+</button>
+          </div>
+          <span class="form-hint">Mínimo 2 — Máximo 20</span>
+        </div>
+
+        <!-- Error -->
+        @if (formError()) {
+        <div class="form-error">
+          <span class="error-icon">⚠</span> {{ formError() }}
+        </div>
+        }
+      </div>
+
+      <!-- Footer -->
+      <div class="modal-footer">
+        <button class="btn-cancel" (click)="closeModal()" id="modal-cancel-btn">CANCELAR</button>
+        <button class="btn-confirm" (click)="confirmCreateGame()" id="modal-confirm-btn">
+          ▶ CREAR PARTIDA
+        </button>
+      </div>
+
+    </div>
+  </div>
+  }
 
   <!-- ═══ NAVBAR INFERIOR ═══ -->
   <nav class="bottom-navbar">

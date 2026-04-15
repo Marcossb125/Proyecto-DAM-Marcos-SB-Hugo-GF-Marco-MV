@@ -1,90 +1,111 @@
-import { Component, signal } from '@angular/core';
+import { Component, signal, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
-
-interface GameSlot {
-  id: number;
-  name: string;
-  host: string;
-  mode: string;
-  currentPlayers: number;
-  maxPlayers: number;
-  status: 'open' | 'full' | 'in-progress';
-  ping: number;
-}
+import { FormsModule } from '@angular/forms';
+import { PartidaService, Partida } from '../../servicios/partida.service';
 
 @Component({
   selector: 'app-lobby',
-  imports: [],
+  imports: [FormsModule],
   templateUrl: './lobby.html',
   styleUrl: './lobby.css',
 })
-export class Lobby {
+export class Lobby implements OnInit {
   playerName = signal('Sir Lancelot');
   playerLevel = signal(42);
 
-  games = signal<GameSlot[]>([
-    {
-      id: 1,
-      name: 'Dark Crusade',
-      host: 'KnightOfDoom',
-      mode: 'Conquest',
-      currentPlayers: 6,
-      maxPlayers: 12,
-      status: 'open',
-      ping: 32,
-    },
-    {
-      id: 2,
-      name: 'Siege of Ashenmoor',
-      host: 'DragonSlayer99',
-      mode: 'Siege',
-      currentPlayers: 12,
-      maxPlayers: 12,
-      status: 'full',
-      ping: 58,
-    },
-    {
-      id: 3,
-      name: 'The Forgotten Realm',
-      host: 'ShadowMage',
-      mode: 'Survival',
-      currentPlayers: 3,
-      maxPlayers: 8,
-      status: 'open',
-      ping: 15,
-    },
-    {
-      id: 4,
-      name: 'Operation Nightfall',
-      host: 'TacticalOps',
-      mode: 'Blitz',
-      currentPlayers: 8,
-      maxPlayers: 10,
-      status: 'open',
-      ping: 45,
-    },
-  ]);
+  games = signal<Partida[]>([]);
 
-  constructor(private router: Router) {}
+  // Modal state
+  showModal = signal(false);
+  newGameName = '';
+  newGameMaxPlayers = 2;
+  formError = signal('');
+
+  constructor(
+    private router: Router,
+    private partidaService: PartidaService
+  ) {}
+
+  ngOnInit(): void {
+    this.cargarPartidas();
+  }
+
+  /**
+   * Carga las partidas desde localStorage y actualiza la señal.
+   */
+  cargarPartidas(): void {
+    const partidas = this.partidaService.obtenerPartidas();
+    this.games.set(partidas);
+  }
 
   navigateTo(route: string): void {
     this.router.navigate([route]);
   }
 
-  joinGame(game: GameSlot): void {
+  joinGame(game: Partida): void {
     if (game.status === 'open') {
       console.log(`Joining game: ${game.name}`);
-      // TODO: Connect to backend API to join game
     }
   }
 
+  /**
+   * Abre el modal para crear una nueva partida.
+   */
   createGame(): void {
-    console.log('Creating new game...');
-    // TODO: Connect to backend API to create game
+    this.newGameName = '';
+    this.newGameMaxPlayers = 2;
+    this.formError.set('');
+    this.showModal.set(true);
+  }
+
+  /**
+   * Cierra el modal.
+   */
+  closeModal(): void {
+    this.showModal.set(false);
+    this.formError.set('');
+  }
+
+  /**
+   * Valida y confirma la creación de la partida, la guarda en localStorage.
+   */
+  confirmCreateGame(): void {
+    // Validaciones
+    const name = this.newGameName.trim();
+    if (!name) {
+      this.formError.set('El nombre de la partida es obligatorio.');
+      return;
+    }
+    if (this.newGameMaxPlayers < 2) {
+      this.formError.set('El mínimo de jugadores es 2.');
+      return;
+    }
+
+    const nuevaPartida: Partida = {
+      id: this.partidaService.generarId(),
+      name: name,
+      host: this.playerName(),
+      currentPlayers: 1,
+      maxPlayers: this.newGameMaxPlayers,
+      status: 'open',
+      ping: Math.floor(Math.random() * 60) + 10,
+    };
+
+    this.partidaService.guardarPartida(nuevaPartida);
+    this.cargarPartidas();
+    this.closeModal();
+  }
+
+  /**
+   * Cierra el modal si se hace clic en el backdrop.
+   */
+  onBackdropClick(event: MouseEvent): void {
+    if ((event.target as HTMLElement).classList.contains('modal-backdrop')) {
+      this.closeModal();
+    }
   }
 
   logout(): void {
-    // TODO: Connect to auth service for proper logout
     this.router.navigate(['/login']);
   }
 
@@ -94,11 +115,11 @@ export class Lobby {
     return 'ping-poor';
   }
 
-  getPlayerRatio(game: GameSlot): string {
+  getPlayerRatio(game: Partida): string {
     return `${game.currentPlayers}/${game.maxPlayers}`;
   }
 
-  getPlayerBarWidth(game: GameSlot): string {
+  getPlayerBarWidth(game: Partida): string {
     return `${(game.currentPlayers / game.maxPlayers) * 100}%`;
   }
 }
