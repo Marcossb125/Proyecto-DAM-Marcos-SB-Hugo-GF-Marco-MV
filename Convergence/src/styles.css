@@ -1,6 +1,6 @@
 /* ═══════════════════════════════════════════════════════════════════
    CONVERGENCE — Global Styles
-   Theme: Dark Fantasy / Medieval Pixel Art
+   Theme: Military Tactical / War Room
    ═══════════════════════════════════════════════════════════════════ */
 
 @import url('https://fonts.googleapis.com/css2?family=MedievalSharp&family=Press+Start+2P&family=Inter:wght@400;500;600;700&display=swap');
@@ -8,13 +8,22 @@
 /* ── CSS Custom Properties (Design Tokens) ── */
 :root {
   /* Background & Surface Colors */
-  --bg-dark: #0d0d12;
-  --bg-surface: #1a1a2e;
-  --bg-panel: #16213e;
-  --bg-panel-darker: #0f1629;
-  --bg-input: #0d1117;
+  --bg-dark: #0a0b0a;
+  --bg-surface: #141614;
+  --bg-panel: #161816;
+  --bg-panel-darker: #0d0f0d;
+  --bg-input: rgba(0, 0, 0, 0.5);
 
-  /* Gold / Accent */
+  /* Military Green / Primary */
+  --war-green: #4b5320;
+  --war-green-light: #828a5e;
+  --war-accent: #00ff41;
+  --war-alert: #d35400;
+  --war-steel: #2c2c2c;
+  --war-bg: #0a0b0a;
+  --war-border: #3a3d2e;
+
+  /* Gold / Secondary (kept for compatibility) */
   --gold-bright: #ffd700;
   --gold-primary: #c9a84c;
   --gold-dark: #8b7332;
@@ -28,9 +37,9 @@
   --emerald-disabled: #3a5a40;
 
   /* Text */
-  --text-primary: #e8dcc8;
-  --text-secondary: #a89b8c;
-  --text-muted: #6b6157;
+  --text-primary: #e0e0e0;
+  --text-secondary: #a0a0a0;
+  --text-muted: #606060;
   --text-gold: #c9a84c;
 
   /* Danger / Full */
@@ -39,9 +48,9 @@
   --red-glow: rgba(192, 57, 43, 0.3);
 
   /* Misc */
-  --border-radius-sm: 4px;
-  --border-radius-md: 6px;
-  --border-radius-lg: 8px;
+  --border-radius-sm: 3px;
+  --border-radius-md: 4px;
+  --border-radius-lg: 6px;
   --transition-fast: 0.2s ease;
   --transition-medium: 0.35s ease;
 
@@ -71,7 +80,7 @@ html, body {
   -moz-osx-font-smoothing: grayscale;
 }
 
-/* ── Animated Background Particles ── */
+/* ── Animated Background Particles (Military Green) ── */
 body::before {
   content: '';
   position: fixed;
@@ -82,13 +91,13 @@ body::before {
   pointer-events: none;
   z-index: 0;
   background-image:
-    radial-gradient(1px 1px at 10% 20%, rgba(201, 168, 76, 0.3) 0%, transparent 100%),
-    radial-gradient(1px 1px at 30% 60%, rgba(201, 168, 76, 0.2) 0%, transparent 100%),
-    radial-gradient(1px 1px at 50% 40%, rgba(201, 168, 76, 0.15) 0%, transparent 100%),
-    radial-gradient(1px 1px at 70% 80%, rgba(201, 168, 76, 0.25) 0%, transparent 100%),
-    radial-gradient(1px 1px at 90% 10%, rgba(201, 168, 76, 0.2) 0%, transparent 100%),
-    radial-gradient(1.5px 1.5px at 15% 85%, rgba(46, 204, 113, 0.15) 0%, transparent 100%),
-    radial-gradient(1.5px 1.5px at 85% 45%, rgba(46, 204, 113, 0.1) 0%, transparent 100%);
+    radial-gradient(1px 1px at 10% 20%, rgba(0, 255, 65, 0.15) 0%, transparent 100%),
+    radial-gradient(1px 1px at 30% 60%, rgba(0, 255, 65, 0.1) 0%, transparent 100%),
+    radial-gradient(1px 1px at 50% 40%, rgba(0, 255, 65, 0.08) 0%, transparent 100%),
+    radial-gradient(1px 1px at 70% 80%, rgba(0, 255, 65, 0.12) 0%, transparent 100%),
+    radial-gradient(1px 1px at 90% 10%, rgba(0, 255, 65, 0.1) 0%, transparent 100%),
+    radial-gradient(1.5px 1.5px at 15% 85%, rgba(75, 83, 32, 0.2) 0%, transparent 100%),
+    radial-gradient(1.5px 1.5px at 85% 45%, rgba(75, 83, 32, 0.15) 0%, transparent 100%);
   animation: particleDrift 30s linear infinite alternate;
 }
 
@@ -97,7 +106,7 @@ body::before {
   100% { transform: translateY(-20px); }
 }
 
-/* ── Scrollbar ── */
+/* ── Scrollbar (Military) ── */
 ::-webkit-scrollbar {
   width: 8px;
 }
@@ -105,15 +114,15 @@ body::before {
   background: var(--bg-dark);
 }
 ::-webkit-scrollbar-thumb {
-  background: var(--gold-dark);
+  background: var(--war-green);
   border-radius: 4px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: var(--gold-primary);
+  background: var(--war-green-light);
 }
 
 /* ── Selection ── */
 ::selection {
-  background: var(--gold-primary);
+  background: var(--war-accent);
   color: var(--bg-dark);
 }
