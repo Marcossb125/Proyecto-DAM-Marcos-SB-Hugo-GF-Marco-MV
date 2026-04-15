@@ -26,7 +26,6 @@
         <div class="avatar-frame">
           <div class="avatar-inner"></div>
         </div>
-        <div class="status-indicator"></div>
       </div>
       <div class="profile-info">
         <span class="profile-name">{{ playerName() }}</span>
@@ -37,38 +36,7 @@
       </div>
     </div>
 
-    <div class="action-icons">
-      <button class="action-icon-btn" id="inicio-messages" (click)="navigateTo('/lobby')">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <rect x="2" y="4" width="20" height="16" rx="2"/>
-          <path d="M22 4L12 13 2 4"/>
-        </svg>
-        <span>Mensajes</span>
-      </button>
-      <button class="action-icon-btn" id="inicio-share">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <circle cx="18" cy="5" r="3"/>
-          <circle cx="6" cy="12" r="3"/>
-          <circle cx="18" cy="19" r="3"/>
-          <line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/>
-          <line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/>
-        </svg>
-        <span>Compartir</span>
-      </button>
-      <button class="action-icon-btn" id="inicio-inventory">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <path d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/>
-        </svg>
-        <span>Inventario</span>
-      </button>
-      <button class="action-icon-btn" id="inicio-operations">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <circle cx="12" cy="12" r="3"/>
-          <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/>
-        </svg>
-        <span>Operaciones</span>
-      </button>
-    </div>
+
   </section>
 
   <!-- ═══ PARTIDA ACTIVA ═══ -->
@@ -80,29 +48,28 @@
     </div>
 
     @if (activeGame()) {
-      <div class="game-card">
-        <div class="game-card-left">
-          <div class="game-thumbnail">
-            <div class="game-thumb-icon">⚔</div>
-          </div>
-          <div class="game-details">
-            <span class="game-card-name">{{ activeGame()!.name }}</span>
-            <span class="game-card-meta">
-              #{{ activeGame()!.id }} | 
-              🎮 {{ activeGame()!.mode }} | 
-              ⏱ {{ activeGame()!.daysPassed }}d {{ activeGame()!.hoursLeft }}h | 
-              👥 {{ activeGame()!.currentPlayers }}/{{ activeGame()!.maxPlayers }}
-            </span>
-          </div>
+    <div class="game-card">
+      <div class="game-card-left">
+        <div class="game-thumbnail">
+          <div class="game-thumb-icon">⚔</div>
         </div>
-        <button class="btn-continue" (click)="continueGame()" id="inicio-continue">
-          ▶ CONTINUAR
-        </button>
+        <div class="game-details">
+          <span class="game-card-name">{{ activeGame()!.name }}</span>
+          <span class="game-card-meta">
+            #{{ activeGame()!.id }} |
+            ⏱ {{ activeGame()!.daysPassed }}d {{ activeGame()!.hoursLeft }}h |
+            👥 {{ activeGame()!.currentPlayers }}/{{ activeGame()!.maxPlayers }}
+          </span>
+        </div>
       </div>
+      <button class="btn-continue" (click)="continueGame()" id="inicio-continue">
+        ▶ CONTINUAR
+      </button>
+    </div>
     } @else {
-      <div class="no-game-card">
-        <span class="no-game-text">No tienes partidas activas</span>
-      </div>
+    <div class="no-game-card">
+      <span class="no-game-text">No tienes partidas activas</span>
+    </div>
     }
   </section>
 
@@ -120,32 +87,32 @@
   <nav class="bottom-navbar">
     <button class="navbar-btn active" id="inicio-nav-inicio">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-        <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
-        <polyline points="9 22 9 12 15 12 15 22"/>
+        <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" />
+        <polyline points="9 22 9 12 15 12 15 22" />
       </svg>
       <span>Inicio</span>
     </button>
     <button class="navbar-btn" (click)="navigateTo('/lobby')" id="inicio-nav-partidas">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-        <circle cx="12" cy="12" r="10"/>
-        <polygon points="10 8 16 12 10 16 10 8"/>
+        <circle cx="12" cy="12" r="10" />
+        <polygon points="10 8 16 12 10 16 10 8" />
       </svg>
       <span>Partidas</span>
     </button>
     <button class="navbar-btn" id="inicio-nav-categoria">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-        <line x1="8" y1="6" x2="21" y2="6"/>
-        <line x1="8" y1="12" x2="21" y2="12"/>
-        <line x1="8" y1="18" x2="21" y2="18"/>
-        <line x1="3" y1="6" x2="3.01" y2="6"/>
-        <line x1="3" y1="12" x2="3.01" y2="12"/>
-        <line x1="3" y1="18" x2="3.01" y2="18"/>
+        <line x1="8" y1="6" x2="21" y2="6" />
+        <line x1="8" y1="12" x2="21" y2="12" />
+        <line x1="8" y1="18" x2="21" y2="18" />
+        <line x1="3" y1="6" x2="3.01" y2="6" />
+        <line x1="3" y1="12" x2="3.01" y2="12" />
+        <line x1="3" y1="18" x2="3.01" y2="18" />
       </svg>
       <span>Categoría</span>
     </button>
     <button class="navbar-btn" id="inicio-nav-mensajes">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-        <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+        <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
       </svg>
       <span>Mensajes</span>
     </button>
