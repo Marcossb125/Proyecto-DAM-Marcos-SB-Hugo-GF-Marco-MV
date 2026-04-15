@@ -18,9 +18,11 @@ interface ActiveGame {
   styleUrl: './inicio.css',
 })
 export class Inicio {
+  // TODO: Replace with data from auth service / user API
   playerName = signal('Sir Lancelot');
   playerStatus = signal('EN LÍNEA');
 
+  // TODO: Fetch from backend API
   activeGame = signal<ActiveGame | null>({
     id: 1,
     name: 'Dark Crusade',
@@ -34,6 +36,7 @@ export class Inicio {
   constructor(private router: Router) {}
 
   continueGame(): void {
+    // TODO: Connect to game service to resume active game
     console.log('Continuing active game...');
   }
 
@@ -46,10 +49,12 @@ export class Inicio {
   }
 
   createGame(): void {
+    // TODO: Connect to backend API to create new game
     console.log('Creating new game...');
   }
 
   logout(): void {
+    // TODO: Connect to auth service for proper logout
     this.router.navigate(['/login']);
   }
 }

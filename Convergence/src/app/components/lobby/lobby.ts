@@ -53,21 +53,38 @@ export class Lobby {
       status: 'open',
       ping: 15,
     },
+    {
+      id: 4,
+      name: 'Operation Nightfall',
+      host: 'TacticalOps',
+      mode: 'Blitz',
+      currentPlayers: 8,
+      maxPlayers: 10,
+      status: 'open',
+      ping: 45,
+    },
   ]);
 
   constructor(private router: Router) {}
 
+  navigateTo(route: string): void {
+    this.router.navigate([route]);
+  }
+
   joinGame(game: GameSlot): void {
     if (game.status === 'open') {
       console.log(`Joining game: ${game.name}`);
+      // TODO: Connect to backend API to join game
     }
   }
 
   createGame(): void {
     console.log('Creating new game...');
+    // TODO: Connect to backend API to create game
   }
 
   logout(): void {
+    // TODO: Connect to auth service for proper logout
     this.router.navigate(['/login']);
   }
 

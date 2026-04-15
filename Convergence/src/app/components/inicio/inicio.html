@@ -1,5 +1,9 @@
 <div class="inicio-wrapper">
 
+  <!-- ═══ TACTICAL GRID BACKGROUND ═══ -->
+  <div class="tactical-grid"></div>
+  <div class="scanline"></div>
+
   <!-- ═══ BANNER ═══ -->
   <section class="banner-section">
     <div class="banner-overlay"></div>
@@ -121,7 +125,7 @@
       </svg>
       <span>Inicio</span>
     </button>
-    <button class="navbar-btn" (click)="showAllGames()" id="inicio-nav-partidas">
+    <button class="navbar-btn" (click)="navigateTo('/lobby')" id="inicio-nav-partidas">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
         <circle cx="12" cy="12" r="10"/>
         <polygon points="10 8 16 12 10 16 10 8"/>
