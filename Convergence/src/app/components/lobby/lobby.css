@@ -1,4 +1,4 @@
-/* ═══════════════════════════════════════════════════════════════
+/* ═══════════════════════════════════════════════════════════════ 
    LOBBY COMPONENT — TACTICAL SONAR & WAR ROOM (UNIFICADO)
    ═══════════════════════════════════════════════════════════════ */
 
@@ -6,9 +6,7 @@
   --war-green: #4b5320;
   --war-green-light: #828a5e;
   --war-accent: #00ff41;
-  /* Verde Radar */
   --war-alert: #d35400;
-  /* Naranja Alerta */
   --war-steel: #2c2c2c;
   --war-bg: #0a0b0a;
 
@@ -23,7 +21,7 @@
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 }
 
-/* ── CONTENEDOR PRINCIPAL CON RADAR ── */
+/* ── CONTENEDOR PRINCIPAL ── */
 .lobby-wrapper {
   display: flex;
   flex-direction: column;
@@ -32,7 +30,6 @@
   overflow: hidden;
   animation: fadeIn 0.5s ease-out;
 
-  /* Rejilla de coordenadas */
   background:
     radial-gradient(circle at center, transparent 30%, var(--war-bg) 95%),
     linear-gradient(rgba(0, 255, 65, 0.04) 1px, transparent 1px),
@@ -40,44 +37,11 @@
   background-size: 100% 100%, 35px 35px, 35px 35px;
 }
 
-/* Mapa topográfico sutil de fondo */
-.lobby-wrapper::before {
-  content: "";
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background-image: url('https://img.freepik.com/free-vector/topographic-map-background-concept_23-2148591340.jpg?semt=ais_hybrid');
-  background-size: cover;
-  background-position: center;
-  opacity: 0.08;
-  filter: sepia(100%) saturate(150%) hue-rotate(80deg) invert(100%) opacity(30%);
-  pointer-events: none;
-  z-index: -2;
-}
-
-/* LÍNEA DE ESCANEO (Sincronizada) */
-.lobby-wrapper::after {
-  content: "";
-  position: fixed;
-  top: -10%;
-  left: 0;
-  width: 100vw;
-  height: 3px;
-  background: var(--war-accent);
-  box-shadow: 0 0 20px var(--war-accent), 0 -5px 15px rgba(0, 255, 65, 0.3);
-  opacity: 0.25;
-  animation: radarScanFull 9s linear infinite;
-  pointer-events: none;
-  z-index: -1;
-}
-
-/* ═══ HEADER (Centro de Mando) ═══ */
+/* ═══ HEADER ═══ */
 .lobby-header {
-  display: flex;
+  display: grid;
+  grid-template-columns: auto 1fr auto;
   align-items: center;
-  justify-content: space-between;
   padding: 0.75rem 2rem;
   background: rgba(20, 20, 20, 0.9);
   border-bottom: 3px solid var(--war-green);
@@ -86,79 +50,156 @@
   top: 0;
   z-index: 10;
   backdrop-filter: blur(10px);
+
+  position: relative;
+  /* 🔥 necesario para centrado real */
 }
 
-/* Contenedor derecho para empujar perfil y logout */
-.header-right {
+/* ICONO IZQUIERDA */
+.brand-left {
   display: flex;
   align-items: center;
-  gap: 1.5rem;
-  flex: 1;
-  justify-content: flex-end;
-  /* BOTÓN ROJO A LA DERECHA DEL TODO */
 }
 
 .brand-icon {
-  width: 28px;
-  height: 28px;
-  color: var(--war-accent);
-  filter: drop-shadow(0 0 5px var(--war-accent));
+  width: 32px;
+  height: 32px;
+  background: radial-gradient(circle, var(--war-accent), transparent 70%);
+  border: 1px solid var(--war-accent);
+  box-shadow: 0 0 10px var(--war-accent);
+  position: relative;
 }
 
+.brand-icon::after {
+  content: "";
+  position: absolute;
+  inset: 4px;
+  border: 1px solid rgba(0, 255, 65, 0.5);
+}
+
+/* 🔥 CENTRO PERFECTAMENTE CENTRADO */
+.nav-center {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+
+  display: flex;
+  align-items: center;
+  gap: 2rem;
+}
+
+/* BOTONES */
+.nav-left,
+.nav-right {
+  display: flex;
+  gap: 1rem;
+}
+
+.nav-btn {
+  background: transparent;
+  border: 1px solid var(--war-green);
+  color: var(--war-green-light);
+  padding: 0.4rem 0.8rem;
+  font-family: var(--font-pixel);
+  font-size: 0.55rem;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.nav-btn:hover {
+  color: var(--war-accent);
+  border-color: var(--war-accent);
+  box-shadow: 0 0 8px var(--war-accent);
+}
+
+/* CONVERGENCIA */
 .brand-text {
   font-family: var(--font-pixel);
-  font-size: 0.65rem;
-  color: var(--war-green-light);
-  letter-spacing: 3px;
-  text-transform: uppercase;
+  font-size: 0.9rem;
+  color: var(--war-accent);
+  letter-spacing: 6px;
+  position: relative;
+
+  text-shadow:
+    0 0 5px var(--war-accent),
+    0 0 10px var(--war-accent),
+    0 0 20px rgba(0, 255, 65, 0.5);
+
 }
 
-/* Perfil de Usuario */
+@keyframes pulseText {
+  0% {
+    text-shadow: 0 0 5px var(--war-accent);
+  }
+
+  50% {
+    text-shadow: 0 0 20px var(--war-accent);
+  }
+
+  100% {
+    text-shadow: 0 0 5px var(--war-accent);
+  }
+}
+
+/* DERECHA */
+.header-right {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  justify-self: end;
+}
+
+/* USER */
 .user-profile {
   display: flex;
   align-items: center;
-  gap: 0.75rem;
-  padding: 0.4rem 0.75rem;
+  gap: 0.5rem;
+  padding: 0.25rem 0.5rem;
   background: rgba(0, 0, 0, 0.5);
   border: 1px solid var(--war-green);
   border-radius: 2px;
+  transform: scale(0.85);
 }
 
 .avatar {
-  width: 40px;
-  height: 40px;
+  width: 28px;
+  height: 28px;
   border: 1px solid var(--war-green-light);
   border-radius: 2px;
-  overflow: hidden;
 }
 
 .user-name {
-  font-size: 0.85rem;
-  color: #fff;
-  text-transform: uppercase;
+  font-size: 0.7rem;
   font-weight: bold;
 }
 
 .level-badge {
-  background: var(--war-green);
-  color: white;
-  padding: 0.2rem 0.5rem;
-  font-family: var(--font-pixel);
-  font-size: 0.5rem;
-  clip-path: polygon(10% 0, 100% 0, 90% 100%, 0 100%);
+  font-size: 0.45rem;
+  padding: 0.15rem 0.4rem;
 }
 
+/* 🔥 LOGOUT ROJO PRO */
 .btn-logout {
   width: 36px;
   height: 36px;
-  background: rgba(192, 57, 43, 0.1);
-  border: 1px solid rgba(192, 57, 43, 0.5);
+  background: rgba(231, 76, 60, 0.1);
+  border: 1px solid #e74c3c;
   color: #e74c3c;
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
-  border-radius: 4px;
+  border-radius: 10px;
+
+  box-shadow: 0 0 8px rgba(231, 76, 60, 0.4);
+  transition: all 0.2s;
+}
+
+.btn-logout:hover {
+  background: #e74c3c;
+  color: #000;
+  box-shadow: 0 0 15px #e74c3c;
+  transform: scale(1.1);
 }
 
 /* ═══ PANEL CENTRAL (Operaciones) ═══ */
