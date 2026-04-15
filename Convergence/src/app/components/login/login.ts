@@ -29,7 +29,7 @@ export class Login {
     // Simulate login delay
     setTimeout(() => {
       this.isLoading.set(false);
-      this.router.navigate(['/lobby']);
+      this.router.navigate(['/inicio']);
     }, 1200);
   }
 }
