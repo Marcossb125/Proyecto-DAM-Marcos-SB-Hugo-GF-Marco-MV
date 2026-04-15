@@ -15,6 +15,7 @@ export interface Partida {
 })
 export class PartidaService {
   private readonly STORAGE_KEY = 'convergence_partidas';
+  private readonly STORAGE_KEY_users = 'convergence_users';
 
   /**
    * Obtiene todas las partidas guardadas en localStorage.
@@ -49,5 +50,26 @@ export class PartidaService {
       return 1;
     }
     return Math.max(...partidas.map((p) => p.id)) + 1;
+  }
+
+  guardarUsuario(usuario: any): void {
+    const usuarios = this.obtenerUsuarios();
+    usuarios.push(usuario);
+    localStorage.setItem(this.STORAGE_KEY_users, JSON.stringify(usuarios));
+  }
+
+  /**
+   * Obtiene todos los usuarios guardados en localStorage.
+   */
+  obtenerUsuarios(): any[] {
+    const data = localStorage.getItem(this.STORAGE_KEY_users);
+    if (!data) {
+      return [];
+    }
+    try {
+      return JSON.parse(data) as any[];
+    } catch {
+      return [];
+    }
   }
 }

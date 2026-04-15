@@ -1,6 +1,7 @@
 import { Component, signal } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
 import { FormsModule } from '@angular/forms';
+import { PartidaService } from '../../servicios/partida.service';
 
 @Component({
   selector: 'app-login',
@@ -14,7 +15,7 @@ export class Login {
   isLoading = signal(false);
   errorMessage = signal('');
 
-  constructor(private router: Router) {}
+  constructor(private router: Router, private partidaService: PartidaService) { }
 
   onLogin(): void {
     this.errorMessage.set('');
@@ -26,10 +27,12 @@ export class Login {
 
     this.isLoading.set(true);
 
-    // Simulate login delay
-    setTimeout(() => {
-      this.isLoading.set(false);
-      this.router.navigate(['/inicio']);
-    }, 1200);
+    this.partidaService.obtenerUsuarios().forEach((usuario) => {
+      if (usuario.username === this.username() && usuario.password === this.password()) {
+        this.router.navigate(['/inicio']);
+      } else {
+
+      }
+    });
   }
 }
