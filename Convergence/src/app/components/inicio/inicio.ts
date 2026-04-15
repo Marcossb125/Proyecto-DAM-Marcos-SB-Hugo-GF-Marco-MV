@@ -1,5 +1,8 @@
 import { Component, signal } from '@angular/core';
 import { Router } from '@angular/router';
+import { MatButtonModule } from '@angular/material/button';
+import { MatIconModule } from '@angular/material/icon';
+import { MatBadgeModule } from '@angular/material/badge';
 
 interface ActiveGame {
   id: number;
@@ -13,7 +16,7 @@ interface ActiveGame {
 
 @Component({
   selector: 'app-inicio',
-  imports: [],
+  imports: [MatButtonModule, MatIconModule, MatBadgeModule],
   templateUrl: './inicio.html',
   styleUrl: './inicio.css',
 })
@@ -33,7 +36,7 @@ export class Inicio {
     hoursLeft: 2,
   });
 
-  constructor(private router: Router) {}
+  constructor(private router: Router) { }
 
   continueGame(): void {
     // TODO: Connect to game service to resume active game
@@ -56,5 +59,7 @@ export class Inicio {
   logout(): void {
     // TODO: Connect to auth service for proper logout
     this.router.navigate(['/login']);
+    console.log('Cerrando sesión táctica...');
   }
+
 }

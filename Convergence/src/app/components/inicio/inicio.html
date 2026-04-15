@@ -1,3 +1,13 @@
+<div class="top-right-actions">
+  <button mat-icon-button class="nav-button">
+    <mat-icon matBadgeColor="warn">notifications</mat-icon>
+  </button>
+
+  <button mat-icon-button class="nav-button" (click)="logout()">
+    <mat-icon>logout</mat-icon>
+  </button>
+</div>
+
 <div class="inicio-wrapper">
 
   <!-- ═══ TACTICAL GRID BACKGROUND ═══ -->
@@ -76,10 +86,7 @@
   <!-- ═══ BOTONES PRINCIPALES ═══ -->
   <section class="main-actions-section">
     <button class="btn-main btn-show-all" (click)="showAllGames()" id="inicio-show-all">
-      MOSTRAR TODO
-    </button>
-    <button class="btn-main btn-new-game" (click)="createGame()" id="inicio-new-game">
-      UNIRSE DE NUEVAS
+      IR A PARTIDAS
     </button>
   </section>
 

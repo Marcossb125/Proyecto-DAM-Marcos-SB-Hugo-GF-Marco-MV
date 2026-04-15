@@ -4,6 +4,7 @@
    ═══════════════════════════════════════════════════════════════════ */
 
 @import url('https://fonts.googleapis.com/css2?family=MedievalSharp&family=Press+Start+2P&family=Inter:wght@400;500;600;700&display=swap');
+@import '@angular/material/prebuilt-themes/purple-green.css';
 
 /* ── CSS Custom Properties (Design Tokens) ── */
 :root {

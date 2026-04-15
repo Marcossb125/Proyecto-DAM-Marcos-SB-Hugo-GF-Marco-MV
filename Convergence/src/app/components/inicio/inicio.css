@@ -1,6 +1,39 @@
 /* ═══════════════════════════════════════════════════════════════
    INICIO COMPONENT — Call of War Layout + Lobby Military Palette
    ═══════════════════════════════════════════════════════════════ */
+.top-right-actions {
+  position: absolute;
+  top: 20px;
+  /* Ajusta según la altura de tu logo */
+  right: 20px;
+  /* Margen desde el borde derecho */
+  display: flex;
+  gap: 10px;
+  /* Espacio entre los dos botones */
+  z-index: 100;
+  /* Asegura que esté por encima del fondo */
+}
+
+/* Estilo personalizado para encajar con tu temática verde */
+.nav-button {
+  color: #00ff41 !important;
+  /* El verde neón de tu interfaz */
+  transition: all 0.3s ease;
+
+  &:hover {
+    background-color: rgba(0, 255, 65, 0.1);
+    /* Efecto glow al pasar el mouse */
+    transform: scale(1.1);
+  }
+}
+
+/* Si usas Badge, esto lo hace ver más "militar" */
+::ng-deep .mat-badge-content {
+  background-color: #ff003c !important;
+  /* Rojo vibrante para alertas */
+  font-family: 'Courier New', monospace;
+  /* O la fuente pixel que usas */
+}
 
 :host {
   --war-green: #4b5320;
@@ -28,7 +61,8 @@
   display: flex;
   flex-direction: column;
   min-height: 100vh;
-  padding-bottom: 80px; /* espacio para el navbar fijo */
+  padding-bottom: 80px;
+  /* espacio para el navbar fijo */
   position: relative;
   overflow: hidden;
   animation: fadeIn 0.5s ease-out;
@@ -59,8 +93,13 @@
 }
 
 @keyframes scanDown {
-  0% { top: -5%; }
-  100% { top: 105%; }
+  0% {
+    top: -5%;
+  }
+
+  100% {
+    top: 105%;
+  }
 }
 
 /* ═══════════════════════════════════════
@@ -132,8 +171,15 @@
 }
 
 @keyframes emblemPulse {
-  0%, 100% { box-shadow: 0 0 15px rgba(0, 255, 65, 0.3), inset 0 0 10px rgba(0, 255, 65, 0.1); }
-  50% { box-shadow: 0 0 30px rgba(0, 255, 65, 0.5), inset 0 0 20px rgba(0, 255, 65, 0.2); }
+
+  0%,
+  100% {
+    box-shadow: 0 0 15px rgba(0, 255, 65, 0.3), inset 0 0 10px rgba(0, 255, 65, 0.1);
+  }
+
+  50% {
+    box-shadow: 0 0 30px rgba(0, 255, 65, 0.5), inset 0 0 20px rgba(0, 255, 65, 0.2);
+  }
 }
 
 .banner-title {
@@ -150,20 +196,25 @@
 .banner-divider {
   width: 180px;
   height: 2px;
-  background: linear-gradient(
-    90deg,
-    transparent 0%,
-    var(--war-green-light) 30%,
-    var(--war-accent) 50%,
-    var(--war-green-light) 70%,
-    transparent 100%
-  );
+  background: linear-gradient(90deg,
+      transparent 0%,
+      var(--war-green-light) 30%,
+      var(--war-accent) 50%,
+      var(--war-green-light) 70%,
+      transparent 100%);
   animation: shimmerGreen 3s ease-in-out infinite;
 }
 
 @keyframes shimmerGreen {
-  0%, 100% { opacity: 0.5; }
-  50% { opacity: 1; }
+
+  0%,
+  100% {
+    opacity: 0.5;
+  }
+
+  50% {
+    opacity: 1;
+  }
 }
 
 .banner-subtitle {
@@ -258,8 +309,15 @@
 }
 
 @keyframes statusPulse {
-  0%, 100% { opacity: 1; }
-  50% { opacity: 0.4; }
+
+  0%,
+  100% {
+    opacity: 1;
+  }
+
+  50% {
+    opacity: 0.4;
+  }
 }
 
 /* Action Icons Row */
@@ -554,8 +612,13 @@
 
 /* ═══ ANIMATIONS ═══ */
 @keyframes fadeIn {
-  from { opacity: 0; }
-  to { opacity: 1; }
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
 }
 
 /* ═══ RESPONSIVE ═══ */
