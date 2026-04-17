@@ -1,0 +1,152 @@
+<div class="top-right-actions">
+  <button mat-icon-button class="nav-button">
+    <mat-icon matBadgeColor="warn">notifications</mat-icon>
+  </button>
+
+  <button mat-icon-button class="nav-button" (click)="logout()">
+    <mat-icon>logout</mat-icon>
+  </button>
+</div>
+
+<div class="personajes-wrapper">
+
+  <!-- ═══ TACTICAL GRID BACKGROUND ═══ -->
+  <div class="tactical-grid"></div>
+  <div class="scanline"></div>
+
+  <!-- ═══ BANNER ═══ -->
+  <section class="banner-section">
+    <div class="banner-overlay"></div>
+    <div class="banner-grid"></div>
+    <div class="banner-content">
+      <div class="brand-emblem">
+        <div class="emblem-ring"></div>
+        <div class="emblem-core"></div>
+      </div>
+      <h1 class="banner-title">CONVERGENCE</h1>
+      <div class="banner-divider"></div>
+      <span class="banner-subtitle">SELECCIÓN DE OPERATIVOS</span>
+    </div>
+  </section>
+
+  <!-- ═══ SECTION HEADER ═══ -->
+  <section class="characters-header">
+    <div class="section-header">
+      <div class="section-title-line"></div>
+      <h2 class="section-title">ELIGE TU OPERATIVO</h2>
+      <div class="section-title-line"></div>
+    </div>
+    <p class="section-desc">Cada operativo tiene habilidades únicas que afectan tus batallas</p>
+  </section>
+
+  <!-- ═══ CHARACTER CARDS (4 en fila, verticales) ═══ -->
+  <section class="characters-row">
+    @for (character of characters(); track character.id) {
+    <div
+      class="character-card"
+      [class.selected]="character.selected"
+      (click)="selectCharacter(character)"
+      id="personaje-card-{{ character.id }}"
+    >
+      <div class="card-glow"></div>
+
+      <!-- Avatar -->
+      <div class="card-avatar">
+        <div class="avatar-circle">
+          <span class="avatar-emoji">{{ character.avatar }}</span>
+        </div>
+      </div>
+
+      <!-- Nombre y codename -->
+      <span class="char-codename">{{ character.codename }}</span>
+      <h3 class="char-name">{{ character.name }}</h3>
+      <span class="char-rank">{{ character.rank }}</span>
+
+      <!-- Bonuses (Hover Tooltips) -->
+      <div class="bonus-list">
+        @for (bonus of character.bonuses; track bonus.name) {
+        <div class="bonus-item-wrapper tooltip-container">
+          <div class="bonus-item">
+            <span class="bonus-icon">{{ bonus.icon }}</span>
+            <span class="bonus-value">{{ bonus.value }}</span>
+          </div>
+          <div class="tooltip-box">
+            <span class="tooltip-name">{{ bonus.name }}</span>
+            <p class="tooltip-desc">{{ bonus.description }}</p>
+          </div>
+        </div>
+        }
+      </div>
+
+      <!-- Check seleccionado -->
+      @if (character.selected) {
+      <div class="selected-check">✓</div>
+      }
+    </div>
+    }
+  </section>
+
+  <!-- ═══ CONFIRMAR OPERATIVO (justo debajo) ═══ -->
+  @if (selectedCharacter()) {
+  <section class="confirm-section">
+    <div class="confirm-card">
+      <div class="confirm-top">
+        <span class="confirm-avatar">{{ selectedCharacter()!.avatar }}</span>
+        <div class="confirm-info">
+          <span class="confirm-name">{{ selectedCharacter()!.name }}</span>
+          <span class="confirm-detail">{{ selectedCharacter()!.rank }} · {{ selectedCharacter()!.specialty }}</span>
+        </div>
+      </div>
+      <div class="confirm-bonuses">
+        @for (bonus of selectedCharacter()!.bonuses; track bonus.name) {
+        <span class="confirm-bonus">{{ bonus.icon }} {{ bonus.name }} <strong>{{ bonus.value }}</strong></span>
+        }
+      </div>
+      <button class="btn-deploy" id="personajes-deploy">▶ CONFIRMAR OPERATIVO</button>
+    </div>
+  </section>
+  }
+
+  <!-- ═══ NAVBAR INFERIOR ═══ -->
+  <nav class="bottom-navbar">
+    <button class="navbar-btn" (click)="navigateTo('/inicio')" id="personajes-nav-inicio">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" />
+        <polyline points="9 22 9 12 15 12 15 22" />
+      </svg>
+      <span>Inicio</span>
+    </button>
+    <button class="navbar-btn" (click)="navigateTo('/lobby')" id="personajes-nav-partidas">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <circle cx="12" cy="12" r="10" />
+        <polygon points="10 8 16 12 10 16 10 8" />
+      </svg>
+      <span>Partidas</span>
+    </button>
+    <button class="navbar-btn active" id="personajes-nav-personajes">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
+        <circle cx="12" cy="7" r="4" />
+      </svg>
+      <span>Personajes</span>
+    </button>
+    <button class="navbar-btn" id="personajes-nav-categoria">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <line x1="8" y1="6" x2="21" y2="6" />
+        <line x1="8" y1="12" x2="21" y2="12" />
+        <line x1="8" y1="18" x2="21" y2="18" />
+        <line x1="3" y1="6" x2="3.01" y2="6" />
+        <line x1="3" y1="12" x2="3.01" y2="12" />
+        <line x1="3" y1="18" x2="3.01" y2="18" />
+      </svg>
+      <span>Categoría</span>
+    </button>
+    <button class="navbar-btn" id="personajes-nav-mensajes">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
+      </svg>
+      <span>Mensajes</span>
+    </button>
+  </nav>
+
+</div>
