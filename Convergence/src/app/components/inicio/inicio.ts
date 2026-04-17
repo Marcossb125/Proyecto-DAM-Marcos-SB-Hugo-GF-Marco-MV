@@ -3,6 +3,7 @@ import { Router } from '@angular/router';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatBadgeModule } from '@angular/material/badge';
+import { PartidaService } from '../../servicios/partida.service';
 
 interface ActiveGame {
   id: number;
@@ -22,7 +23,7 @@ interface ActiveGame {
 })
 export class Inicio {
   // TODO: Replace with data from auth service / user API
-  playerName = signal('Sir Lancelot');
+  playerName = signal("Sir lancelot");
   playerStatus = signal('EN LÍNEA');
 
   // TODO: Fetch from backend API
@@ -36,7 +37,13 @@ export class Inicio {
     hoursLeft: 2,
   });
 
-  constructor(private router: Router) { }
+  constructor(private router: Router, private partidaService: PartidaService) { }
+
+  ngOnInit(): void {
+    this.playerName.set(this.partidaService.obtenerNombreUsuario());
+  }
+
+
 
   continueGame(): void {
     // TODO: Connect to game service to resume active game

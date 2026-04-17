@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { io, Socket } from 'socket.io-client';
-
+import { Observable } from 'rxjs';
 
 export interface Partida {
   id: number;
@@ -18,6 +18,7 @@ export interface Partida {
 export class PartidaService {
   private readonly STORAGE_KEY = 'convergence_partidas';
   private readonly STORAGE_KEY_users = 'convergence_users';
+  private readonly STORAGE_KEY_user = 'convergence_user';
 
   /**
    * Obtiene todas las partidas guardadas en localStorage.
@@ -73,5 +74,11 @@ export class PartidaService {
     } catch {
       return [];
     }
+  }
+  guardarNombreUsuario(nombre: string): void {
+    localStorage.setItem(this.STORAGE_KEY_user, nombre);
+  }
+  obtenerNombreUsuario(): string {
+    return localStorage.getItem(this.STORAGE_KEY_user) || '';
   }
 }

@@ -29,6 +29,7 @@ export class Login {
 
     this.partidaService.obtenerUsuarios().forEach((usuario) => {
       if (usuario.username === this.username() && usuario.password === this.password()) {
+        this.partidaService.guardarNombreUsuario(this.username());
         this.router.navigate(['/inicio']);
       } else {
         this.errorMessage.set('Usuario o contraseña incorrectos.');
