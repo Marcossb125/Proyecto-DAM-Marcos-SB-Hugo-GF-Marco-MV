@@ -1,4 +1,6 @@
 import { Injectable } from '@angular/core';
+import { io, Socket } from 'socket.io-client';
+
 
 export interface Partida {
   id: number;
