@@ -1,0 +1,48 @@
+<div class="flag-builder-overlay">
+  <div class="flag-builder-modal">
+    <div class="modal-header">
+      <h3>CREADOR DE BANDERAS</h3>
+      <button class="btn-close" (click)="onCancel()">X</button>
+    </div>
+    
+    <div class="modal-body">
+      <div class="preview-section">
+        <app-nation-flag
+          width="180px"
+          height="120px"
+          [flagData]="draftData">
+        </app-nation-flag>
+      </div>
+
+      <div class="form-section">
+        <div class="form-group">
+          <label>Nombre de la Facción</label>
+          <input type="text" [(ngModel)]="draftData.nombre" class="tactical-input" placeholder="Nombre">
+        </div>
+
+        <div class="form-group">
+          <label>Diseño (Layout)</label>
+          <select [(ngModel)]="draftData.layout" class="tactical-input">
+            @for (l of layouts; track l.value) {
+              <option [value]="l.value">{{ l.label }}</option>
+            }
+          </select>
+        </div>
+
+        <div class="colors-section">
+          <label>Colores</label>
+          <div class="color-inputs">
+            @for (i of neededColors; track i) {
+              <input type="color" [(ngModel)]="draftData.colors[i]" class="color-picker">
+            }
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="modal-footer">
+      <button class="btn-tactical outline" (click)="onCancel()">CANCELAR</button>
+      <button class="btn-tactical save" (click)="onSave()">GUARDAR</button>
+    </div>
+  </div>
+</div>
