@@ -37,12 +37,34 @@
           <div class="avatar-inner"></div>
         </div>
       </div>
-      <div class="profile-info">
-        <span class="profile-name">{{ playerName() }}</span>
-        <span class="profile-status">
-          <span class="status-dot"></span>
-          {{ playerStatus() }}
-        </span>
+      <div class="profile-details-column">
+        <div class="profile-info">
+          <span class="profile-name">{{ playerName() }}</span>
+          <span class="profile-status">
+            <span class="status-dot"></span>
+            {{ playerStatus() }}
+          </span>
+        </div>
+
+        <!-- ═══ NATION FLAG AREA ═══ -->
+        <div class="nation-flag-area">
+          @if (nationData()) {
+            <div class="flag-display" (click)="openFlagBuilder()" role="button" tabindex="0" title="Editar Bandera">
+              <app-nation-flag [flagData]="nationData()!"></app-nation-flag>
+            </div>
+            <div class="nation-name-line">
+              <div class="sci-fi-line"></div>
+              <span class="nation-name">{{ nationData()!.nombre }}</span>
+            </div>
+          } @else {
+            <div class="flag-placeholder" (click)="openFlagBuilder()" role="button" tabindex="0" title="Crear Bandera">
+              <mat-icon>add</mat-icon>
+            </div>
+            <div class="nation-name-line empty">
+              <div class="sci-fi-line"></div>
+            </div>
+          }
+        </div>
       </div>
     </div>
 
@@ -125,4 +147,11 @@
     </button>
   </nav>
 
+  @if (isEditingFlag()) {
+    <app-flag-builder 
+      [initialData]="nationData()"
+      (saveFlag)="saveFlag($event)"
+      (cancel)="cancelFlagEdit()">
+    </app-flag-builder>
+  }
 </div>

@@ -3,7 +3,8 @@ import { Router } from '@angular/router';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatBadgeModule } from '@angular/material/badge';
-
+import { NationFlag, NationData } from '../nation-flag/nation-flag';
+import { FlagBuilder } from '../flag-builder/flag-builder';
 interface ActiveGame {
   id: number;
   name: string;
@@ -16,7 +17,7 @@ interface ActiveGame {
 
 @Component({
   selector: 'app-inicio',
-  imports: [MatButtonModule, MatIconModule, MatBadgeModule],
+  imports: [MatButtonModule, MatIconModule, MatBadgeModule, NationFlag, FlagBuilder],
   templateUrl: './inicio.html',
   styleUrl: './inicio.css',
 })
@@ -24,6 +25,9 @@ export class Inicio {
   // TODO: Replace with data from auth service / user API
   playerName = signal('Sir Lancelot');
   playerStatus = signal('EN LÍNEA');
+
+  nationData = signal<NationData | null>(null);
+  isEditingFlag = signal<boolean>(false);
 
   // TODO: Fetch from backend API
   activeGame = signal<ActiveGame | null>({
@@ -62,4 +66,16 @@ export class Inicio {
     console.log('Cerrando sesión táctica...');
   }
 
+  openFlagBuilder(): void {
+    this.isEditingFlag.set(true);
+  }
+
+  saveFlag(data: NationData): void {
+    this.nationData.set(data);
+    this.isEditingFlag.set(false);
+  }
+
+  cancelFlagEdit(): void {
+    this.isEditingFlag.set(false);
+  }
 }

@@ -309,15 +309,115 @@
 }
 
 @keyframes statusPulse {
-
   0%,
   100% {
     opacity: 1;
   }
-
   50% {
     opacity: 0.4;
   }
+}
+
+.profile-details-column {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+/* ═══ NATION FLAG AREA ═══ */
+.nation-flag-area {
+  display: flex;
+  align-items: center;
+  margin-left: 0;
+  gap: 15px;
+}
+
+.flag-display {
+  cursor: pointer;
+  border-radius: 4px;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.flag-display:hover {
+  transform: scale(1.05);
+  box-shadow: 0 0 10px rgba(0, 255, 65, 0.4);
+}
+
+.flag-placeholder {
+  width: 60px;
+  height: 40px;
+  border: 1px dashed var(--war-accent);
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  background: rgba(0, 255, 65, 0.05);
+  color: var(--war-accent);
+  box-shadow: 0 0 5px rgba(0, 255, 65, 0.2);
+  animation: pulseNeon 2s infinite alternate;
+}
+
+.flag-placeholder:hover {
+  background: rgba(0, 255, 65, 0.15);
+  box-shadow: 0 0 15px rgba(0, 255, 65, 0.6);
+}
+
+@keyframes pulseNeon {
+  from {
+    box-shadow: 0 0 5px rgba(0, 255, 65, 0.2);
+    border-color: rgba(0, 255, 65, 0.4);
+  }
+  to {
+    box-shadow: 0 0 12px rgba(0, 255, 65, 0.8);
+    border-color: var(--war-accent);
+  }
+}
+
+.nation-name-line {
+  display: flex;
+  align-items: center;
+}
+
+.nation-name {
+  font-family: var(--font-pixel, 'Press Start 2P', monospace);
+  font-size: 0.85rem;
+  font-weight: bold;
+  color: #fff;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  margin-left: 15px;
+  text-shadow: 0 0 5px rgba(255, 255, 255, 0.3);
+}
+
+.sci-fi-line {
+  width: 60px;
+  height: 2px;
+  background: var(--war-accent);
+  position: relative;
+  box-shadow: 0 0 8px var(--war-accent);
+}
+
+.sci-fi-line::after {
+  content: '';
+  position: absolute;
+  right: -5px;
+  top: -4px;
+  width: 8px;
+  height: 8px;
+  background: transparent;
+  border: 1.5px solid var(--war-accent);
+  transform: rotate(45deg);
+  box-shadow: 0 0 5px var(--war-accent);
+}
+
+.nation-name-line.empty .sci-fi-line {
+  background: var(--war-green);
+  box-shadow: none;
+}
+.nation-name-line.empty .sci-line::after {
+  border-color: var(--war-green);
+  box-shadow: none;
 }
 
 /* Action Icons Row */
