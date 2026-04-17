@@ -22,5 +22,10 @@ export const routes: Routes = [
     loadComponent: () =>
       import('./components/lobby/lobby').then((m) => m.Lobby),
   },
+  {
+    path: 'personajes',
+    loadComponent: () =>
+      import('./components/personajes/personajes').then((m) => m.Personajes),
+  },
   { path: '**', redirectTo: 'login' },
 ];
