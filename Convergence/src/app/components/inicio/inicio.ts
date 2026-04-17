@@ -3,13 +3,10 @@ import { Router } from '@angular/router';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatBadgeModule } from '@angular/material/badge';
-<<<<<<< HEAD
 import { PartidaService } from '../../servicios/partida.service';
-
-=======
 import { NationFlag, NationData } from '../nation-flag/nation-flag';
 import { FlagBuilder } from '../flag-builder/flag-builder';
->>>>>>> 449130d49066c660fa9f898fc9cbc0a0963ae0b0
+
 interface ActiveGame {
   id: number;
   name: string;
