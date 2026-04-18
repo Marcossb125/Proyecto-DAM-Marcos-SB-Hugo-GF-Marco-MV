@@ -1,3 +1,8 @@
+@media (max-width: 480px) {
+  .bottom-navbar .navbar-btn span {
+    display: none;
+  }
+}
 /* ═══════════════════════════════════════════════════════════════
    INICIO COMPONENT — Call of War Layout + Lobby Military Palette
    ═══════════════════════════════════════════════════════════════ */

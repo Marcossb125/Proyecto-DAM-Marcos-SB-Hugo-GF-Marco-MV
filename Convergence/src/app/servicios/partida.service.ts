@@ -16,6 +16,15 @@ export interface Partida {
   providedIn: 'root',
 })
 export class PartidaService {
+
+    /**
+     * Elimina una partida por su id del localStorage.
+     */
+    eliminarPartidaPorId(id: number): void {
+      const partidas = this.obtenerPartidas();
+      const nuevasPartidas = partidas.filter((p) => p.id !== id);
+      localStorage.setItem(this.STORAGE_KEY, JSON.stringify(nuevasPartidas));
+    }
   private readonly STORAGE_KEY = 'convergence_partidas';
   private readonly STORAGE_KEY_users = 'convergence_users';
   private readonly STORAGE_KEY_user = 'convergence_user';

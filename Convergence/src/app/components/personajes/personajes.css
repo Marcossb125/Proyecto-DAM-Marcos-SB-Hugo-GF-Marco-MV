@@ -1,3 +1,8 @@
+@media (max-width: 480px) {
+  .bottom-navbar .navbar-btn span {
+    display: none;
+  }
+}
 /* ═══════════════════════════════════════════════════════════════
    PERSONAJES COMPONENT — Compact Vertical Cards in Row
    ═══════════════════════════════════════════════════════════════ */

@@ -1,4 +1,4 @@
-import { Component, signal, OnInit } from '@angular/core';
+import { Component, signal, OnInit, computed } from '@angular/core';
 import { Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { PartidaService, Partida } from '../../servicios/partida.service';
@@ -10,8 +10,39 @@ import { PartidaService, Partida } from '../../servicios/partida.service';
   styleUrl: './lobby.css',
 })
 export class Lobby implements OnInit {
+
+  /**
+   * Elimina una partida del storage y actualiza la lista.
+   */
+  deleteGame(game: Partida): void {
+    this.partidaService.eliminarPartidaPorId(game.id);
+    this.cargarPartidas();
+  }
+
+  
   playerName = signal('Sir Lancelot');
   playerLevel = signal(42);
+  currentPage = signal(1);
+  pageSize = 4; // partidas por página en móvil
+  isMobile = signal(false);
+
+  pagedGames = computed(() => {
+    const list = this.filteredGames();
+    if (!this.isMobile()) return list;
+    const start = (this.currentPage() - 1) * this.pageSize;
+    return list.slice(start, start + this.pageSize);
+  });
+
+  totalPages = computed(() => {
+    const list = this.filteredGames();
+    if (!this.isMobile()) return 1;
+    return Math.max(1, Math.ceil(list.length / this.pageSize));
+  });
+
+  goToPage(page: number) {
+    if (page < 1 || page > this.totalPages()) return;
+    this.currentPage.set(page);
+  }
 
   games = signal<Partida[]>([]);
 
@@ -21,6 +52,21 @@ export class Lobby implements OnInit {
   newGameMaxPlayers = 2;
   formError = signal('');
 
+  searchText = signal('');
+
+  filteredGames = computed(() => {
+    const search = this.searchText().toLowerCase();
+    return this.games().filter(game =>
+      game.name.toLowerCase().includes(search)
+    );
+  });
+
+  onSearchChange(event: Event) {
+    const value = (event.target as HTMLInputElement).value;
+    this.searchText.set(value);
+    this.currentPage.set(1); // Reiniciar a la primera página al buscar
+  }
+
   constructor(
     private router: Router,
     private partidaService: PartidaService
@@ -28,6 +74,12 @@ export class Lobby implements OnInit {
 
   ngOnInit(): void {
     this.cargarPartidas();
+    // Solo accedemos a window en el navegador
+    if (typeof window !== 'undefined') {
+      const checkMobile = () => this.isMobile.set(window.innerWidth <= 768);
+      checkMobile();
+      window.addEventListener('resize', checkMobile);
+    }
   }
 
   /**

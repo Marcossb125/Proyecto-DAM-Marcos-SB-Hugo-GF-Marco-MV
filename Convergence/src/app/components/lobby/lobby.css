@@ -1,3 +1,57 @@
+/* Botón de borrar partida */
+.btn-delete {
+  padding: 0.5rem 0.7rem;
+  background: #e74c3c;
+  border: none;
+  border-bottom: 3px solid #a93226;
+  color: #fff;
+  font-family: var(--font-pixel, 'Press Start 2P', monospace);
+  font-size: 0.45rem;
+  letter-spacing: 1px;
+  cursor: pointer;
+  border-radius: 3px;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-left: 0.3rem;
+}
+.btn-delete:hover {
+  background: #c0392b;
+  box-shadow: 0 0 10px rgba(231, 76, 60, 0.2);
+  transform: translateY(-1px) scale(1.08);
+}
+/* PAGINACIÓN EN MÓVIL */
+.pagination-bar {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 1rem;
+  margin: 0.7rem 0 0.5rem 0;
+}
+.pagination-btn {
+  background: var(--war-panel);
+  border: 2px solid var(--war-green);
+  color: var(--war-accent);
+  font-family: var(--font-pixel, 'Press Start 2P', monospace);
+  font-size: 0.7rem;
+  border-radius: 3px;
+  padding: 0.3rem 0.8rem;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.pagination-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+.pagination-info {
+  color: var(--war-green-light);
+  font-size: 0.7rem;
+  font-family: var(--font-pixel, 'Press Start 2P', monospace);
+}
+@media (min-width: 769px) {
+  .pagination-bar { display: none; }
+}
 /* ═══════════════════════════════════════════════════════════════
    LOBBY COMPONENT — Call of War / Military Tactical Style
    Matches "inicio" component aesthetic perfectly
@@ -1146,6 +1200,9 @@
 }
 
 @media (max-width: 480px) {
+  .bottom-navbar .navbar-btn span {
+    display: none;
+  }
   .banner-section {
     height: 140px;
   }
