@@ -15,7 +15,8 @@
 
   display: flex;
   flex-direction: column;
-  min-height: 100vh;
+  height: 100vh;
+  overflow: hidden;
   width: 100%;
   position: relative;
   z-index: 1;
@@ -28,7 +29,8 @@
 .lobby-wrapper {
   display: flex;
   flex-direction: column;
-  min-height: 100vh;
+  height: 100vh;
+  box-sizing: border-box;
   padding-bottom: 80px;
   position: relative;
   overflow: hidden;
@@ -53,7 +55,8 @@
   left: 0;
   right: 0;
   height: 3px;
-  background: linear-gradient(90deg, transparent, rgba(0, 255, 65, 0.15), transparent);
+  background: rgba(0, 255, 65, 0.2);
+  box-shadow: 0 0 15px rgba(0, 255, 65, 0.3);
   z-index: 0;
   pointer-events: none;
   animation: scanDown 8s linear infinite;
@@ -72,22 +75,22 @@
   border-radius: 50%;
   background-color: #ff0000;
   box-shadow: 0 0 12px #ff0000;
-  opacity: 0;
   pointer-events: none;
   z-index: 0;
   transform: translate(-50%, -50%);
-  animation: sonarPulse 1.5s ease-out infinite, sonarReveal 9s linear infinite;
+  animation: pointReveal 8s linear infinite both;
 }
 
-.contact-1 { top: 30%; left: 75%; animation-delay: 0s, 2s; }
-.contact-2 { top: 60%; left: 10%; animation-delay: 0s, 5s; }
-.contact-3 { top: 80%; left: 90%; animation-delay: 0s, 7s; }
+.contact-1 { top: 30%; left: 75%; animation-delay: 2.545s; }
+.contact-2 { top: 60%; left: 10%; animation-delay: 4.727s; }
+.contact-3 { top: 80%; left: 90%; animation-delay: 6.182s; }
 
 /* ═══════════════════════════════════════
    BANNER SECTION (identical to inicio)
    ═══════════════════════════════════════ */
 .banner-section {
   position: relative;
+  z-index: 10;
   width: 100%;
   height: 200px;
   overflow: hidden;
@@ -330,6 +333,8 @@
    SEARCH SECTION
    ═══════════════════════════════════════ */
 .search-section {
+  position: relative;
+  z-index: 10;
   padding: 1rem 1rem 0.5rem;
   max-width: 700px;
   margin: 0 auto;
@@ -373,10 +378,16 @@
    GAMES SECTION
    ═══════════════════════════════════════ */
 .games-section {
-  padding: 1rem 1rem 1.5rem;
+  position: relative;
+  z-index: 10;
+  padding: 1rem 1rem 0.5rem;
   max-width: 700px;
   margin: 0 auto;
   width: 100%;
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 0;
 }
 
 .section-header {
@@ -431,7 +442,24 @@
   border: 1px solid var(--war-border);
   border-top: none;
   border-radius: 0 0 3px 3px;
-  overflow: hidden;
+  overflow-y: auto;
+  flex: 1;
+  min-height: 0;
+}
+
+.game-list::-webkit-scrollbar {
+  width: 8px;
+}
+.game-list::-webkit-scrollbar-track {
+  background: rgba(0, 0, 0, 0.3);
+  border-left: 1px solid var(--war-border);
+}
+.game-list::-webkit-scrollbar-thumb {
+  background: var(--war-green);
+  border-radius: 4px;
+}
+.game-list::-webkit-scrollbar-thumb:hover {
+  background: var(--war-accent);
 }
 
 /* Game Slot */
@@ -612,6 +640,7 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
+  flex: 1;
   padding: 3rem 1rem;
   gap: 0.75rem;
   border: 1px dashed var(--war-border);
@@ -647,6 +676,8 @@
    MAIN ACTION BUTTONS (identical to inicio)
    ═══════════════════════════════════════ */
 .main-actions-section {
+  position: relative;
+  z-index: 10;
   display: flex;
   gap: 1rem;
   padding: 0.5rem 1rem 1.5rem;
@@ -1039,22 +1070,32 @@
   to { opacity: 1; }
 }
 
-@keyframes sonarPulse {
-  0% { transform: translate(-50%, -50%) scale(1); opacity: 0.9; }
-  50% { transform: translate(-50%, -50%) scale(1.6); opacity: 0.3; }
-  100% { transform: translate(-50%, -50%) scale(1); opacity: 0.9; }
-}
-
-@keyframes sonarReveal {
-  0% { opacity: 0; }
-  22% { opacity: 0; }
-  25% { opacity: 1; }
-  28% { opacity: 0; }
-  100% { opacity: 0; }
+@keyframes pointReveal {
+  0% { opacity: 0; transform: translate(-50%, -50%) scale(0.6); box-shadow: 0 0 0px transparent; }
+  2% { opacity: 1; transform: translate(-50%, -50%) scale(1.5); box-shadow: 0 0 20px #ff0000; }
+  8% { opacity: 0.5; transform: translate(-50%, -50%) scale(1); box-shadow: 0 0 8px #ff0000; }
+  35% { opacity: 0; transform: translate(-50%, -50%) scale(0.6); box-shadow: 0 0 0px transparent; }
+  100% { opacity: 0; transform: translate(-50%, -50%) scale(0.6); box-shadow: 0 0 0px transparent; }
 }
 
 /* ═══ RESPONSIVE ═══ */
 @media (max-width: 768px) {
+  :host {
+    height: auto;
+    min-height: 100vh;
+    overflow: visible;
+  }
+
+  .lobby-wrapper {
+    height: auto;
+    min-height: 100vh;
+    overflow: visible;
+  }
+
+  .games-section {
+    flex: none; /* Que crezca según su contenido natural en móvil */
+  }
+
   .banner-section {
     height: 160px;
   }
@@ -1088,6 +1129,7 @@
     display: flex;
     flex-direction: column;
     gap: 0.5rem;
+    overflow-y: visible; /* Remover scroll interno en móvil */
   }
 
   .main-actions-section {

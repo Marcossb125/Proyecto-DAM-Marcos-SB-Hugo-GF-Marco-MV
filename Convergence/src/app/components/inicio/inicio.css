@@ -86,7 +86,8 @@
   left: 0;
   right: 0;
   height: 3px;
-  background: linear-gradient(90deg, transparent, rgba(0, 255, 65, 0.15), transparent);
+  background: rgba(0, 255, 65, 0.2);
+  box-shadow: 0 0 15px rgba(0, 255, 65, 0.3);
   z-index: 0;
   pointer-events: none;
   animation: scanDown 8s linear infinite;
@@ -100,6 +101,32 @@
   100% {
     top: 105%;
   }
+}
+
+/* ═══ SONAR CONTACTS ═══ */
+.sonar-contact {
+  position: absolute;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background-color: #ff0000;
+  box-shadow: 0 0 12px #ff0000;
+  pointer-events: none;
+  z-index: 0;
+  transform: translate(-50%, -50%);
+  animation: pointReveal 8s linear infinite both;
+}
+
+.contact-1 { top: 30%; left: 75%; animation-delay: 2.545s; }
+.contact-2 { top: 60%; left: 10%; animation-delay: 4.727s; }
+.contact-3 { top: 80%; left: 90%; animation-delay: 6.182s; }
+
+@keyframes pointReveal {
+  0% { opacity: 0; transform: translate(-50%, -50%) scale(0.6); box-shadow: 0 0 0px transparent; }
+  2% { opacity: 1; transform: translate(-50%, -50%) scale(1.5); box-shadow: 0 0 20px #ff0000; }
+  8% { opacity: 0.5; transform: translate(-50%, -50%) scale(1); box-shadow: 0 0 8px #ff0000; }
+  35% { opacity: 0; transform: translate(-50%, -50%) scale(0.6); box-shadow: 0 0 0px transparent; }
+  100% { opacity: 0; transform: translate(-50%, -50%) scale(0.6); box-shadow: 0 0 0px transparent; }
 }
 
 /* ═══════════════════════════════════════
