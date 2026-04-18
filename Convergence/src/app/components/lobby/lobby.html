@@ -33,7 +33,7 @@
         <circle cx="11" cy="11" r="8" />
         <line x1="21" y1="21" x2="16.65" y2="16.65" />
       </svg>
-      <input type="text" placeholder="Filtrar por nombre, host o modo..." id="lobby-search" />
+      <input type="text" placeholder="Filtrar por nombre, host o modo..." id="lobby-search" (input)="onSearchChange($event)" />
     </div>
   </section>
 
@@ -41,11 +41,11 @@
   <section class="games-section">
     <div class="section-header">
       <div class="section-title-line"></div>
-      <h2 class="section-title">PARTIDAS DISPONIBLES — {{ games().length }} ACTIVAS</h2>
+        <h2 class="section-title">PARTIDAS DISPONIBLES — {{ filteredGames().length }} ACTIVAS</h2>
       <div class="section-title-line"></div>
     </div>
 
-    @if (games().length === 0) {
+    @if (filteredGames().length === 0) {
     <div class="empty-state">
       <div class="empty-icon">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" width="48" height="48">
@@ -69,7 +69,7 @@
 
     <!-- Game List -->
     <div class="game-list">
-      @for (game of games(); track game.id) {
+      @for (game of pagedGames(); track game.id) {
       <div class="game-slot" [class.game-full]="game.status === 'full'">
         <div class="col-name">
           <div class="game-name-group">
@@ -120,6 +120,14 @@
       </div>
       }
     </div>
+      <!-- Paginación solo en móvil -->
+      @if (totalPages() > 1 && isMobile()) {
+        <div class="pagination-bar">
+          <button class="pagination-btn" (click)="goToPage(currentPage() - 1)" [disabled]="currentPage() === 1">«</button>
+          <span class="pagination-info">Página {{ currentPage() }} de {{ totalPages() }}</span>
+          <button class="pagination-btn" (click)="goToPage(currentPage() + 1)" [disabled]="currentPage() === totalPages()">»</button>
+        </div>
+      }
     }
   </section>
 
