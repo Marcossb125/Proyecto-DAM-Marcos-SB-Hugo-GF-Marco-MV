@@ -1,0 +1,417 @@
+/* ═══════════════════════════════════════════════════════════════
+   HUD COMPONENT — Styles
+   Military Tactical Theme
+   ═══════════════════════════════════════════════════════════════ */
+
+:host {
+  --war-green: #4b5320;
+  --war-green-light: #828a5e;
+  --war-accent: #00ff41;
+  --war-bg: #0a0b0a;
+  --war-panel: #141614;
+  --war-border: #3a3d2e;
+
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 10;
+  font-family: 'Inter', sans-serif;
+  color: #e0e0e0;
+}
+
+/* ═══ TOP BAR ═══ */
+.hud-top-bar {
+  pointer-events: auto;
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.75rem 1.25rem;
+  background: linear-gradient(180deg, rgba(10, 11, 10, 0.95) 0%, rgba(10, 11, 10, 0.7) 80%, transparent 100%);
+  z-index: 20;
+}
+
+/* Phase Section */
+.phase-section {
+  flex: 1;
+}
+
+.phase-indicator {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.phase-number {
+  font-family: 'Press Start 2P', monospace;
+  font-size: 0.5rem;
+  color: var(--war-green-light);
+  background: rgba(75, 83, 32, 0.2);
+  border: 1px solid var(--war-green);
+  border-radius: 3px;
+  padding: 0.35rem 0.5rem;
+  white-space: nowrap;
+}
+
+.phase-info {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+}
+
+.phase-label {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.phase-icon {
+  color: var(--war-accent);
+  font-size: 18px;
+  width: 18px;
+  height: 18px;
+}
+
+.phase-name {
+  font-family: 'Press Start 2P', monospace;
+  font-size: 0.55rem;
+  color: var(--war-accent);
+  letter-spacing: 2px;
+  text-shadow: 0 0 10px rgba(0, 255, 65, 0.4);
+}
+
+.phase-desc {
+  font-size: 0.65rem;
+  color: var(--war-green-light);
+}
+
+/* Turn Section */
+.turn-section {
+  display: flex;
+  justify-content: center;
+}
+
+.turn-badge {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.1rem;
+  padding: 0.3rem 1rem;
+  background: rgba(0, 0, 0, 0.5);
+  border: 1px solid var(--war-border);
+  border-radius: 3px;
+}
+
+.turn-label {
+  font-family: 'Press Start 2P', monospace;
+  font-size: 0.35rem;
+  color: var(--war-green-light);
+  letter-spacing: 2px;
+}
+
+.turn-number {
+  font-family: 'Press Start 2P', monospace;
+  font-size: 1rem;
+  color: #fff;
+  text-shadow: 0 0 10px rgba(255, 255, 255, 0.3);
+}
+
+/* Action Section */
+.action-section {
+  flex: 1;
+  display: flex;
+  justify-content: flex-end;
+}
+
+.btn-phase-action {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.6rem 1.5rem;
+  border: none;
+  border-radius: 3px;
+  font-family: 'Press Start 2P', monospace;
+  font-size: 0.5rem;
+  letter-spacing: 1px;
+  cursor: pointer;
+  transition: all 0.2s;
+  white-space: nowrap;
+}
+
+.btn-phase-action mat-icon {
+  font-size: 18px;
+  width: 18px;
+  height: 18px;
+}
+
+.btn-continuar {
+  background: var(--war-green);
+  border-bottom: 3px solid #2d3314;
+  color: #fff;
+}
+
+.btn-continuar:hover {
+  background: #5d6828;
+  box-shadow: 0 0 20px rgba(0, 255, 65, 0.25);
+  transform: translateY(-1px);
+}
+
+.btn-listo {
+  background: var(--war-accent);
+  border-bottom: 3px solid #009926;
+  color: #0a0b0a;
+}
+
+.btn-listo:hover {
+  background: #33ff66;
+  box-shadow: 0 0 25px rgba(0, 255, 65, 0.4);
+  transform: translateY(-1px);
+}
+
+/* ═══ LEFT PANEL ═══ */
+.hud-left-panel {
+  pointer-events: auto;
+  position: absolute;
+  top: 80px;
+  left: 12px;
+  width: 200px;
+  z-index: 15;
+}
+
+.resource-panel {
+  background: rgba(20, 22, 20, 0.92);
+  border: 1px solid var(--war-border);
+  border-radius: 4px;
+  padding: 0.75rem;
+  backdrop-filter: blur(8px);
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+}
+
+.panel-header {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.panel-header-line {
+  flex: 1;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--war-green));
+}
+
+.panel-header-line:last-child {
+  background: linear-gradient(90deg, var(--war-green), transparent);
+}
+
+.panel-title {
+  font-family: 'Press Start 2P', monospace;
+  font-size: 0.4rem;
+  color: var(--war-accent);
+  letter-spacing: 2px;
+  white-space: nowrap;
+}
+
+.resource-item {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.4rem 0.5rem;
+  background: rgba(0, 0, 0, 0.3);
+  border: 1px solid rgba(58, 61, 46, 0.5);
+  border-radius: 3px;
+}
+
+.resource-icon {
+  font-size: 1.1rem;
+}
+
+.resource-data {
+  display: flex;
+  flex-direction: column;
+  gap: 0.05rem;
+}
+
+.resource-label {
+  font-family: 'Press Start 2P', monospace;
+  font-size: 0.3rem;
+  color: var(--war-green-light);
+  letter-spacing: 1px;
+}
+
+.resource-value {
+  font-family: 'Press Start 2P', monospace;
+  font-size: 0.65rem;
+  color: #fff;
+  text-shadow: 0 0 8px rgba(255, 255, 255, 0.2);
+}
+
+.resource-divider {
+  height: 1px;
+  background: var(--war-border);
+}
+
+.faction-badge {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem;
+  background: rgba(0, 0, 0, 0.3);
+  border: 1px solid var(--war-green);
+  border-radius: 3px;
+  border-left-width: 3px;
+}
+
+.faction-icon {
+  font-size: 1.2rem;
+}
+
+.faction-info {
+  display: flex;
+  flex-direction: column;
+  gap: 0.1rem;
+}
+
+.faction-name {
+  font-weight: 700;
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.faction-type {
+  font-size: 0.6rem;
+  color: var(--war-green-light);
+  font-style: italic;
+}
+
+.territory-count {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.7rem;
+  color: var(--war-green-light);
+  padding: 0.3rem 0.5rem;
+}
+
+.territory-count mat-icon {
+  font-size: 16px;
+  width: 16px;
+  height: 16px;
+  color: var(--war-accent);
+}
+
+/* ═══ BOTTOM BAR ═══ */
+.hud-bottom-bar {
+  pointer-events: auto;
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  padding: 0.5rem 1rem;
+  background: linear-gradient(0deg, rgba(10, 11, 10, 0.95) 0%, rgba(10, 11, 10, 0.7) 80%, transparent 100%);
+  z-index: 20;
+}
+
+.players-strip {
+  display: flex;
+  justify-content: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.player-chip {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.4rem 0.75rem;
+  background: rgba(0, 0, 0, 0.5);
+  border: 1px solid var(--war-border);
+  border-radius: 3px;
+  font-size: 0.7rem;
+  transition: all 0.2s;
+  opacity: 0.6;
+}
+
+.player-chip.active {
+  opacity: 1;
+  border-color: var(--player-color, var(--war-accent));
+  box-shadow: 0 0 10px rgba(0, 255, 65, 0.15);
+  background: rgba(0, 0, 0, 0.7);
+}
+
+.chip-faction {
+  font-size: 0.9rem;
+}
+
+.chip-name {
+  font-size: 0.65rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.chip-indicator {
+  font-family: 'Press Start 2P', monospace;
+  font-size: 0.5rem;
+  color: var(--war-accent);
+  animation: blink 1s ease-in-out infinite;
+}
+
+@keyframes blink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.3; }
+}
+
+/* ═══ RESPONSIVE ═══ */
+@media (max-width: 768px) {
+  .hud-left-panel {
+    top: auto;
+    bottom: 60px;
+    left: 8px;
+    width: 160px;
+  }
+
+  .phase-desc {
+    display: none;
+  }
+
+  .btn-phase-action {
+    padding: 0.5rem 1rem;
+    font-size: 0.4rem;
+  }
+
+  .turn-badge {
+    padding: 0.2rem 0.6rem;
+  }
+
+  .turn-number {
+    font-size: 0.7rem;
+  }
+
+  .player-chip {
+    padding: 0.3rem 0.5rem;
+  }
+
+  .chip-name {
+    font-size: 0.5rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .hud-left-panel {
+    display: none;
+  }
+
+  .hud-top-bar {
+    padding: 0.5rem 0.75rem;
+  }
+
+  .phase-number {
+    display: none;
+  }
+}

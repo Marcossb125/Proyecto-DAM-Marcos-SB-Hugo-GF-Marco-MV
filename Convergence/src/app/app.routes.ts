@@ -27,5 +27,10 @@ export const routes: Routes = [
     loadComponent: () =>
       import('./components/personajes/personajes').then((m) => m.Personajes),
   },
+  {
+    path: 'match',
+    loadComponent: () =>
+      import('./components/match/match').then((m) => m.Match),
+  },
   { path: '**', redirectTo: 'login' },
 ];

@@ -1,0 +1,103 @@
+/* ═══════════════════════════════════════════════════════════════
+   MATCH COMPONENT — Styles
+   Military Tactical Theme
+   ═══════════════════════════════════════════════════════════════ */
+
+:host {
+  display: block;
+  width: 100vw;
+  height: 100vh;
+  overflow: hidden;
+  background: #0a0b0a;
+  position: relative;
+}
+
+.match-container {
+  width: 100%;
+  height: 100%;
+  position: relative;
+  overflow: hidden;
+}
+
+/* ═══ DECORATIVE BACKGROUNDS ═══ */
+.tactical-grid {
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(rgba(0, 255, 65, 0.015) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0, 255, 65, 0.015) 1px, transparent 1px);
+  background-size: 30px 30px;
+  pointer-events: none;
+  z-index: 1;
+}
+
+.scanline-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: rgba(0, 255, 65, 0.15);
+  box-shadow: 0 0 12px rgba(0, 255, 65, 0.2);
+  z-index: 50;
+  pointer-events: none;
+  animation: scanDown 10s linear infinite;
+}
+
+@keyframes scanDown {
+  0% { top: -5%; }
+  100% { top: 105%; }
+}
+
+/* ═══ LAYERS ═══ */
+.map-layer {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+}
+
+.hud-layer {
+  position: absolute;
+  inset: 0;
+  z-index: 10;
+  pointer-events: none;
+}
+
+/* ═══ BACK BUTTON ═══ */
+.btn-back {
+  position: absolute;
+  bottom: 12px;
+  left: 12px;
+  z-index: 30;
+  padding: 0.4rem 0.8rem;
+  background: rgba(10, 11, 10, 0.85);
+  border: 1px solid #3a3d2e;
+  border-radius: 3px;
+  color: #828a5e;
+  font-family: 'Press Start 2P', monospace;
+  font-size: 0.4rem;
+  cursor: pointer;
+  transition: all 0.2s;
+  backdrop-filter: blur(4px);
+}
+
+.btn-back:hover {
+  border-color: #00ff41;
+  color: #00ff41;
+  box-shadow: 0 0 10px rgba(0, 255, 65, 0.15);
+}
+
+/* ═══ ANGULAR MATERIAL DIALOG OVERRIDES ═══ */
+::ng-deep .military-dialog {
+  .mat-mdc-dialog-surface {
+    background: transparent !important;
+    box-shadow: 0 0 40px rgba(0, 0, 0, 0.8),
+                0 0 15px rgba(0, 255, 65, 0.1) !important;
+    border-radius: 4px !important;
+    overflow: visible !important;
+  }
+}
+
+::ng-deep .cdk-overlay-dark-backdrop {
+  background: rgba(0, 0, 0, 0.75) !important;
+}

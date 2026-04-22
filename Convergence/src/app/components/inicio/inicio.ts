@@ -51,8 +51,7 @@ export class Inicio {
 
 
   continueGame(): void {
-    // TODO: Connect to game service to resume active game
-    console.log('Continuing active game...');
+    this.router.navigate(['/match']);
   }
 
   navigateTo(route: string): void {

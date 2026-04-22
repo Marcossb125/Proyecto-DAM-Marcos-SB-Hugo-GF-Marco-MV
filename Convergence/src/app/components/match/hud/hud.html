@@ -1,0 +1,98 @@
+<!-- ═══════════════════════════════════════════════════════════════
+     HUD TEMPLATE — Game UI Overlay
+     ═══════════════════════════════════════════════════════════════ -->
+
+<!-- ═══ TOP BAR ═══ -->
+<div class="hud-top-bar">
+  <!-- Left: Phase info -->
+  <div class="phase-section" *ngIf="phase$ | async as phase">
+    <div class="phase-indicator">
+      <div class="phase-number">{{ getPhaseNumber(phase) }}/4</div>
+      <div class="phase-info">
+        <div class="phase-label">
+          <mat-icon class="phase-icon">{{ getPhaseIcon(phase) }}</mat-icon>
+          <span class="phase-name">{{ getPhaseLabel(phase) }}</span>
+        </div>
+        <span class="phase-desc">{{ getPhaseDescription(phase) }}</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Center: Turn counter -->
+  <div class="turn-section" *ngIf="currentTurn$ | async as turn">
+    <div class="turn-badge">
+      <span class="turn-label">TURNO</span>
+      <span class="turn-number">{{ turn }}</span>
+    </div>
+  </div>
+
+  <!-- Right: Action button -->
+  <div class="action-section" *ngIf="phase$ | async as phase">
+    <button
+      class="btn-phase-action"
+      [class.btn-continuar]="phase === 'RECAUDACION'"
+      [class.btn-listo]="phase !== 'RECAUDACION'"
+      (click)="onPhaseAction(phase)"
+      id="hud-phase-btn">
+      <mat-icon>{{ phase === 'RECAUDACION' ? 'play_arrow' : 'check' }}</mat-icon>
+      {{ getButtonLabel(phase) }}
+    </button>
+  </div>
+</div>
+
+<!-- ═══ LEFT PANEL (Resources) ═══ -->
+<div class="hud-left-panel" *ngIf="currentPlayer$ | async as player">
+  <div class="resource-panel">
+    <div class="panel-header">
+      <div class="panel-header-line"></div>
+      <span class="panel-title">RECURSOS</span>
+      <div class="panel-header-line"></div>
+    </div>
+
+    <div class="resource-item">
+      <span class="resource-icon">💰</span>
+      <div class="resource-data">
+        <span class="resource-label">CRÉDITOS</span>
+        <span class="resource-value">{{ player.credits }}</span>
+      </div>
+    </div>
+
+    <div class="resource-item">
+      <span class="resource-icon">👥</span>
+      <div class="resource-data">
+        <span class="resource-label">MANPOWER</span>
+        <span class="resource-value">{{ player.manpower }}</span>
+      </div>
+    </div>
+
+    <div class="resource-divider"></div>
+
+    <div class="faction-badge" [style.border-color]="player.color">
+      <span class="faction-icon">{{ getFactionIcon(player.faction) }}</span>
+      <div class="faction-info">
+        <span class="faction-name" [style.color]="player.color">{{ player.name }}</span>
+        <span class="faction-type">{{ player.faction }}</span>
+      </div>
+    </div>
+
+    <div class="territory-count" *ngIf="playerTerritories$ | async as territories">
+      <mat-icon>map</mat-icon>
+      <span>{{ territories.length }} territorios</span>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ BOTTOM BAR (Players) ═══ -->
+<div class="hud-bottom-bar" *ngIf="players$ | async as players">
+  <div class="players-strip" *ngIf="currentPlayer$ | async as current">
+    <div
+      *ngFor="let p of players"
+      class="player-chip"
+      [class.active]="p.id === current.id"
+      [style.--player-color]="p.color">
+      <span class="chip-faction">{{ getFactionIcon(p.faction) }}</span>
+      <span class="chip-name">{{ p.name }}</span>
+      <span class="chip-indicator" *ngIf="p.id === current.id">◄</span>
+    </div>
+  </div>
+</div>
