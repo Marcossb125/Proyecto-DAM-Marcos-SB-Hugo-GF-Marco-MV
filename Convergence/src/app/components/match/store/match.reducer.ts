@@ -8,6 +8,7 @@ import {
   initialMatchState,
   BASE_INCOME,
   TERRITORY_BONUS,
+  REFINERY_BONUS,
 } from './match.state';
 import {
   PhaseActions,
@@ -32,8 +33,14 @@ export const matchFeature = createFeature({
       if (!player) return state;
 
       const ownedTerritories = state.territories.filter(t => t.ownerId === state.currentPlayerId);
-      const creditBonus = BASE_INCOME.credits + (ownedTerritories.length * TERRITORY_BONUS.credits);
+      let creditBonus = BASE_INCOME.credits + (ownedTerritories.length * TERRITORY_BONUS.credits);
       const manpowerBonus = BASE_INCOME.manpower + (ownedTerritories.length * TERRITORY_BONUS.manpower);
+
+      // Refinery bonus: if player controls the refinery territory
+      const ownsRefinery = state.territories.some(t => t.isRefinery && t.ownerId === state.currentPlayerId);
+      if (ownsRefinery) {
+        creditBonus += REFINERY_BONUS.credits;
+      }
 
       return {
         ...state,
@@ -141,9 +148,21 @@ export const matchFeature = createFeature({
       };
     }),
 
+    on(ArmyActions.reinforceArmy, (state, { armyId, troopSize, creditsCost, manpowerCost }): MatchState => ({
+      ...state,
+      armies: state.armies.map(a =>
+        a.id === armyId ? { ...a, troopSize: a.troopSize + troopSize } : a
+      ),
+      players: state.players.map(p =>
+        p.id === state.currentPlayerId
+          ? { ...p, credits: p.credits - creditsCost, manpower: p.manpower - manpowerCost }
+          : p
+      ),
+    })),
+
     on(ArmyActions.moveArmy, (state, { armyId, toTerritoryId }): MatchState => {
       const army = state.armies.find(a => a.id === armyId);
-      if (!army) return state;
+      if (!army || army.hasActedThisTurn) return state;
 
       const fromTerritoryId = army.territoryId;
 
@@ -165,7 +184,6 @@ export const matchFeature = createFeature({
     }),
 
     on(ArmyActions.destroyArmy, (state, { armyId }): MatchState => {
-      const army = state.armies.find(a => a.id === armyId);
       return {
         ...state,
         armies: state.armies.filter(a => a.id !== armyId),
@@ -264,6 +282,16 @@ export const matchFeature = createFeature({
     on(MapActions.selectArmy, (state, { armyId }): MatchState => {
       const army = state.armies.find(a => a.id === armyId);
       if (!army) return state;
+
+      // Do NOT highlight if army already acted this turn
+      if (army.hasActedThisTurn) {
+        return {
+          ...state,
+          selectedArmyId: null,
+          selectedTerritoryId: army.territoryId,
+          highlightedTerritoryIds: [],
+        };
+      }
 
       // Highlight adjacent territories for movement
       const territory = state.territories.find(t => t.id === army.territoryId);

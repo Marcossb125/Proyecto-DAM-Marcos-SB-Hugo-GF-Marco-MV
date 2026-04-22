@@ -48,7 +48,7 @@ export class HudComponent {
 
   getPhaseDescription(phase: string): string {
     const descs: Record<string, string> = {
-      RECAUDACION: 'Pulsa CONTINUAR para recoger recursos',
+      RECAUDACION: 'Recaudando recursos...',
       CONSTRUCCION: 'Haz clic en un territorio propio para construir',
       RECLUTAMIENTO: 'Haz clic en tu base suprema para reclutar',
       MOVIMIENTO: 'Selecciona un ejército para moverlo',

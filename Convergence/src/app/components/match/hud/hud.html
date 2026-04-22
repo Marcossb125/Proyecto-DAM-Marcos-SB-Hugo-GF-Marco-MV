@@ -26,16 +26,15 @@
     </div>
   </div>
 
-  <!-- Right: Action button -->
+  <!-- Right: Action button (hidden during RECAUDACIÓN — auto-advances) -->
   <div class="action-section" *ngIf="phase$ | async as phase">
     <button
-      class="btn-phase-action"
-      [class.btn-continuar]="phase === 'RECAUDACION'"
-      [class.btn-listo]="phase !== 'RECAUDACION'"
+      *ngIf="phase !== 'RECAUDACION'"
+      class="btn-phase-action btn-listo"
       (click)="onPhaseAction(phase)"
       id="hud-phase-btn">
-      <mat-icon>{{ phase === 'RECAUDACION' ? 'play_arrow' : 'check' }}</mat-icon>
-      {{ getButtonLabel(phase) }}
+      <mat-icon>check</mat-icon>
+      LISTO
     </button>
   </div>
 </div>

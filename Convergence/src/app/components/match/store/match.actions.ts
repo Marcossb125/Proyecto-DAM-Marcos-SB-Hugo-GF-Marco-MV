@@ -38,6 +38,7 @@ export const ArmyActions = createActionGroup({
   source: 'Match Army',
   events: {
     'Create Army': props<{ territoryId: string; troopSize: number; creditsCost: number; manpowerCost: number }>(),
+    'Reinforce Army': props<{ armyId: string; troopSize: number; creditsCost: number; manpowerCost: number }>(),
     'Move Army': props<{ armyId: string; toTerritoryId: string }>(),
     'Destroy Army': props<{ armyId: string }>(),
   },

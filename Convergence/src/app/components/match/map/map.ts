@@ -19,12 +19,10 @@ import { MapActions } from '../store/match.actions';
 import { selectMapRenderData, selectPhase, selectSelectedArmyId } from '../store/match.selectors';
 import { Territory, Army, GamePhase } from '../store/match.state';
 
-// Hex geometry constants
-const HEX_RADIUS = 60;
+// Hex geometry constants — reduced for 41 hexes
+const HEX_RADIUS = 42;
 const HEX_WIDTH = Math.sqrt(3) * HEX_RADIUS;
 const HEX_HEIGHT = 2 * HEX_RADIUS;
-const GRID_OFFSET_X = 160;
-const GRID_OFFSET_Y = 120;
 
 interface MapTerritoryData {
   id: string;
@@ -36,6 +34,7 @@ interface MapTerritoryData {
   hexQ: number;
   hexR: number;
   adjacentIds: string[];
+  isRefinery: boolean;
   army: Army | null;
   ownerColor: string | null;
   ownerName: string | null;
@@ -80,6 +79,7 @@ export class MapComponent implements AfterViewInit, OnDestroy {
   private hexGraphics: Map<string, any> = new Map();
   private currentPhase: GamePhase = 'RECAUDACION';
   private selectedArmyId: string | null = null;
+  private currentData: MapTerritoryData[] = [];
 
   async ngAfterViewInit(): Promise<void> {
     if (!isPlatformBrowser(this.platformId)) return;
@@ -121,7 +121,7 @@ export class MapComponent implements AfterViewInit, OnDestroy {
         const { width: w, height: h } = entry.contentRect;
         if (w > 0 && h > 0) {
           this.app.renderer.resize(w, h);
-          this.drawGrid();
+          this.drawGrid(this.currentData);
         }
       }
     });
@@ -168,6 +168,7 @@ export class MapComponent implements AfterViewInit, OnDestroy {
 
     // Subscribe to map render data
     const mapSub = this.store.select(selectMapRenderData).subscribe(data => {
+      this.currentData = data;
       this.ngZone.runOutsideAngular(() => {
         this.drawGrid(data);
       });
@@ -176,7 +177,7 @@ export class MapComponent implements AfterViewInit, OnDestroy {
   }
 
   private drawGrid(data?: MapTerritoryData[]): void {
-    if (!this.app || !this.pixi || !data) return;
+    if (!this.app || !this.pixi || !data || data.length === 0) return;
 
     // Clear previous hex graphics
     this.hexGraphics.forEach(g => {
@@ -190,25 +191,35 @@ export class MapComponent implements AfterViewInit, OnDestroy {
     const canvasH = this.app.renderer.height / (window.devicePixelRatio || 1);
 
     // Find grid bounds
-    const maxQ = Math.max(...data.map(t => t.hexQ));
-    const maxR = Math.max(...data.map(t => t.hexR));
-    const gridWidth = (maxQ + 1) * HEX_WIDTH + HEX_WIDTH * 0.5;
-    const gridHeight = (maxR + 1) * HEX_HEIGHT * 0.75 + HEX_HEIGHT * 0.25;
+    const allX = data.map(t => this.hexToPixelX(t.hexQ, t.hexR));
+    const allY = data.map(t => this.hexToPixelY(t.hexR));
+    const minX = Math.min(...allX);
+    const maxX = Math.max(...allX);
+    const minY = Math.min(...allY);
+    const maxY = Math.max(...allY);
 
-    const offsetX = (canvasW - gridWidth) / 2 + HEX_WIDTH * 0.5;
-    const offsetY = (canvasH - gridHeight) / 2 + HEX_RADIUS;
+    const gridWidth = maxX - minX;
+    const gridHeight = maxY - minY;
+
+    const offsetX = (canvasW - gridWidth) / 2 - minX;
+    const offsetY = (canvasH - gridHeight) / 2 - minY;
 
     data.forEach(territory => {
       this.drawHex(territory, offsetX, offsetY);
     });
   }
 
-  private drawHex(territory: MapTerritoryData, offsetX: number, offsetY: number): void {
-    const { hexQ, hexR } = territory;
+  private hexToPixelX(q: number, r: number): number {
+    return q * HEX_WIDTH + (r % 2 === 1 ? HEX_WIDTH * 0.5 : 0);
+  }
 
-    // Offset hex coordinates
-    const x = offsetX + hexQ * HEX_WIDTH + (hexR % 2 === 1 ? HEX_WIDTH * 0.5 : 0);
-    const y = offsetY + hexR * HEX_HEIGHT * 0.75;
+  private hexToPixelY(r: number): number {
+    return r * HEX_HEIGHT * 0.75;
+  }
+
+  private drawHex(territory: MapTerritoryData, offsetX: number, offsetY: number): void {
+    const x = offsetX + this.hexToPixelX(territory.hexQ, territory.hexR);
+    const y = offsetY + this.hexToPixelY(territory.hexR);
 
     const container = new this.pixi.Container();
     container.x = x;
@@ -220,11 +231,14 @@ export class MapComponent implements AfterViewInit, OnDestroy {
     const hexShape = new this.pixi.Graphics();
     const points = this.getHexPoints(0, 0, HEX_RADIUS - 2);
 
-    // Fill color based on owner
+    // Fill color based on owner or refinery
     let fillColor = 0x1a1e14;
     let fillAlpha = 0.6;
 
-    if (territory.ownerColor) {
+    if (territory.isRefinery) {
+      fillColor = 0x3d3000;
+      fillAlpha = 0.5;
+    } else if (territory.ownerColor) {
       fillColor = this.parseColor(territory.ownerColor);
       fillAlpha = 0.25;
     }
@@ -246,6 +260,10 @@ export class MapComponent implements AfterViewInit, OnDestroy {
       borderColor = 0x00ff41;
       borderWidth = 2.5;
       borderAlpha = 0.9;
+    } else if (territory.isRefinery) {
+      borderColor = 0xffd700;
+      borderWidth = 2;
+      borderAlpha = 0.8;
     } else if (territory.ownerColor) {
       borderColor = this.parseColor(territory.ownerColor);
       borderWidth = 2;
@@ -273,8 +291,25 @@ export class MapComponent implements AfterViewInit, OnDestroy {
       container.addChild(selRing);
     }
 
+    // ── Refinery indicator ──
+    if (territory.isRefinery) {
+      const refIcon = new this.pixi.Text({
+        text: '⛽',
+        style: { fontSize: 16, align: 'center' },
+      });
+      refIcon.anchor.set(0.5);
+      refIcon.y = -HEX_RADIUS * 0.3;
+      container.addChild(refIcon);
+
+      // Golden glow ring
+      const refGlow = new this.pixi.Graphics();
+      refGlow.circle(0, -HEX_RADIUS * 0.3, 14);
+      refGlow.stroke({ width: 1.5, color: 0xffd700, alpha: 0.4 });
+      container.addChild(refGlow);
+    }
+
     // ── Supreme Base indicator ──
-    if (territory.hasSupremeBase) {
+    if (territory.hasSupremeBase && !territory.isRefinery) {
       const baseIcon = new this.pixi.Graphics();
       // Draw a small star/diamond
       baseIcon.star(0, -HEX_RADIUS * 0.3, 5, 8, 4);
@@ -292,7 +327,7 @@ export class MapComponent implements AfterViewInit, OnDestroy {
     // ── Building icon ──
     if (territory.buildingType) {
       const bldgBadge = new this.pixi.Graphics();
-      bldgBadge.roundRect(-12, -8, 24, 16, 3);
+      bldgBadge.roundRect(-10, -6, 20, 12, 3);
       bldgBadge.fill({ color: 0x141614, alpha: 0.9 });
       bldgBadge.stroke({ width: 1, color: 0x4b5320, alpha: 0.8 });
       container.addChild(bldgBadge);
@@ -301,7 +336,7 @@ export class MapComponent implements AfterViewInit, OnDestroy {
         text: this.getBuildingSymbol(territory.buildingType),
         style: {
           fontFamily: 'Press Start 2P, monospace',
-          fontSize: 8,
+          fontSize: 6,
           fill: 0x00ff41,
           align: 'center',
         },
@@ -311,41 +346,47 @@ export class MapComponent implements AfterViewInit, OnDestroy {
     }
 
     // ── Territory label ──
+    const labelY = territory.hasSupremeBase || territory.isRefinery ? HEX_RADIUS * 0.05 : -HEX_RADIUS * 0.15;
     const label = new this.pixi.Text({
       text: territory.label,
       style: {
         fontFamily: 'Inter, sans-serif',
-        fontSize: 9,
-        fill: 0xe0e0e0,
+        fontSize: 7,
+        fill: territory.isRefinery ? 0xffd700 : 0xe0e0e0,
         align: 'center',
         fontWeight: '600',
       },
     });
     label.anchor.set(0.5);
-    label.y = territory.hasSupremeBase ? HEX_RADIUS * 0.1 : -HEX_RADIUS * 0.15;
+    label.y = labelY;
     container.addChild(label);
 
     // ── Army badge ──
     if (territory.army) {
       const armyY = HEX_RADIUS * 0.35;
       const badgeBg = new this.pixi.Graphics();
-      badgeBg.roundRect(-18, armyY - 9, 36, 18, 3);
+      badgeBg.roundRect(-15, armyY - 7, 30, 14, 3);
       const armyOwnerColor = territory.ownerColor ? this.parseColor(territory.ownerColor) : 0x00ff41;
-      badgeBg.fill({ color: 0x0a0b0a, alpha: 0.9 });
-      badgeBg.stroke({ width: 1.5, color: armyOwnerColor, alpha: 0.8 });
+
+      // Grey out if army already acted
+      const actedAlpha = territory.army.hasActedThisTurn ? 0.4 : 0.9;
+
+      badgeBg.fill({ color: 0x0a0b0a, alpha: actedAlpha });
+      badgeBg.stroke({ width: 1.5, color: armyOwnerColor, alpha: territory.army.hasActedThisTurn ? 0.3 : 0.8 });
       container.addChild(badgeBg);
 
       const armyText = new this.pixi.Text({
         text: `⚔${territory.army.troopSize}`,
         style: {
           fontFamily: 'Press Start 2P, monospace',
-          fontSize: 7,
+          fontSize: 6,
           fill: armyOwnerColor,
           align: 'center',
         },
       });
       armyText.anchor.set(0.5);
       armyText.y = armyY;
+      armyText.alpha = territory.army.hasActedThisTurn ? 0.4 : 1;
       container.addChild(armyText);
     }
 
@@ -368,8 +409,8 @@ export class MapComponent implements AfterViewInit, OnDestroy {
       return;
     }
 
-    // If this territory has our army, select it
-    if (territory.army && this.currentPhase === 'MOVIMIENTO') {
+    // If this territory has our army, select it (only if it hasn't acted this turn)
+    if (territory.army && this.currentPhase === 'MOVIMIENTO' && !territory.army.hasActedThisTurn) {
       this.store.dispatch(MapActions.selectArmy({ armyId: territory.army.id }));
       return;
     }

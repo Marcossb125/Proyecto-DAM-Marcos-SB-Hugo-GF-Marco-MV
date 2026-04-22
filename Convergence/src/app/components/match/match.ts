@@ -8,7 +8,7 @@ import { Router } from '@angular/router';
 import { Store } from '@ngrx/store';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { Subscription, combineLatest } from 'rxjs';
-import { filter, take, withLatestFrom } from 'rxjs/operators';
+import { filter, take, withLatestFrom, distinctUntilChanged } from 'rxjs/operators';
 
 import { MapComponent } from './map/map';
 import { HudComponent } from './hud/hud';
@@ -19,6 +19,7 @@ import {
   ArmyActions,
   CombatActions,
   CityActions,
+  PhaseActions,
 } from './store/match.actions';
 import {
   selectPhase,
@@ -31,12 +32,13 @@ import {
   selectHighlightedTerritoryIds,
   selectPlayers,
 } from './store/match.selectors';
-import { Territory, Army, Player } from './store/match.state';
+import { Territory, Army, Player, BASE_INCOME, TERRITORY_BONUS, REFINERY_BONUS } from './store/match.state';
 
 import { BuildDialog, BuildDialogResult } from './dialogs/build-dialog';
 import { RecruitDialog, RecruitDialogResult } from './dialogs/recruit-dialog';
 import { BattleDialog, BattleDialogResult } from './dialogs/battle-dialog';
 import { CityDialog, CityDialogResult } from './dialogs/city-dialog';
+import { CollectionDialog, CollectionDialogData } from './dialogs/collection-dialog';
 
 @Component({
   selector: 'app-match',
@@ -53,10 +55,53 @@ export class Match implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     this.setupTerritoryClickHandler();
+    this.setupAutoCollection();
   }
 
   ngOnDestroy(): void {
     this.subscriptions.forEach(s => s.unsubscribe());
+  }
+
+  /**
+   * Auto-collection: when phase enters RECAUDACION, show popup and advance automatically.
+   */
+  private setupAutoCollection(): void {
+    const sub = this.store.select(selectPhase).pipe(
+      distinctUntilChanged(),
+      filter(phase => phase === 'RECAUDACION'),
+      withLatestFrom(
+        this.store.select(selectCurrentPlayer),
+        this.store.select(selectTerritories),
+      ),
+    ).subscribe(([_, player, territories]) => {
+      if (!player) return;
+
+      const ownedTerritories = territories.filter(t => t.ownerId === player.id);
+      const creditBonus = BASE_INCOME.credits + (ownedTerritories.length * TERRITORY_BONUS.credits);
+      const manpowerBonus = BASE_INCOME.manpower + (ownedTerritories.length * TERRITORY_BONUS.manpower);
+      const ownsRefinery = territories.some(t => t.isRefinery && t.ownerId === player.id);
+      const refineryBonus = ownsRefinery ? REFINERY_BONUS.credits : 0;
+
+      const dialogRef = this.dialog.open(CollectionDialog, {
+        data: {
+          playerName: player.name,
+          playerColor: player.color,
+          creditBonus,
+          manpowerBonus,
+          refineryBonus,
+          totalCredits: player.credits + creditBonus + refineryBonus,
+          totalManpower: player.manpower + manpowerBonus,
+        } as CollectionDialogData,
+        panelClass: 'military-dialog',
+        disableClose: true,
+      });
+
+      dialogRef.afterClosed().subscribe(() => {
+        this.store.dispatch(PhaseActions.continueFromRecaudacion());
+      });
+    });
+
+    this.subscriptions.push(sub);
   }
 
   /**
@@ -87,7 +132,7 @@ export class Match implements OnInit, OnDestroy {
           this.handleConstruccionClick(territory, currentPlayer);
           break;
         case 'RECLUTAMIENTO':
-          this.handleReclutamientoClick(territory, currentPlayer);
+          this.handleReclutamientoClick(territory, currentPlayer, armies);
           break;
         case 'MOVIMIENTO':
           this.handleMovimientoClick(
@@ -140,18 +185,15 @@ export class Match implements OnInit, OnDestroy {
 
   // ── RECLUTAMIENTO PHASE ──
 
-  private handleReclutamientoClick(territory: Territory, player: Player): void {
+  private handleReclutamientoClick(territory: Territory, player: Player, armies: Army[]): void {
     // Only allow recruiting at own supreme base
     if (territory.ownerId !== player.id || !territory.hasSupremeBase) {
       this.store.dispatch(MapActions.clearSelection());
       return;
     }
 
-    // Check if base already has an army
-    if (territory.occupiedByArmyId) {
-      this.store.dispatch(MapActions.clearSelection());
-      return;
-    }
+    // Check if there's already an army — we'll reinforce it instead
+    const existingArmy = armies.find(a => a.territoryId === territory.id && a.ownerId === player.id);
 
     const dialogRef = this.dialog.open(RecruitDialog, {
       data: { player, territoryLabel: territory.label },
@@ -166,12 +208,23 @@ export class Match implements OnInit, OnDestroy {
       }
 
       if (result.action === 'recruit' && result.troopSize && result.creditsCost !== undefined && result.manpowerCost !== undefined) {
-        this.store.dispatch(ArmyActions.createArmy({
-          territoryId: territory.id,
-          troopSize: result.troopSize,
-          creditsCost: result.creditsCost,
-          manpowerCost: result.manpowerCost,
-        }));
+        if (existingArmy) {
+          // Reinforce existing army
+          this.store.dispatch(ArmyActions.reinforceArmy({
+            armyId: existingArmy.id,
+            troopSize: result.troopSize,
+            creditsCost: result.creditsCost,
+            manpowerCost: result.manpowerCost,
+          }));
+        } else {
+          // Create new army
+          this.store.dispatch(ArmyActions.createArmy({
+            territoryId: territory.id,
+            troopSize: result.troopSize,
+            creditsCost: result.creditsCost,
+            manpowerCost: result.manpowerCost,
+          }));
+        }
       }
 
       this.store.dispatch(MapActions.clearSelection());
