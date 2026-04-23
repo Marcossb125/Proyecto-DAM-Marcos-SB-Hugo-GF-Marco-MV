@@ -19,7 +19,7 @@ export class Lobby implements OnInit {
     this.cargarPartidas();
   }
 
-  
+
   playerName = signal('Sir Lancelot');
   playerLevel = signal(42);
   currentPage = signal(1);
@@ -70,7 +70,7 @@ export class Lobby implements OnInit {
   constructor(
     private router: Router,
     private partidaService: PartidaService
-  ) {}
+  ) { }
 
   ngOnInit(): void {
     this.cargarPartidas();
@@ -136,7 +136,7 @@ export class Lobby implements OnInit {
     const nuevaPartida: Partida = {
       id: this.partidaService.generarId(),
       name: name,
-      host: this.playerName(),
+      host: this.partidaService.obtenerNombreUsuario(),
       currentPlayers: 1,
       maxPlayers: this.newGameMaxPlayers,
       status: 'open',
