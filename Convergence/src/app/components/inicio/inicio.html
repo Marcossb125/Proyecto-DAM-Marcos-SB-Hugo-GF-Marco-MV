@@ -12,12 +12,6 @@
 
   <!-- ═══ TACTICAL GRID BACKGROUND ═══ -->
   <div class="tactical-grid"></div>
-  <div class="scanline"></div>
-
-  <!-- ═══ SONAR CONTACTS ═══ -->
-  <div class="sonar-contact contact-1"></div>
-  <div class="sonar-contact contact-2"></div>
-  <div class="sonar-contact contact-3"></div>
 
   <!-- ═══ BANNER ═══ -->
   <section class="banner-section">
@@ -54,20 +48,18 @@
         <!-- ═══ NATION FLAG AREA ═══ -->
         <div class="nation-flag-area">
           @if (nationData()) {
-            <div class="flag-display" (click)="openFlagBuilder()" role="button" tabindex="0" title="Editar Bandera">
-              <app-nation-flag [flagData]="nationData()!"></app-nation-flag>
-            </div>
-            <div class="nation-name-line">
-              <div class="sci-fi-line"></div>
-              <span class="nation-name">{{ nationData()!.nombre }}</span>
-            </div>
+          <div class="flag-display" (click)="openFlagBuilder()" role="button" tabindex="0" title="Editar Bandera">
+            <app-nation-flag [flagData]="nationData()!"></app-nation-flag>
+          </div>
+          <div class="nation-name-line">
+            <span class="nation-name">{{ nationData()!.nombre }}</span>
+          </div>
           } @else {
-            <div class="flag-placeholder" (click)="openFlagBuilder()" role="button" tabindex="0" title="Crear Bandera">
-              <mat-icon>add</mat-icon>
-            </div>
-            <div class="nation-name-line empty">
-              <div class="sci-fi-line"></div>
-            </div>
+          <div class="flag-placeholder" (click)="openFlagBuilder()" role="button" tabindex="0" title="Crear Bandera">
+            <mat-icon>add</mat-icon>
+          </div>
+          <div class="nation-name-line empty">
+          </div>
           }
         </div>
       </div>
@@ -160,10 +152,7 @@
   </nav>
 
   @if (isEditingFlag()) {
-    <app-flag-builder 
-      [initialData]="nationData()"
-      (saveFlag)="saveFlag($event)"
-      (cancel)="cancelFlagEdit()">
-    </app-flag-builder>
+  <app-flag-builder [initialData]="nationData()" (saveFlag)="saveFlag($event)" (cancel)="cancelFlagEdit()">
+  </app-flag-builder>
   }
 </div>
