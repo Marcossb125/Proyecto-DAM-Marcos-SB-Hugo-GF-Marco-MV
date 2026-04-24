@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Servidor: 127.0.0.1
--- Tiempo de generación: 15-04-2026 a las 21:34:54
+-- Tiempo de generación: 24-04-2026 a las 17:46:56
 -- Versión del servidor: 10.4.32-MariaDB
 -- Versión de PHP: 8.2.12
 
@@ -30,9 +30,7 @@ SET time_zone = "+00:00";
 CREATE TABLE `participantes` (
   `Id` int(11) NOT NULL,
   `partida_Id` int(11) NOT NULL,
-  `Usuario_id` int(11) NOT NULL,
-  `Planeta_id` int(11) NOT NULL,
-  `Vida` int(11) NOT NULL DEFAULT 100
+  `Usuario_id` int(11) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- --------------------------------------------------------
@@ -59,10 +57,22 @@ CREATE TABLE `partidas` (
 CREATE TABLE `usuarios` (
   `Id` int(11) NOT NULL,
   `Password` varchar(100) NOT NULL,
-  `Contraseña` varchar(100) NOT NULL,
   `Email` varchar(100) NOT NULL,
-  `Nickname` varchar(100) NOT NULL
+  `Nickname` varchar(100) NOT NULL,
+  `Bandera` int(11) DEFAULT NULL,
+  `Faccion` varchar(100) DEFAULT NULL,
+  `General_id` int(11) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Volcado de datos para la tabla `usuarios`
+--
+
+INSERT INTO `usuarios` (`Id`, `Password`, `Email`, `Nickname`, `Bandera`, `Faccion`, `General_id`) VALUES
+(15, '$2a$10$IndELOzUpDMu4hgTnsYgb./F4W8HU0fIVrDiedAbLNiwl009RTIJi', 'leyreaper35@gmail.com', 'RedReaper3', NULL, NULL, NULL),
+(16, '$2a$10$vDIW0s.cx4YEfKfXgBYufuJ4ZEudlz/4J9Q9IGIRNkHhEY7Cefn7O', 'hugogarciafuillerat@gmail.com', 'hugo', NULL, NULL, NULL),
+(17, '$2a$10$iC7wMhicVByy5cmdod7C5eWzXZopRDiG/670pxBX.E5s1BWPzTwum', 'Rodolfus@gmail.com', 'Rodolfus', NULL, NULL, NULL),
+(18, '$2a$10$/8dcH7VrLBwZzmjii3TSAey1XGa78nDcMyg9DN/A7CLIGBosxSXtG', 'jhfhhfjd@gmail.com', 'Quart', NULL, NULL, NULL);
 
 --
 -- Índices para tablas volcadas
@@ -108,7 +118,7 @@ ALTER TABLE `partidas`
 -- AUTO_INCREMENT de la tabla `usuarios`
 --
 ALTER TABLE `usuarios`
-  MODIFY `Id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `Id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=19;
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;

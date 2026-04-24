@@ -1,0 +1,116 @@
+<div class="top-right-actions">
+  <button mat-icon-button class="nav-button">
+    <mat-icon>notifications</mat-icon>
+  </button>
+
+  <button mat-icon-button class="nav-button" (click)="logout()">
+    <mat-icon>logout</mat-icon>
+  </button>
+</div>
+
+<div class="ranking-wrapper">
+  <!-- ═══ TACTICAL GRID BACKGROUND ═══ -->
+  <div class="tactical-grid"></div>
+  <div class="scanline"></div>
+
+  <!-- ═══ HEADER ═══ -->
+  <header class="ranking-header">
+    <div class="header-content">
+      <h1 class="ranking-title">RANKING</h1>
+      <div class="search-container">
+        <div class="search-box">
+          <mat-icon class="search-icon">search</mat-icon>
+          <input 
+            type="text" 
+            [(ngModel)]="searchQuery" 
+            placeholder="Buscar comandante..." 
+            class="search-input"
+          >
+        </div>
+      </div>
+    </div>
+    <div class="header-divider"></div>
+  </header>
+
+  <!-- ═══ PLAYER LIST ═══ -->
+  <main class="ranking-container">
+    <div class="list-header">
+      <span class="col-rank">#</span>
+      <span class="col-player">COMANDANTE</span>
+      <span class="col-victories">VICTORIAS</span>
+    </div>
+
+    <div class="player-list">
+      @for (player of filteredPlayers(); track player.id) {
+        <div class="player-card" [class.online]="player.status === 'online'">
+          <div class="rank-badge">{{ player.rank }}</div>
+          
+          <div class="player-info">
+            <div class="avatar-placeholder">
+              <div class="avatar-inner"></div>
+            </div>
+            <div class="details">
+              <span class="player-name">{{ player.name }}</span>
+              <span class="player-status">
+                <span class="status-dot"></span>
+                {{ player.status === 'online' ? 'EN LÍNEA' : 'DESCONECTADO' }}
+              </span>
+            </div>
+          </div>
+
+          <div class="victories-badge">
+            <span class="victory-count">{{ player.victories }}</span>
+            <mat-icon class="trophy-icon">emoji_events</mat-icon>
+          </div>
+        </div>
+      } @empty {
+        <div class="no-results">
+          <mat-icon>sentiment_dissatisfied</mat-icon>
+          <span>No se encontraron comandantes</span>
+        </div>
+      }
+    </div>
+  </main>
+
+  <!-- ═══ NAVBAR INFERIOR ═══ -->
+  <nav class="bottom-navbar">
+    <button class="navbar-btn" (click)="navigateTo('/inicio')" id="ranking-nav-inicio">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" />
+        <polyline points="9 22 9 12 15 12 15 22" />
+      </svg>
+      <span>Inicio</span>
+    </button>
+    <button class="navbar-btn" (click)="navigateTo('/lobby')" id="ranking-nav-partidas">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <circle cx="12" cy="12" r="10" />
+        <polygon points="10 8 16 12 10 16 10 8" />
+      </svg>
+      <span>Partidas</span>
+    </button>
+    <button class="navbar-btn" (click)="navigateTo('/personajes')" id="ranking-nav-personajes">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
+        <circle cx="12" cy="7" r="4" />
+      </svg>
+      <span>Personajes</span>
+    </button>
+    <button class="navbar-btn active" id="ranking-nav-ranking">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <line x1="8" y1="6" x2="21" y2="6" />
+        <line x1="8" y1="12" x2="21" y2="12" />
+        <line x1="8" y1="18" x2="21" y2="18" />
+        <line x1="3" y1="6" x2="3.01" y2="6" />
+        <line x1="3" y1="12" x2="3.01" y2="12" />
+        <line x1="3" y1="18" x2="3.01" y2="18" />
+      </svg>
+      <span>Ranking</span>
+    </button>
+    <button class="navbar-btn" (click)="navigateTo('/chat')" id="ranking-nav-chat">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
+      </svg>
+      <span>Chat</span>
+    </button>
+  </nav>
+</div>
