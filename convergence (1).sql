@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Servidor: 127.0.0.1
--- Tiempo de generación: 24-04-2026 a las 17:46:56
+-- Tiempo de generación: 24-04-2026 a las 18:21:57
 -- Versión del servidor: 10.4.32-MariaDB
 -- Versión de PHP: 8.2.12
 
@@ -45,7 +45,9 @@ CREATE TABLE `partidas` (
   `Jugadores_actuales` int(11) NOT NULL DEFAULT 1,
   `Jugadores_limite` int(11) NOT NULL DEFAULT 2,
   `Rondas` int(11) NOT NULL,
-  `Estado` varchar(100) NOT NULL DEFAULT '"En curso"'
+  `Estado` varchar(100) NOT NULL DEFAULT '"En curso"',
+  `Fase` int(11) NOT NULL DEFAULT 0,
+  `Host_id` int(11) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- --------------------------------------------------------

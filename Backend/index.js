@@ -87,6 +87,44 @@ io.on('connection', (socket) => {
   });
 });
 
+socket.on('createRoom', async (data) => {
+  try {
+    // 1. Crear partida en la API
+    const partidaResponse = await axios.post(
+      "http://localhost:8080/partida", // Tu API Rest
+      {
+        nombre: data.nombre,
+        jugadores_limite: data.jugadores_limite,
+        host_id: data.host_id
+      },
+      {
+        headers: {
+          "Authorization": "Bearer " + data.token // IMPORTANTE: Token de autenticación
+        }
+      }
+    );
+
+    // 2. Obtener el ID de la partida creada
+    const partidaId = partidaResponse.data.id;
+
+    // 3. Unir el socket a un "room" de Socket.IO
+    socket.join(partidaId.toString());
+
+    // 4. Notificar al cliente que se unió a la sala
+    socket.emit("roomJoined", {
+      success: true,
+      partida: partidaResponse.data,
+      roomId: partidaId
+    });
+
+  } catch (error) {
+    socket.emit("roomJoined", {
+      success: false,
+      error: error.response?.data || "Error al crear la sala"
+    });
+  }
+});
+
 const PORT = process.env.PORT;
 httpServer.listen(PORT, () => {
   console.log(`Middleware Service running on port ${PORT}`);
