@@ -28,22 +28,6 @@ export interface Partida {
   providedIn: 'root',
 })
 export class PartidaService {
-<<<<<<< HEAD
-  private readonly STORAGE_KEY = 'convergence_partidas';
-  private readonly STORAGE_KEY_users = 'convergence_users';
-  private readonly STORAGE_KEY_user = 'convergence_user';
-  private readonly platformId = inject(PLATFORM_ID);
-
-  /**
-   * Elimina una partida por su id del localStorage.
-   */
-  eliminarPartidaPorId(id: number): void {
-    if (!isPlatformBrowser(this.platformId)) return;
-    const partidas = this.obtenerPartidas();
-    const nuevasPartidas = partidas.filter((p) => p.id !== id);
-    localStorage.setItem(this.STORAGE_KEY, JSON.stringify(nuevasPartidas));
-  }
-=======
 
   /**
    * Elimina una partida por su id del localStorage.
@@ -57,7 +41,7 @@ export class PartidaService {
   private readonly STORAGE_KEY_users = 'convergence_users';
   private readonly STORAGE_KEY_user = 'convergence_user';
   private readonly STORAGE_KEY_token = 'convergence_token';
->>>>>>> 7ab69b3d7e4fb431ecceaa8446c10e67e5fd15ee
+  private readonly platformId = inject(PLATFORM_ID);
 
   /**
    * Obtiene todas las partidas guardadas en localStorage.
@@ -96,13 +80,6 @@ export class PartidaService {
     return Math.max(...partidas.map((p) => p.id)) + 1;
   }
 
-<<<<<<< HEAD
-  guardarUsuario(usuario: any): void {
-    if (!isPlatformBrowser(this.platformId)) return;
-    const usuarios = this.obtenerUsuarios();
-    usuarios.push(usuario);
-    localStorage.setItem(this.STORAGE_KEY_users, JSON.stringify(usuarios));
-=======
   registerUser(data: { email: string, password: string, nickname: string }): Promise<boolean> {
     return new Promise((resolve) => {
       socket.emit('register', data, (response: { error?: string }) => {
@@ -115,7 +92,6 @@ export class PartidaService {
         }
       });
     });
->>>>>>> 7ab69b3d7e4fb431ecceaa8446c10e67e5fd15ee
   }
 
   loginUser(data: { nickname: string, password: string }): Promise<boolean> {
