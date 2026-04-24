@@ -40,11 +40,16 @@ export class Register {
     this.isLoading.set(true);
 
     // Simulate registration
-    this.partidaService.guardarUsuario({
+    this.partidaService.registerUser({
       email: this.email(),
-      username: this.username(),
       password: this.password(),
+      nickname: this.username()
+    }).then((response) => {
+      if (response) {
+        this.router.navigate(['/login']);
+      } else {
+        console.log("Registro fallido")
+      }
     });
-    this.router.navigate(['/login']);
   }
 }

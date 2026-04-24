@@ -18,6 +18,7 @@ export class Login {
   constructor(private router: Router, private partidaService: PartidaService) { }
 
   onLogin(): void {
+
     this.errorMessage.set('');
 
     if (!this.username() || !this.password()) {
@@ -27,8 +28,12 @@ export class Login {
 
     this.isLoading.set(true);
 
-    this.partidaService.obtenerUsuarios().forEach((usuario) => {
-      if (usuario.username === this.username() && usuario.password === this.password()) {
+    this.partidaService.loginUser({
+      nickname: this.username(),
+      password: this.password()
+    }).then((response) => {
+      console.log(response);
+      if (response) {
         this.partidaService.guardarNombreUsuario(this.username());
         this.router.navigate(['/inicio']);
       } else {
