@@ -1,5 +1,6 @@
 package com.convergence.convergence.model;
 
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -15,25 +16,28 @@ public class Partida {
     private Long id;
 
     private String nombre;
-    private int jugadores_actual;
-    private int jugadores_limite;
+    @Column(name = "jugadores_actual")
+    private int jugadoresActual;
+    @Column(name = "jugadores_limite")
+    private int jugadoresLimite;
     private String estado;
     private int ronda;
     private int fase;
-    private Long host_id;
+    @Column(name = "host_id")
+    private Long hostId;
 
 
     public Partida() {}
 
-    public Partida(String nombre, int jugadores_actual, int jugadores_limite, String estado, int ronda, int fase,
-            Long host_id) {
+    public Partida(String nombre, int jugadoresActual, int jugadoresLimite, String estado, int ronda, int fase,
+            Long hostId) {
         this.nombre = nombre;
-        this.jugadores_actual = jugadores_actual;
-        this.jugadores_limite = jugadores_limite;
+        this.jugadoresActual = jugadoresActual;
+        this.jugadoresLimite = jugadoresLimite;
         this.estado = estado;
         this.ronda = ronda;
         this.fase = fase;
-        this.host_id = host_id;
+        this.hostId = hostId;
     }
 
     public Long getId() {
@@ -52,20 +56,20 @@ public class Partida {
         this.nombre = nombre;
     }
 
-    public int getJugadores_actual() {
-        return jugadores_actual;
+    public int getJugadoresActual() {
+        return jugadoresActual;
     }
 
-    public void setJugadores_actual(int jugadores_actual) {
-        this.jugadores_actual = jugadores_actual;
+    public void setJugadoresActual(int jugadoresActual) {
+        this.jugadoresActual = jugadoresActual;
     }
 
-    public int getJugadores_limite() {
-        return jugadores_limite;
+    public int getJugadoresLimite() {
+        return jugadoresLimite;
     }
 
-    public void setJugadores_limite(int jugadores_limite) {
-        this.jugadores_limite = jugadores_limite;
+    public void setJugadoresLimite(int jugadoresLimite) {
+        this.jugadoresLimite = jugadoresLimite;
     }
 
     public String getEstado() {
@@ -92,12 +96,12 @@ public class Partida {
         this.fase = fase;
     }
 
-    public Long getHost_id() {
-        return host_id;
+    public Long getHostId() {
+        return hostId;
     }
 
-    public void setHost_id(Long host_id) {
-        this.host_id = host_id;
+    public void setHostId(Long hostId) {
+        this.hostId = hostId;
     }
     
 }

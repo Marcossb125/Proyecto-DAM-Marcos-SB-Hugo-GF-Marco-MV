@@ -11,5 +11,5 @@ import java.util.Optional;
 public interface PartidaRepository extends JpaRepository<Partida, Long> {
     Optional<Partida> findByNombre(String nombre);
     List<Partida> findByEstado(String estado);
-    Optional<Partida> findByHost_id(Long host_id);
+    Optional<Partida> findByHostId(Long hostId);
 }

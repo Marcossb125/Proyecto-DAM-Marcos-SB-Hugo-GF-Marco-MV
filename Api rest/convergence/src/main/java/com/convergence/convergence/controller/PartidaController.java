@@ -33,7 +33,7 @@ public class PartidaController {
 
     @GetMapping("/{id}")
     public ResponseEntity<?> obtenerPartidaPorId(@PathVariable Long id) {
-        Optional<Partida> partida = partidaRepository.findByHost_id(id);
+        Optional<Partida> partida = partidaRepository.findByHostId(id);
         return ResponseEntity.ok(partida.get());
     }
 

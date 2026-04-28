@@ -100,9 +100,31 @@ export class PartidaService {
         if (response.data) {
           localStorage.setItem(this.STORAGE_KEY_user, JSON.stringify(data.nickname));
           localStorage.setItem(this.STORAGE_KEY_token, JSON.stringify(response.data));
-          resolve(true);
+
+          const handshakeData = { nickname: data.nickname, token: response.data };
+          this.handshakeUser(handshakeData).then((success) => {
+            if (success) {
+              resolve(true);
+            } else {
+              resolve(false);
+            }
+          });
         } else {
           console.error('Error en el login:', response.error);
+          resolve(false);
+        }
+      });
+    })
+  }
+
+  handshakeUser(data: { nickname: string, token: string }): Promise<boolean> {
+    return new Promise((resolve) => {
+      socket.emit('handshake', data, (handshakeResponse: { success: boolean, error?: string }) => {
+        if (handshakeResponse && handshakeResponse.success) {
+          console.log('Suscrito al servicio middleware');
+          resolve(true);
+        } else {
+          console.error('Error en el handshake:', handshakeResponse?.error);
           resolve(false);
         }
       });
@@ -112,6 +134,10 @@ export class PartidaService {
   logoutUser(): void {
     localStorage.removeItem(this.STORAGE_KEY_token);
     localStorage.removeItem(this.STORAGE_KEY_user);
+    socket.emit('disconnect', () => {
+      console.log('Desconectado del servicio middleware');
+    });
+    socket.disconnect();
   }
   /**
    * Obtiene todos los usuarios guardados en localStorage.
