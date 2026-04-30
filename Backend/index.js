@@ -26,6 +26,12 @@ const registerPayload = z.object({
   password: z.string().min(6).max(100).trim(),
 });
 
+const createRoomPayload = z.object({
+  nombre: z.string().min(1).max(100).trim(),
+  jugadores_limite: z.number().min(2).max(4),
+  hostNombre: z.string().min(0).max(20).trim(),
+});
+
 const API_BASE_URL = process.env.API_BASE_URL;
 const JWT = process.env.JWT;
 
@@ -102,45 +108,65 @@ io.on('connection', (socket) => {
     }
   });
 
-  /* socket.on('createRoom', async (data) => {
+  socket.on('createRoom', async (data, callback) => {
     try {
-      // 1. Crear partida en la API
+      const sanitize = createRoomPayload.safeParse(data);
+      if (!sanitize.success) {
+        callback({ success: false, error: "Datos no validos" });
+        return;
+      }
       const partidaResponse = await axios.post(
-        "http://localhost:8080/partida", // Tu API Rest
+        `${API_BASE_URL}/partidas/crear`,
         {
-          nombre: data.nombre,
-          jugadores_limite: data.jugadores_limite,
-          host_id: data.host_id
+          nombre: sanitize.data.nombre,
+          jugadores_limite: sanitize.data.jugadores_limite,
+          hostNombre: sanitize.data.hostNombre
         },
-        {
-          headers: {
-            "Authorization": "Bearer " + data.token // IMPORTANTE: Token de autenticación
-          }
-        }
       );
 
-      // 2. Obtener el ID de la partida creada
-      const partidaId = partidaResponse.data.id;
-
-      // 3. Unir el socket a un "room" de Socket.IO
-      socket.join(partidaId.toString());
-
-      // 4. Notificar al cliente que se unió a la sala
-      socket.emit("roomJoined", {
-        success: true,
-        partida: partidaResponse.data,
-        roomId: partidaId
-      });
+      callback({ success: true, data: partidaResponse.data });
 
     } catch (error) {
-      socket.emit("roomJoined", {
+      console.log("adios" + error)
+      callback({
         success: false,
         error: error.response?.data || "Error al crear la sala"
       });
     }
   });
 
-  */
+  socket.on('buscarPartidas', async (callback) => {
+    try {
+      const response = await axios.get(`${API_BASE_URL}/partidas/buscar/activas`);
+      callback({ success: true, data: response.data });
+    } catch (error) {
+      callback({ success: false, error: 'Error al buscar partidas' });
+    }
+  });
+
+  socket.on('deleteRoom', async (nombre, callback) => {
+    try {
+      // 1. Buscar la partida por nombre para obtener su ID
+      const findResponse = await axios.get(`${API_BASE_URL}/partidas/nombre/${nombre}`);
+      const partida = findResponse.data;
+
+      if (!partida || !partida.id) {
+        callback({ success: false, error: 'No se encontró la partida' });
+        return;
+      }
+
+      // 2. Borrar la partida por ID
+      await axios.delete(`${API_BASE_URL}/partidas/${partida.id}`);
+      
+      callback({ success: true });
+    } catch (error) {
+      console.log('Error al borrar la partida:', error.message);
+      callback({ 
+        success: false, 
+        error: error.response?.status === 404 ? 'Partida no encontrada' : 'Error al borrar la partida' 
+      });
+    }
+  });
 
   socket.on('disconnect', () => {
     console.log(`Client disconnected: ${socket.id}`);

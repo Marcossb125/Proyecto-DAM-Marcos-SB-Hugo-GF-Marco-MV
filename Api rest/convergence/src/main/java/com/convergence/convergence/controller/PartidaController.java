@@ -1,8 +1,11 @@
 package com.convergence.convergence.controller;
 
 import com.convergence.convergence.model.Partida;
+import com.convergence.convergence.model.User;
 import com.convergence.convergence.repository.PartidaRepository;
+import com.convergence.convergence.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -16,24 +19,56 @@ public class PartidaController {
     @Autowired
     private PartidaRepository partidaRepository;
 
+    @Autowired
+    private UserRepository userRepository;
+
+    public static class PartidaRequest {
+        public String nombre;
+        public int jugadores_limite;
+        public String hostNombre;
+    }
+
     @PostMapping("/crear")
-    public ResponseEntity<?> crearPartida(@RequestBody Partida partida) {
-        if (partida.getNombre() == null || partida.getNombre().isEmpty()) {
+    public ResponseEntity<?> crearPartida(@RequestBody PartidaRequest req) {
+        if (req.nombre == null || req.nombre.isEmpty()) {
             return ResponseEntity.badRequest().body("El nombre de la partida es obligatorio");
         }
         
-        Optional<Partida> existing = partidaRepository.findByNombre(partida.getNombre());
+        Optional<Partida> existing = partidaRepository.findByNombre(req.nombre);
         if (existing.isPresent()) {
             return ResponseEntity.status(409).body("Ya existe una partida con ese nombre");
         }
 
-        Partida nuevaPartida = partidaRepository.save(partida);
-        return ResponseEntity.ok(nuevaPartida);
+        // Buscar el usuario host por su nickname
+        Optional<User> hostUser = userRepository.findByNickname(req.hostNombre);
+        if (hostUser.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("No se encontró el usuario host con el nickname: " + req.hostNombre);
+        }
+
+        Partida nuevaPartida = new Partida();
+        nuevaPartida.setNombre(req.nombre);
+        nuevaPartida.setJugadoresLimite(req.jugadores_limite);
+        nuevaPartida.setHostId(hostUser.get().getId());
+        
+        Partida guardada = partidaRepository.save(nuevaPartida);
+        return ResponseEntity.ok(guardada);
     }
 
     @GetMapping("/{id}")
     public ResponseEntity<?> obtenerPartidaPorId(@PathVariable Long id) {
-        Optional<Partida> partida = partidaRepository.findByHostId(id);
+        Optional<Partida> partida = partidaRepository.findById(id);
+        if (partida.isEmpty()) {
+            return ResponseEntity.status(404).body("No se encontró partida con ID: " + id);
+        }
+        return ResponseEntity.ok(partida.get());
+    }
+
+    @GetMapping("/nombre/{nombre}")
+    public ResponseEntity<?> obtenerPartidaPorNombre(@PathVariable String nombre) {
+        Optional<Partida> partida = partidaRepository.findByNombre(nombre);
+        if (partida.isEmpty()) {
+            return ResponseEntity.status(404).body("No se encontró partida con nombre: " + nombre);
+        }
         return ResponseEntity.ok(partida.get());
     }
 
@@ -46,9 +81,12 @@ public class PartidaController {
         return ResponseEntity.ok("Partida borrada con éxito");
     }
 
-    @GetMapping("/activas")
+    @GetMapping("/buscar/activas")
     public ResponseEntity<List<Partida>> obtenerPartidasEnCurso() {
-        List<Partida> partidas = partidaRepository.findByEstado("en curso");
+        List<Partida> partidas = partidaRepository.findByEstado("En curso");
+        for (Partida p : partidas) {
+            userRepository.findById(p.getHostId()).ifPresent(u -> p.setHostNombre(u.getNickname()));
+        }
         return ResponseEntity.ok(partidas);
     }
 }

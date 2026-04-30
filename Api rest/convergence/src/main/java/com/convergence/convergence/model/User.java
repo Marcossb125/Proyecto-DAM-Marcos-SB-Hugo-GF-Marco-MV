@@ -1,5 +1,6 @@
 package com.convergence.convergence.model;
 
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -12,10 +13,16 @@ public class User {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "Id")
     private Long id;
 
+    @Column(name = "Nickname", nullable = false, unique = true)
     private String nickname;
+
+    @Column(name = "Password", nullable = false)
     private String password;
+
+    @Column(name = "Email", nullable = false, unique = true)
     private String email;
 
 

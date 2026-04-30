@@ -4,7 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { TopActions } from '../top-actions/top-actions';
 import { BottomNavbar } from '../bottom-navbar/bottom-navbar';
 import { Banner } from '../banner/banner';
-import { PartidaService, Partida } from '../../servicios/partida.service';
+import { PartidaService, Partida, Partidaa } from '../../servicios/partida.service';
 
 @Component({
   selector: 'app-lobby',
@@ -15,11 +15,21 @@ import { PartidaService, Partida } from '../../servicios/partida.service';
 export class Lobby implements OnInit {
 
   /**
-   * Elimina una partida del storage y actualiza la lista.
+   * Elimina una partida buscando su ID por nombre en la API y actualiza la lista.
    */
   deleteGame(game: Partida): void {
-    this.partidaService.eliminarPartidaPorId(game.id);
-    this.cargarPartidas();
+    if (confirm(`¿Estás seguro de que deseas borrar la partida "${game.name}"?`)) {
+      this.partidaService.borrarPartida(game.name).subscribe({
+        next: () => {
+          console.log('Partida borrada con éxito');
+          this.cargarPartidas();
+        },
+        error: (err) => {
+          console.error('Error al borrar la partida:', err);
+          alert('No se pudo borrar la partida: ' + err);
+        }
+      });
+    }
   }
 
 
@@ -60,7 +70,7 @@ export class Lobby implements OnInit {
   filteredGames = computed(() => {
     const search = this.searchText().toLowerCase();
     return this.games().filter(game =>
-      game.name.toLowerCase().includes(search)
+      (game.name || '').toLowerCase().includes(search)
     );
   });
 
@@ -86,11 +96,18 @@ export class Lobby implements OnInit {
   }
 
   /**
-   * Carga las partidas desde localStorage y actualiza la señal.
-   */
+ * Carga las partidas desde localStorage y actualiza la señal.
+ */
   cargarPartidas(): void {
-    const partidas = this.partidaService.obtenerPartidas();
-    this.games.set(partidas);
+    // Pedimos al backend que busque las partidas activas
+    this.partidaService.buscarPartidasActivas().subscribe({
+      next: (partidas) => {
+        this.games.set(partidas);
+      },
+      error: (err) => {
+        console.error('Error al cargar partidas:', err);
+      }
+    });
   }
 
   navigateTo(route: string): void {
@@ -146,9 +163,24 @@ export class Lobby implements OnInit {
       ping: Math.floor(Math.random() * 60) + 10,
     };
 
-    this.partidaService.guardarPartida(nuevaPartida);
-    this.cargarPartidas();
-    this.closeModal();
+    const nuevaPartidaa: Partidaa = {
+      nombre: name,
+      jugadores_limite: this.newGameMaxPlayers,
+      hostNombre: this.partidaService.obtenerNombreUsuario(),
+    };
+
+    this.partidaService.crearPartida(nuevaPartidaa).subscribe({
+      next: (res) => {
+        console.log('Partida creada con éxito:', res);
+        // También la guardamos localmente si es necesario (aunque el backend es la fuente principal)
+        this.partidaService.guardarPartida(nuevaPartida);
+        this.closeModal();
+        this.cargarPartidas(); // Ahora sí recargamos tras la confirmación
+      },
+      error: (err) => {
+        this.formError.set('Nombre en uso, pruebe otro por favor');
+      }
+    });
   }
 
   /**

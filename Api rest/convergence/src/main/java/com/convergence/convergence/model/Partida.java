@@ -6,36 +6,51 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
+import jakarta.persistence.Transient;
 
 @Entity
-@Table(name = "Partidas")
+@Table(name = "partidas")
 public class Partida {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "Id")
     private Long id;
 
+    @Column(name = "Nombre", nullable = false)
     private String nombre;
-    @Column(name = "jugadores_actual")
-    private int jugadoresActual;
-    @Column(name = "jugadores_limite")
-    private int jugadoresLimite;
-    private String estado;
-    private int ronda;
-    private int fase;
-    @Column(name = "host_id")
+
+    @Column(name = "Jugadores_actuales", nullable = false)
+    private int jugadoresActuales = 1;
+
+    @Column(name = "Jugadores_limite", nullable = false)
+    private int jugadoresLimite = 2;
+
+    @Column(name = "Estado", nullable = false)
+    private String estado = "En curso";
+
+    @Column(name = "Rondas", nullable = false)
+    private int rondas = 0;
+
+    @Column(name = "Fase", nullable = false)
+    private int fase = 0;
+
+    @Column(name = "Host_id", nullable = false)
     private Long hostId;
+
+    @Transient
+    private String hostNombre;
 
 
     public Partida() {}
 
-    public Partida(String nombre, int jugadoresActual, int jugadoresLimite, String estado, int ronda, int fase,
+    public Partida(String nombre, int jugadoresActuales, int jugadoresLimite, String estado, int rondas, int fase,
             Long hostId) {
         this.nombre = nombre;
-        this.jugadoresActual = jugadoresActual;
+        this.jugadoresActuales = jugadoresActuales;
         this.jugadoresLimite = jugadoresLimite;
         this.estado = estado;
-        this.ronda = ronda;
+        this.rondas = rondas;
         this.fase = fase;
         this.hostId = hostId;
     }
@@ -56,12 +71,12 @@ public class Partida {
         this.nombre = nombre;
     }
 
-    public int getJugadoresActual() {
-        return jugadoresActual;
+    public int getJugadoresActuales() {
+        return jugadoresActuales;
     }
 
-    public void setJugadoresActual(int jugadoresActual) {
-        this.jugadoresActual = jugadoresActual;
+    public void setJugadoresActuales(int jugadoresActuales) {
+        this.jugadoresActuales = jugadoresActuales;
     }
 
     public int getJugadoresLimite() {
@@ -80,12 +95,12 @@ public class Partida {
         this.estado = estado;
     }
 
-    public int getRonda() {
-        return ronda;
+    public int getRondas() {
+        return rondas;
     }
 
-    public void setRonda(int ronda) {
-        this.ronda = ronda;
+    public void setRondas(int rondas) {
+        this.rondas = rondas;
     }
 
     public int getFase() {
@@ -102,6 +117,14 @@ public class Partida {
 
     public void setHostId(Long hostId) {
         this.hostId = hostId;
+    }
+
+    public String getHostNombre() {
+        return hostNombre;
+    }
+
+    public void setHostNombre(String hostNombre) {
+        this.hostNombre = hostNombre;
     }
     
 }

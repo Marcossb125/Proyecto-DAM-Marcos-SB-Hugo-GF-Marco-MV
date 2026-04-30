@@ -3,16 +3,12 @@ import { isPlatformBrowser } from '@angular/common';
 import { io, Socket } from 'socket.io-client';
 import { Observable } from 'rxjs';
 
+// Socket sin autenticación, sólo para register y login
+const authSocket = io('http://localhost:3000', { transports: ['websocket'] });
 
-
-const socket = io("http://localhost:3000");
-
-socket.on("connect", () => {
-  console.log("Conectado al servidor con ID:", socket.id);
+authSocket.on('connect', () => {
+  console.log('Socket de auth conectado con ID:', authSocket.id);
 });
-
-
-
 
 export interface Partida {
   id: number;
@@ -24,10 +20,135 @@ export interface Partida {
   ping: number;
 }
 
+export interface Partidaa {
+  nombre: string;
+  jugadores_limite: number;
+  hostNombre: string;
+}
+
+
+
 @Injectable({
   providedIn: 'root',
 })
 export class PartidaService {
+
+  /** Socket autenticado, se crea tras el login con el token JWT */
+  private socket!: Socket;
+
+  private readonly STORAGE_KEY = 'convergence_partidas';
+  private readonly STORAGE_KEY_users = 'convergence_users';
+  private readonly STORAGE_KEY_user = 'convergence_user';
+  private readonly STORAGE_KEY_token = 'convergence_token';
+  private readonly platformId = inject(PLATFORM_ID);
+
+  constructor() {
+    if (isPlatformBrowser(this.platformId)) {
+      const tokenStr = localStorage.getItem(this.STORAGE_KEY_token);
+      if (tokenStr) {
+        try {
+          const token = JSON.parse(tokenStr);
+          this.conectar(token);
+        } catch (e) {
+          console.error('Error auto-conectando socket:', e);
+        }
+      }
+    }
+  }
+
+  // ── WebSocket autenticado ────────────────────────────────────────────────
+
+  /**
+   * Inicializa el socket autenticado enviando el token en el handshake de
+   * socket.io (opción auth). Debe llamarse tras un login exitoso.
+   */
+  public conectar(token: string): void {
+    this.socket = io('http://localhost:3000', {
+      auth: { token },
+      transports: ['websocket']
+    });
+
+    this.socket.on('connect', () => {
+      console.log('Socket autenticado conectado con ID:', this.socket.id);
+    });
+
+    this.socket.on('connect_error', (err) => {
+      console.error('Error de conexión autenticada:', err.message);
+    });
+  }
+
+  /**
+   * Escucha un evento del servidor y lo expone como Observable de RxJS.
+   * Al desuscribirse, elimina automáticamente el listener.
+   */
+  public listen(event: string): Observable<any> {
+    return new Observable((subscriber) => {
+      if (!this.socket) {
+        subscriber.error('Socket no inicializado');
+        return;
+      }
+      this.socket.on(event, (data: any) => subscriber.next(data));
+      return () => {
+        if (this.socket) this.socket.off(event);
+      };
+    });
+  }
+
+  /**
+   * Emite un evento al servidor a través del socket autenticado.
+   */
+  public emit(event: string, data: any): void {
+    console.log('Emitting event:', event, data);
+    if (!this.socket) {
+      console.error('No se puede emitir, socket no inicializado');
+      return;
+    }
+    this.socket.emit(event, data);
+  }
+
+  // ── Auth (register / login) ──────────────────────────────────────────────
+
+  registerUser(data: { email: string; password: string; nickname: string }): Promise<boolean> {
+    return new Promise((resolve) => {
+      authSocket.emit('register', data, (response: { error?: string }) => {
+        if (response.error) {
+          console.error('Error en el registro:', response.error);
+          resolve(false);
+        } else {
+          resolve(true);
+        }
+      });
+    });
+  }
+
+  loginUser(data: { nickname: string; password: string }): Promise<boolean> {
+    return new Promise((resolve) => {
+      authSocket.emit('login', data, (response: { data: string; error?: string }) => {
+        if (response.data) {
+          localStorage.setItem(this.STORAGE_KEY_user, JSON.stringify(data.nickname));
+          localStorage.setItem(this.STORAGE_KEY_token, JSON.stringify(response.data));
+
+          // Conectar el socket autenticado usando el token recibido
+          this.conectar(response.data);
+          resolve(true);
+        } else {
+          console.error('Error en el login:', response.error);
+          resolve(false);
+        }
+      });
+    });
+  }
+
+  logoutUser(): void {
+    localStorage.removeItem(this.STORAGE_KEY_token);
+    localStorage.removeItem(this.STORAGE_KEY_user);
+    if (this.socket) {
+      this.socket.disconnect();
+      console.log('Desconectado del servicio middleware');
+    }
+  }
+
+  // ── Partidas (localStorage) ──────────────────────────────────────────────
 
   /**
    * Elimina una partida por su id del localStorage.
@@ -37,11 +158,6 @@ export class PartidaService {
     const nuevasPartidas = partidas.filter((p) => p.id !== id);
     localStorage.setItem(this.STORAGE_KEY, JSON.stringify(nuevasPartidas));
   }
-  private readonly STORAGE_KEY = 'convergence_partidas';
-  private readonly STORAGE_KEY_users = 'convergence_users';
-  private readonly STORAGE_KEY_user = 'convergence_user';
-  private readonly STORAGE_KEY_token = 'convergence_token';
-  private readonly platformId = inject(PLATFORM_ID);
 
   /**
    * Obtiene todas las partidas guardadas en localStorage.
@@ -49,9 +165,7 @@ export class PartidaService {
   obtenerPartidas(): Partida[] {
     if (!isPlatformBrowser(this.platformId)) return [];
     const data = localStorage.getItem(this.STORAGE_KEY);
-    if (!data) {
-      return [];
-    }
+    if (!data) return [];
     try {
       return JSON.parse(data) as Partida[];
     } catch {
@@ -69,85 +183,85 @@ export class PartidaService {
     localStorage.setItem(this.STORAGE_KEY, JSON.stringify(partidas));
   }
 
+  crearPartida(nuevaPartida: Partidaa): Observable<any> {
+    return new Observable((subscriber) => {
+      if (!this.socket) {
+        subscriber.error('Socket no inicializado');
+        return;
+      }
+      this.socket.emit('createRoom', nuevaPartida, (response: any) => {
+        if (response.success) {
+          subscriber.next(response.data);
+        } else {
+          subscriber.error(response.error);
+        }
+        subscriber.complete();
+      });
+    });
+  }
+
+  buscarPartidasActivas(): Observable<Partida[]> {
+    return new Observable((subscriber) => {
+      if (!this.socket) {
+        subscriber.error('Socket no inicializado');
+        return;
+      }
+      this.socket.emit('buscarPartidas', (response: any) => {
+        if (response.success) {
+          // Mapeamos los campos del backend (en español) a la interfaz del frontend (en inglés)
+          const mappedPartidas: Partida[] = response.data.map((p: any) => ({
+            id: p.id,
+            name: p.nombre, // 'nombre' -> 'name'
+            host: p.hostNombre || `ID: ${p.hostId}`, // Usamos el nombre del host que ahora envía el backend
+            currentPlayers: p.jugadoresActuales,
+            maxPlayers: p.jugadoresLimite,
+            status: p.estado === 'En curso' ? 'open' : 'full',
+            ping: p.ping || Math.floor(Math.random() * 60) + 10 // Simulado si no viene del backend
+          }));
+          subscriber.next(mappedPartidas);
+        } else {
+          subscriber.error(response.error);
+        }
+        subscriber.complete();
+      });
+    });
+  }
+
+  borrarPartida(nombre: string): Observable<any> {
+    return new Observable((subscriber) => {
+      if (!this.socket) {
+        subscriber.error('Socket no inicializado');
+        return;
+      }
+      this.socket.emit('deleteRoom', nombre, (response: any) => {
+        if (response.success) {
+          subscriber.next(response);
+        } else {
+          subscriber.error(response.error);
+        }
+        subscriber.complete();
+      });
+    });
+  }
+
   /**
    * Genera un ID único para una nueva partida.
    */
   generarId(): number {
     const partidas = this.obtenerPartidas();
-    if (partidas.length === 0) {
-      return 1;
-    }
+    if (partidas.length === 0) return 1;
     return Math.max(...partidas.map((p) => p.id)) + 1;
   }
 
-  registerUser(data: { email: string, password: string, nickname: string }): Promise<boolean> {
-    return new Promise((resolve) => {
-      socket.emit('register', data, (response: { error?: string }) => {
-        if (response.error) {
-          console.error('Error en el registro:', response.error);
-          resolve(false);
-        } else {
-          console.log("hola");
-          resolve(true);
-        }
-      });
-    });
-  }
+  // ── Usuarios (localStorage) ──────────────────────────────────────────────
 
-  loginUser(data: { nickname: string, password: string }): Promise<boolean> {
-    return new Promise((resolve) => {
-      socket.emit('login', data, (response: { data: string; error?: string }) => {
-        if (response.data) {
-          localStorage.setItem(this.STORAGE_KEY_user, JSON.stringify(data.nickname));
-          localStorage.setItem(this.STORAGE_KEY_token, JSON.stringify(response.data));
-
-          const handshakeData = { nickname: data.nickname, token: response.data };
-          this.handshakeUser(handshakeData).then((success) => {
-            if (success) {
-              resolve(true);
-            } else {
-              resolve(false);
-            }
-          });
-        } else {
-          console.error('Error en el login:', response.error);
-          resolve(false);
-        }
-      });
-    })
-  }
-
-  handshakeUser(data: { nickname: string, token: string }): Promise<boolean> {
-    return new Promise((resolve) => {
-      socket.emit('handshake', data, (handshakeResponse: { success: boolean, error?: string }) => {
-        if (handshakeResponse && handshakeResponse.success) {
-          console.log('Suscrito al servicio middleware');
-          resolve(true);
-        } else {
-          console.error('Error en el handshake:', handshakeResponse?.error);
-          resolve(false);
-        }
-      });
-    })
-  }
-
-  logoutUser(): void {
-    localStorage.removeItem(this.STORAGE_KEY_token);
-    localStorage.removeItem(this.STORAGE_KEY_user);
-    socket.emit('disconnect', () => {
-      console.log('Desconectado del servicio middleware');
-    });
-    socket.disconnect();
-  }
   /**
    * Obtiene todos los usuarios guardados en localStorage.
    */
   obtenerUsuarios(): any[] {
     if (!isPlatformBrowser(this.platformId)) return [];
     const data = localStorage.getItem(this.STORAGE_KEY_users);
-    if (!data) {
-      return [];
-    }
+    if (!data) return [];
     try {
       return JSON.parse(data) as any[];
     } catch {
