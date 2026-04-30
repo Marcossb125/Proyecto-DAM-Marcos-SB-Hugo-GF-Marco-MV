@@ -32,6 +32,11 @@ export class Lobby implements OnInit {
     }
   }
 
+  isHost(game: Partida): boolean {
+    const currentUser = this.partidaService.obtenerNombreUsuario();
+    return game.host === currentUser;
+  }
+
 
   playerName = signal('Sir Lancelot');
   playerLevel = signal(42);

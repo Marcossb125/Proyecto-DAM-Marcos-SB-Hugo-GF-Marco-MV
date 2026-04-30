@@ -24,7 +24,10 @@ public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
             .requestMatchers("/auth/register", "/auth/login").permitAll()
             .requestMatchers(HttpMethod.POST, "/partidas/crear").permitAll()
             .requestMatchers(HttpMethod.GET, "/partidas/buscar/activas").permitAll()
+            .requestMatchers(HttpMethod.DELETE, "/partidas/{id}").permitAll()
+            .requestMatchers(HttpMethod.GET, "/partidas/nombre/{nombre}").permitAll()
             .requestMatchers("/error").permitAll()
+
             .anyRequest().authenticated()
         )
         .httpBasic(basic -> basic.disable());

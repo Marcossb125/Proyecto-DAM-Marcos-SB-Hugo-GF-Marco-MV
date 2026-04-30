@@ -21,7 +21,7 @@ const loginPayload = z.object({
 });
 
 const registerPayload = z.object({
-  nickname: z.string().min(0).max(20).trim(),
+  nickname: z.string().min(3).max(20).trim(),
   email: z.string().email().trim(),
   password: z.string().min(6).max(100).trim(),
 });
@@ -29,7 +29,12 @@ const registerPayload = z.object({
 const createRoomPayload = z.object({
   nombre: z.string().min(1).max(100).trim(),
   jugadores_limite: z.number().min(2).max(4),
-  hostNombre: z.string().min(0).max(20).trim(),
+  hostNombre: z.string().min(3).max(20).trim(),
+});
+
+const deleteRoomPayload = z.object({
+  nombre: z.string().min(1).max(100).trim(),
+  hostNombre: z.string().min(3).max(20).trim(),
 });
 
 const API_BASE_URL = process.env.API_BASE_URL;
@@ -146,6 +151,11 @@ io.on('connection', (socket) => {
 
   socket.on('deleteRoom', async (nombre, callback) => {
     try {
+      const sanitize = deleteRoomPayload.safeParse(nombre);
+      if (!sanitize.success) {
+        callback({ success: false, error: "Datos no validos" });
+        return;
+      }
       // 1. Buscar la partida por nombre para obtener su ID
       const findResponse = await axios.get(`${API_BASE_URL}/partidas/nombre/${nombre}`);
       const partida = findResponse.data;
@@ -157,13 +167,13 @@ io.on('connection', (socket) => {
 
       // 2. Borrar la partida por ID
       await axios.delete(`${API_BASE_URL}/partidas/${partida.id}`);
-      
+
       callback({ success: true });
     } catch (error) {
       console.log('Error al borrar la partida:', error.message);
-      callback({ 
-        success: false, 
-        error: error.response?.status === 404 ? 'Partida no encontrada' : 'Error al borrar la partida' 
+      callback({
+        success: false,
+        error: error.response?.status === 404 ? 'Partida no encontrada' : 'Error al borrar la partida'
       });
     }
   });

@@ -69,14 +69,25 @@ public class PartidaController {
         if (partida.isEmpty()) {
             return ResponseEntity.status(404).body("No se encontró partida con nombre: " + nombre);
         }
-        return ResponseEntity.ok(partida.get());
+        Partida p = partida.get();
+        userRepository.findById(p.getHostId()).ifPresent(u -> p.setHostNombre(u.getNickname()));
+        return ResponseEntity.ok(p);
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<?> borrarPartida(@PathVariable Long id) {
-        if (!partidaRepository.existsById(id)) {
+    public ResponseEntity<?> borrarPartida(@PathVariable Long id, @RequestParam String requester) {
+        Optional<Partida> partidaOpt = partidaRepository.findById(id);
+        if (partidaOpt.isEmpty()) {
             return ResponseEntity.status(404).body("Partida no encontrada");
         }
+        
+        Partida partida = partidaOpt.get();
+        Optional<User> userOpt = userRepository.findByNickname(requester);
+        
+        if (userOpt.isEmpty() || !userOpt.get().getId().equals(partida.getHostId())) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Solo el host de la partida puede borrarla");
+        }
+
         partidaRepository.deleteById(id);
         return ResponseEntity.ok("Partida borrada con éxito");
     }
