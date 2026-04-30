@@ -1,11 +1,12 @@
 import { Component, signal } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
+import { Banner } from '../banner/banner';
 import { FormsModule } from '@angular/forms';
 import { PartidaService } from '../../servicios/partida.service';
 
 @Component({
   selector: 'app-login',
-  imports: [FormsModule, RouterLink],
+  imports: [FormsModule, RouterLink, Banner],
   templateUrl: './login.html',
   styleUrl: './login.css',
 })

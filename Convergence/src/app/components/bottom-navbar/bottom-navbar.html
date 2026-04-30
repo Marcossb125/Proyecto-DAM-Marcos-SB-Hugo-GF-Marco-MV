@@ -1,0 +1,75 @@
+<!-- ═══ NAVBAR INFERIOR ═══ -->
+<nav class="bottom-navbar" id="bottom-navbar">
+  <!-- Inicio -->
+  <button
+    class="navbar-btn"
+    [class.active]="isActive('/inicio')"
+    (click)="navigateTo('/inicio')"
+    id="navbar-inicio"
+  >
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+      <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" />
+      <polyline points="9 22 9 12 15 12 15 22" />
+    </svg>
+    <span>Inicio</span>
+  </button>
+
+  <!-- Partidas -->
+  <button
+    class="navbar-btn"
+    [class.active]="isActive('/lobby')"
+    (click)="navigateTo('/lobby')"
+    id="navbar-partidas"
+  >
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+      <circle cx="12" cy="12" r="10" />
+      <polygon points="10 8 16 12 10 16 10 8" />
+    </svg>
+    <span>Partidas</span>
+  </button>
+
+  <!-- Personajes -->
+  <button
+    class="navbar-btn"
+    [class.active]="isActive('/personajes')"
+    (click)="navigateTo('/personajes')"
+    id="navbar-personajes"
+  >
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+      <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
+      <circle cx="12" cy="7" r="4" />
+    </svg>
+    <span>Personajes</span>
+  </button>
+
+  <!-- Ranking -->
+  <button
+    class="navbar-btn"
+    [class.active]="isActive('/ranking')"
+    (click)="navigateTo('/ranking')"
+    id="navbar-ranking"
+  >
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+      <line x1="8" y1="6" x2="21" y2="6" />
+      <line x1="8" y1="12" x2="21" y2="12" />
+      <line x1="8" y1="18" x2="21" y2="18" />
+      <line x1="3" y1="6" x2="3.01" y2="6" />
+      <line x1="3" y1="12" x2="3.01" y2="12" />
+      <line x1="3" y1="18" x2="3.01" y2="18" />
+    </svg>
+    <span>Ranking</span>
+  </button>
+
+  <!-- Chat -->
+  <button
+    class="navbar-btn"
+    [class.active]="isActive('/chat')"
+    (click)="navigateTo('/chat')"
+    id="navbar-chat"
+  >
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+      <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
+    </svg>
+    <span>Chat</span>
+  </button>
+</nav>

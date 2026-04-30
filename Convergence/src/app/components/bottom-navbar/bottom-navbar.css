@@ -1,0 +1,71 @@
+/* ═══════════════════════════════════════
+   BOTTOM NAVBAR — Reusable Component
+   ═══════════════════════════════════════ */
+.bottom-navbar {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 100;
+  display: flex;
+  justify-content: space-around;
+  align-items: stretch;
+  background: rgba(10, 11, 10, 0.97);
+  border-top: 2px solid var(--war-green);
+  backdrop-filter: blur(12px);
+  box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.7);
+  height: 72px;
+}
+
+.navbar-btn {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.3rem;
+  background: transparent;
+  border: none;
+  color: var(--war-green-light);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  position: relative;
+}
+
+.navbar-btn svg {
+  width: 22px;
+  height: 22px;
+}
+
+.navbar-btn span {
+  font-size: 0.5rem;
+  font-family: var(--font-pixel, 'Press Start 2P', monospace);
+  letter-spacing: 0.5px;
+}
+
+.navbar-btn:hover {
+  color: var(--war-accent);
+  background: rgba(0, 255, 65, 0.05);
+}
+
+.navbar-btn.active {
+  color: var(--war-accent);
+}
+
+.navbar-btn.active::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 20%;
+  right: 20%;
+  height: 2px;
+  background: var(--war-accent);
+  box-shadow: 0 0 10px var(--war-accent);
+}
+
+/* ═══ RESPONSIVE ═══ */
+@media (max-width: 480px) {
+  .bottom-navbar .navbar-btn span {
+    display: none;
+  }
+}

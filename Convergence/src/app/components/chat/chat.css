@@ -56,20 +56,6 @@
   100% { top: 105%; }
 }
 
-/* ═══ TOP ACTIONS ═══ */
-.top-right-actions {
-  position: absolute;
-  top: 20px;
-  right: 20px;
-  display: flex;
-  gap: 10px;
-  z-index: 100;
-}
-
-.nav-button {
-  color: var(--war-accent) !important;
-}
-
 /* ═══ HEADER ═══ */
 .chat-header {
   padding: 2.5rem 1.5rem 1rem;
@@ -187,8 +173,7 @@
 /* ═══ FOOTER / INPUT ═══ */
 .chat-footer {
   padding: 1rem;
-  background: var(--war-panel);
-  border-top: 1px solid var(--war-border);
+  background: transparent;
   z-index: 2;
 }
 

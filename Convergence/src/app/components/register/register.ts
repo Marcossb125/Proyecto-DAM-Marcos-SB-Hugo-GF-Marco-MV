@@ -2,10 +2,11 @@ import { Component, signal } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { PartidaService } from '../../servicios/partida.service';
+import { Banner } from '../banner/banner';
 
 @Component({
   selector: 'app-register',
-  imports: [FormsModule, RouterLink],
+  imports: [FormsModule, RouterLink, Banner],
   templateUrl: './register.html',
   styleUrl: './register.css',
 })

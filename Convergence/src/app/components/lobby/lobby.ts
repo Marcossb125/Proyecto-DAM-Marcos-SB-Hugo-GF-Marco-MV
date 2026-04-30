@@ -1,11 +1,14 @@
 import { Component, signal, OnInit, computed } from '@angular/core';
 import { Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
+import { TopActions } from '../top-actions/top-actions';
+import { BottomNavbar } from '../bottom-navbar/bottom-navbar';
+import { Banner } from '../banner/banner';
 import { PartidaService, Partida } from '../../servicios/partida.service';
 
 @Component({
   selector: 'app-lobby',
-  imports: [FormsModule],
+  imports: [FormsModule, BottomNavbar, Banner, TopActions],
   templateUrl: './lobby.html',
   styleUrl: './lobby.css',
 })

@@ -5,6 +5,9 @@ import { FormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { PartidaService } from '../../servicios/partida.service';
+import { TopActions } from '../top-actions/top-actions';
+import { BottomNavbar } from '../bottom-navbar/bottom-navbar';
+import { Banner } from '../banner/banner';
 
 interface ChatMessage {
   id: number;
@@ -17,7 +20,7 @@ interface ChatMessage {
 @Component({
   selector: 'app-chat',
   standalone: true,
-  imports: [CommonModule, FormsModule, MatButtonModule, MatIconModule],
+  imports: [CommonModule, FormsModule, MatButtonModule, MatIconModule, BottomNavbar, Banner, TopActions],
   templateUrl: './chat.html',
   styleUrl: './chat.css',
 })
@@ -71,9 +74,5 @@ export class Chat implements AfterViewChecked {
 
   navigateTo(route: string): void {
     this.router.navigate([route]);
-  }
-
-  logout(): void {
-    this.router.navigate(['/login']);
   }
 }

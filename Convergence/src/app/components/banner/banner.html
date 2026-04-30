@@ -1,0 +1,17 @@
+<section class="banner-section">
+  <div class="banner-overlay"></div>
+  <div class="banner-grid"></div>
+  <div class="banner-content">
+    @if (showEmblem) {
+      <div class="brand-emblem">
+        <div class="emblem-ring"></div>
+        <div class="emblem-core"></div>
+      </div>
+    }
+    <h1 class="banner-title">{{ title }}</h1>
+    <div class="banner-divider"></div>
+    @if (subtitle) {
+      <span class="banner-subtitle">{{ subtitle }}</span>
+    }
+  </div>
+</section>

@@ -2,6 +2,9 @@ import { Component, signal } from '@angular/core';
 import { Router } from '@angular/router';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
+import { TopActions } from '../top-actions/top-actions';
+import { BottomNavbar } from '../bottom-navbar/bottom-navbar';
+import { Banner } from '../banner/banner';
 
 interface CharacterBonus {
   name: string;
@@ -25,7 +28,7 @@ interface Character {
 
 @Component({
   selector: 'app-personajes',
-  imports: [MatButtonModule, MatIconModule],
+  imports: [MatButtonModule, MatIconModule, BottomNavbar, Banner, TopActions],
   templateUrl: './personajes.html',
   styleUrl: './personajes.css',
 })
@@ -108,10 +111,5 @@ export class Personajes {
 
   navigateTo(route: string): void {
     this.router.navigate([route]);
-  }
-
-  logout(): void {
-    this.router.navigate(['/login']);
-    console.log('Cerrando sesión táctica...');
   }
 }

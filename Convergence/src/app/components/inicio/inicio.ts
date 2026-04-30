@@ -6,6 +6,9 @@ import { MatBadgeModule } from '@angular/material/badge';
 import { PartidaService } from '../../servicios/partida.service';
 import { NationFlag, NationData } from '../nation-flag/nation-flag';
 import { FlagBuilder } from '../flag-builder/flag-builder';
+import { TopActions } from '../top-actions/top-actions';
+import { BottomNavbar } from '../bottom-navbar/bottom-navbar';
+import { Banner } from '../banner/banner';
 
 interface ActiveGame {
   id: number;
@@ -19,14 +22,14 @@ interface ActiveGame {
 
 @Component({
   selector: 'app-inicio',
-  imports: [MatButtonModule, MatIconModule, MatBadgeModule, NationFlag, FlagBuilder],
+  imports: [MatButtonModule, MatIconModule, MatBadgeModule, NationFlag, FlagBuilder, BottomNavbar, Banner, TopActions],
   templateUrl: './inicio.html',
   styleUrl: './inicio.css',
 })
 export class Inicio {
   // TODO: Replace with data from auth service / user API
-  playerName = signal("Sir lancelot");
-  playerStatus = signal('EN LÍNEA');
+  playerName = signal('Comandante');
+  playerStatus = signal('En línea');
 
   nationData = signal<NationData | null>(null);
   isEditingFlag = signal<boolean>(false);
