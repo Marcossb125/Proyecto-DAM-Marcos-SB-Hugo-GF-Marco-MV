@@ -39,9 +39,9 @@ const deleteRoomPayload = z.object({
 
 const banderaPayload = z.object({
   nickname: z.string().min(3).max(100).trim(),
+  nombre: z.string(),
   bandera: z.object({
     layout: z.string().min(1),
-    nombre: z.string(),
     colors: z.array(z.string())
   })
 });
@@ -202,7 +202,11 @@ io.on('connection', (socket) => {
       }
       const response = await axios.put(
         `${API_BASE_URL}/bandera/guardar`,
-        sanitize.data
+        {
+          nickname: sanitize.data.nickname,
+          nombre: sanitize.data.nombre,
+          bandera: sanitize.data.bandera
+        }
       );
       callback({ success: true, data: response.data });
     } catch (error) {

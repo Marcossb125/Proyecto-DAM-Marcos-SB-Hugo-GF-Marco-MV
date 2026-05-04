@@ -9,6 +9,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Optional;
 
 @RestController
@@ -26,6 +28,7 @@ public class BanderaController {
      */
     public static class BanderaRequest {
         public String nickname;
+        public String nombre;
         public Bandera bandera;
     }
 
@@ -49,10 +52,22 @@ public class BanderaController {
 
         try {
             User user = userOpt.get();
+            // Guardamos el nombre de la facción en el campo independiente
+            user.setFaccion(req.nombre);
+            
+            // Guardamos el diseño de la bandera en el JSON
             String banderaJson = objectMapper.writeValueAsString(req.bandera);
             user.setBandera(banderaJson);
+            
             userRepository.save(user);
-            return ResponseEntity.ok(req.bandera);
+            
+            // Devolvemos la estructura completa para confirmación
+            Map<String, Object> response = new HashMap<>();
+            response.put("layout", req.bandera.getLayout());
+            response.put("colors", req.bandera.getColors());
+            response.put("nombre", req.nombre);
+            
+            return ResponseEntity.ok(response);
         } catch (JsonProcessingException e) {
             return ResponseEntity.status(500).body("Error al serializar la bandera");
         }
@@ -68,14 +83,23 @@ public class BanderaController {
             return ResponseEntity.status(404).body("Usuario no encontrado: " + nickname);
         }
 
-        String banderaJson = userOpt.get().getBandera();
+        User user = userOpt.get();
+        String banderaJson = user.getBandera();
+        String faccion = user.getFaccion();
+
         if (banderaJson == null || banderaJson.isEmpty()) {
             return ResponseEntity.ok(null);
         }
 
         try {
             Bandera bandera = objectMapper.readValue(banderaJson, Bandera.class);
-            return ResponseEntity.ok(bandera);
+            
+            Map<String, Object> response = new HashMap<>();
+            response.put("layout", bandera.getLayout());
+            response.put("colors", bandera.getColors());
+            response.put("nombre", faccion);
+            
+            return ResponseEntity.ok(response);
         } catch (JsonProcessingException e) {
             return ResponseEntity.status(500).body("Error al deserializar la bandera");
         }

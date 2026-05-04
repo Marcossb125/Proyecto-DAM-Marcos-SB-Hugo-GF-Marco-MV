@@ -291,7 +291,11 @@ export class PartidaService {
         subscriber.error('Socket no inicializado');
         return;
       }
-      this.socket.emit('guardarBandera', { nickname, bandera }, (response: any) => {
+      this.socket.emit('guardarBandera', { 
+        nickname, 
+        nombre: bandera.nombre, 
+        bandera: { layout: bandera.layout, colors: bandera.colors } 
+      }, (response: any) => {
         if (response.success) {
           subscriber.next(response.data);
         } else {

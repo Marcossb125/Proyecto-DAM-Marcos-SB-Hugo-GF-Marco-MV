@@ -29,6 +29,9 @@ public class User {
     @Column(name = "Bandera", columnDefinition = "LONGTEXT")
     private String bandera;
 
+    @Column(name = "Faccion")
+    private String faccion;
+
 
     public User() {}
 
@@ -75,5 +78,13 @@ public class User {
 
     public void setBandera(String bandera) {
         this.bandera = bandera;
+    }
+
+    public String getFaccion() {
+        return faccion;
+    }
+
+    public void setFaccion(String faccion) {
+        this.faccion = faccion;
     }
 }
