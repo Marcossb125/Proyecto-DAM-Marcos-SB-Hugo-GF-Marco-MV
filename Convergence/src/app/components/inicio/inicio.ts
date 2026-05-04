@@ -48,7 +48,26 @@ export class Inicio {
   constructor(private router: Router, private partidaService: PartidaService) { }
 
   ngOnInit(): void {
-    this.playerName.set(this.partidaService.obtenerNombreUsuario());
+    const nombre = this.partidaService.obtenerNombreUsuario();
+    this.playerName.set(nombre);
+
+    // Cargar la bandera del usuario desde la base de datos
+    if (nombre) {
+      this.partidaService.obtenerBandera(nombre).subscribe({
+        next: (bandera) => {
+          if (bandera && bandera.layout) {
+            this.nationData.set({
+              nombre: bandera.nombre || '',
+              layout: bandera.layout,
+              colors: bandera.colors || []
+            });
+          }
+        },
+        error: (err) => {
+          console.error('Error al cargar la bandera:', err);
+        }
+      });
+    }
   }
 
 
@@ -83,9 +102,27 @@ export class Inicio {
   saveFlag(data: NationData): void {
     this.nationData.set(data);
     this.isEditingFlag.set(false);
+
+    // Guardar la bandera en la base de datos
+    const nickname = this.partidaService.obtenerNombreUsuario();
+    if (nickname) {
+      this.partidaService.guardarBandera(nickname, {
+        layout: data.layout,
+        nombre: data.nombre,
+        colors: data.colors
+      }).subscribe({
+        next: () => {
+          console.log('Bandera guardada en BD correctamente');
+        },
+        error: (err) => {
+          console.error('Error al guardar la bandera en BD:', err);
+        }
+      });
+    }
   }
 
   cancelFlagEdit(): void {
     this.isEditingFlag.set(false);
   }
 }
+

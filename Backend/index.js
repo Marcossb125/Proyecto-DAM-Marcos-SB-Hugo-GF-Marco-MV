@@ -37,6 +37,19 @@ const deleteRoomPayload = z.object({
   hostNombre: z.string().min(3).max(20).trim(),
 });
 
+const banderaPayload = z.object({
+  nickname: z.string().min(3).max(100).trim(),
+  bandera: z.object({
+    layout: z.string().min(1),
+    nombre: z.string(),
+    colors: z.array(z.string())
+  })
+});
+
+const obtenerBanderaPayload = z.object({
+  nickname: z.string().min(3).max(100).trim(),
+});
+
 const API_BASE_URL = process.env.API_BASE_URL;
 const JWT = process.env.JWT;
 
@@ -174,6 +187,49 @@ io.on('connection', (socket) => {
       callback({
         success: false,
         error: error.response?.status === 404 ? 'Partida no encontrada' : 'Error al borrar la partida'
+      });
+    }
+  });
+
+  // ── Bandera ──────────────────────────────────────────────────────────────
+
+  socket.on('guardarBandera', async (data, callback) => {
+    try {
+      const sanitize = banderaPayload.safeParse(data);
+      if (!sanitize.success) {
+        callback({ success: false, error: "Datos de bandera no válidos" });
+        return;
+      }
+      const response = await axios.put(
+        `${API_BASE_URL}/bandera/guardar`,
+        sanitize.data
+      );
+      callback({ success: true, data: response.data });
+    } catch (error) {
+      console.log('Error al guardar bandera:', error.message);
+      callback({
+        success: false,
+        error: error.response?.data || 'Error al guardar la bandera'
+      });
+    }
+  });
+
+  socket.on('obtenerBandera', async (data, callback) => {
+    try {
+      const sanitize = obtenerBanderaPayload.safeParse(data);
+      if (!sanitize.success) {
+        callback({ success: false, error: "Nickname no válido" });
+        return;
+      }
+      const response = await axios.get(
+        `${API_BASE_URL}/bandera/${sanitize.data.nickname}`
+      );
+      callback({ success: true, data: response.data });
+    } catch (error) {
+      console.log('Error al obtener bandera:', error.message);
+      callback({
+        success: false,
+        error: error.response?.data || 'Error al obtener la bandera'
       });
     }
   });

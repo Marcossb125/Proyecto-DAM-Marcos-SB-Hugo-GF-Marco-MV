@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Servidor: 127.0.0.1
--- Tiempo de generación: 30-04-2026 a las 19:50:16
+-- Tiempo de generación: 02-05-2026 a las 16:07:10
 -- Versión del servidor: 10.4.32-MariaDB
 -- Versión de PHP: 8.2.12
 
@@ -50,16 +50,6 @@ CREATE TABLE `partidas` (
   `Host_id` int(11) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
---
--- Volcado de datos para la tabla `partidas`
---
-
-INSERT INTO `partidas` (`Id`, `Nombre`, `Jugadores_actuales`, `Jugadores_limite`, `Rondas`, `Estado`, `Fase`, `Host_id`) VALUES
-(4, 'ccc', 1, 2, 0, 'En curso', 0, 16),
-(6, 'PENE', 1, 2, 0, 'En curso', 0, 16),
-(7, 'HugoGuapo', 1, 2, 0, 'En curso', 0, 15),
-(8, 'Ppepe', 1, 2, 0, 'En curso', 0, 15);
-
 -- --------------------------------------------------------
 
 --
@@ -71,21 +61,10 @@ CREATE TABLE `usuarios` (
   `Password` varchar(100) NOT NULL,
   `Email` varchar(100) NOT NULL,
   `Nickname` varchar(100) NOT NULL,
-  `Bandera` int(11) DEFAULT NULL,
   `Faccion` varchar(100) DEFAULT NULL,
-  `General_id` int(11) DEFAULT NULL
+  `General_id` int(11) DEFAULT NULL,
+  `Bandera` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_bin DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
---
--- Volcado de datos para la tabla `usuarios`
---
-
-INSERT INTO `usuarios` (`Id`, `Password`, `Email`, `Nickname`, `Bandera`, `Faccion`, `General_id`) VALUES
-(15, '$2a$10$IndELOzUpDMu4hgTnsYgb./F4W8HU0fIVrDiedAbLNiwl009RTIJi', 'leyreaper35@gmail.com', 'RedReaper3', NULL, NULL, NULL),
-(16, '$2a$10$vDIW0s.cx4YEfKfXgBYufuJ4ZEudlz/4J9Q9IGIRNkHhEY7Cefn7O', 'hugogarciafuillerat@gmail.com', 'hugo', NULL, NULL, NULL),
-(17, '$2a$10$iC7wMhicVByy5cmdod7C5eWzXZopRDiG/670pxBX.E5s1BWPzTwum', 'Rodolfus@gmail.com', 'Rodolfus', NULL, NULL, NULL),
-(18, '$2a$10$/8dcH7VrLBwZzmjii3TSAey1XGa78nDcMyg9DN/A7CLIGBosxSXtG', 'jhfhhfjd@gmail.com', 'Quart', NULL, NULL, NULL),
-(19, '$2a$10$tVwAu9fzByJAwAgOlWdjd.kWikonawrPYWpa/4RUelkR7w5uZs0M6', 'elPresiEsMuySexy@gmail.com', 'Bombardino Presidino', NULL, NULL, NULL);
 
 --
 -- Índices para tablas volcadas

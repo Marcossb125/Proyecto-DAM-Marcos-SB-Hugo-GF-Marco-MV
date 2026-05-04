@@ -278,4 +278,48 @@ export class PartidaService {
     if (!isPlatformBrowser(this.platformId)) return '';
     return localStorage.getItem(this.STORAGE_KEY_user) || '';
   }
+
+  // ── Bandera (BD) ────────────────────────────────────────────────────────
+
+  /**
+   * Guarda la bandera del usuario en la base de datos.
+   * Emite el evento 'guardarBandera' al middleware con el nickname y los datos de la bandera.
+   */
+  guardarBandera(nickname: string, bandera: { layout: string; nombre: string; colors: string[] }): Observable<any> {
+    return new Observable((subscriber) => {
+      if (!this.socket) {
+        subscriber.error('Socket no inicializado');
+        return;
+      }
+      this.socket.emit('guardarBandera', { nickname, bandera }, (response: any) => {
+        if (response.success) {
+          subscriber.next(response.data);
+        } else {
+          subscriber.error(response.error);
+        }
+        subscriber.complete();
+      });
+    });
+  }
+
+  /**
+   * Obtiene la bandera del usuario desde la base de datos.
+   * Emite el evento 'obtenerBandera' al middleware con el nickname.
+   */
+  obtenerBandera(nickname: string): Observable<any> {
+    return new Observable((subscriber) => {
+      if (!this.socket) {
+        subscriber.error('Socket no inicializado');
+        return;
+      }
+      this.socket.emit('obtenerBandera', { nickname }, (response: any) => {
+        if (response.success) {
+          subscriber.next(response.data);
+        } else {
+          subscriber.error(response.error);
+        }
+        subscriber.complete();
+      });
+    });
+  }
 }

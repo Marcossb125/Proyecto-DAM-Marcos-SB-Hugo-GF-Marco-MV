@@ -1,6 +1,7 @@
 package com.convergence.convergence.model;
 
 import jakarta.persistence.Column;
+import jakarta.persistence.Convert;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -24,6 +25,9 @@ public class User {
 
     @Column(name = "Email", nullable = false, unique = true)
     private String email;
+
+    @Column(name = "Bandera", columnDefinition = "LONGTEXT")
+    private String bandera;
 
 
     public User() {}
@@ -63,5 +67,13 @@ public class User {
     }
     public void setEmail(String email) {
         this.email = email;
+    }
+
+    public String getBandera() {
+        return bandera;
+    }
+
+    public void setBandera(String bandera) {
+        this.bandera = bandera;
     }
 }
