@@ -28,7 +28,10 @@ public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
             .requestMatchers(HttpMethod.GET, "/partidas/nombre/{nombre}").permitAll()
             .requestMatchers(HttpMethod.PUT, "/bandera/guardar").permitAll()
             .requestMatchers(HttpMethod.GET, "/bandera/{nickname}").permitAll()
+            .requestMatchers(HttpMethod.PUT, "/general/guardar").permitAll()
+            .requestMatchers(HttpMethod.GET, "/general/{nickname}").permitAll()
             .requestMatchers("/error").permitAll()
+            
 
             .anyRequest().authenticated()
         )

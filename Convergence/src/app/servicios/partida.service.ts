@@ -326,4 +326,46 @@ export class PartidaService {
       });
     });
   }
+
+  // ── General (BD) ────────────────────────────────────────────────────────
+
+  /**
+   * Guarda el general seleccionado por el usuario en la base de datos.
+   */
+  guardarGeneral(nickname: string, generalId: number): Observable<any> {
+    return new Observable((subscriber) => {
+      if (!this.socket) {
+        subscriber.error('Socket no inicializado');
+        return;
+      }
+      this.socket.emit('guardarGeneral', { nickname, generalId }, (response: any) => {
+        if (response.success) {
+          subscriber.next(response.data);
+        } else {
+          subscriber.error(response.error);
+        }
+        subscriber.complete();
+      });
+    });
+  }
+
+  /**
+   * Obtiene el general seleccionado por el usuario desde la base de datos.
+   */
+  obtenerGeneral(nickname: string): Observable<any> {
+    return new Observable((subscriber) => {
+      if (!this.socket) {
+        subscriber.error('Socket no inicializado');
+        return;
+      }
+      this.socket.emit('obtenerGeneral', { nickname }, (response: any) => {
+        if (response.success) {
+          subscriber.next(response.data);
+        } else {
+          subscriber.error(response.error);
+        }
+        subscriber.complete();
+      });
+    });
+  }
 }

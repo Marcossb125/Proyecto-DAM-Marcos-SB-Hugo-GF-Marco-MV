@@ -50,6 +50,15 @@ const obtenerBanderaPayload = z.object({
   nickname: z.string().min(3).max(100).trim(),
 });
 
+const generalPayload = z.object({
+  nickname: z.string().min(3).max(100).trim(),
+  generalId: z.number()
+});
+
+const obtenerGeneralPayload = z.object({
+  nickname: z.string().min(3).max(100).trim(),
+});
+
 const API_BASE_URL = process.env.API_BASE_URL;
 const JWT = process.env.JWT;
 
@@ -234,6 +243,52 @@ io.on('connection', (socket) => {
       callback({
         success: false,
         error: error.response?.data || 'Error al obtener la bandera'
+      });
+    }
+  });
+
+  // ── General ──────────────────────────────────────────────────────────────
+
+  socket.on('guardarGeneral', async (data, callback) => {
+    try {
+      const sanitize = generalPayload.safeParse(data);
+      if (!sanitize.success) {
+        callback({ success: false, error: "Datos de general no válidos" });
+        return;
+      }
+      const response = await axios.put(
+        `${API_BASE_URL}/general/guardar`,
+        {
+          nickname: sanitize.data.nickname,
+          generalId: sanitize.data.generalId
+        }
+      );
+      callback({ success: true, data: response.data });
+    } catch (error) {
+      console.log('Error al guardar general:', error.message);
+      callback({
+        success: false,
+        error: error.response?.data || 'Error al guardar el general'
+      });
+    }
+  });
+
+  socket.on('obtenerGeneral', async (data, callback) => {
+    try {
+      const sanitize = obtenerGeneralPayload.safeParse(data);
+      if (!sanitize.success) {
+        callback({ success: false, error: "Nickname no válido" });
+        return;
+      }
+      const response = await axios.get(
+        `${API_BASE_URL}/general/${sanitize.data.nickname}`
+      );
+      callback({ success: true, data: response.data });
+    } catch (error) {
+      console.log('Error al obtener general:', error.message);
+      callback({
+        success: false,
+        error: error.response?.data || 'Error al obtener el general'
       });
     }
   });

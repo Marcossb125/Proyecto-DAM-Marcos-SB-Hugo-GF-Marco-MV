@@ -33,6 +33,10 @@ public class User {
     private String faccion;
 
 
+    @Column(name = "General_id")
+    private Long generalId;
+
+
     public User() {}
 
     public User(String nickname, String password, String email) {
@@ -86,5 +90,13 @@ public class User {
 
     public void setFaccion(String faccion) {
         this.faccion = faccion;
+    }
+
+    public Long getGeneralId() {
+        return generalId;
+    }
+
+    public void setGeneralId(Long generalId) {
+        this.generalId = generalId;
     }
 }

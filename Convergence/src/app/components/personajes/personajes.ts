@@ -5,6 +5,9 @@ import { MatIconModule } from '@angular/material/icon';
 import { TopActions } from '../top-actions/top-actions';
 import { BottomNavbar } from '../bottom-navbar/bottom-navbar';
 import { Banner } from '../banner/banner';
+import { PartidaService } from '../../servicios/partida.service';
+import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
+import { CommonModule } from '@angular/common';
 
 interface CharacterBonus {
   name: string;
@@ -28,7 +31,8 @@ interface Character {
 
 @Component({
   selector: 'app-personajes',
-  imports: [MatButtonModule, MatIconModule, BottomNavbar, Banner, TopActions],
+  standalone: true,
+  imports: [MatButtonModule, MatIconModule, BottomNavbar, Banner, TopActions, MatSnackBarModule, CommonModule],
   templateUrl: './personajes.html',
   styleUrl: './personajes.css',
 })
@@ -98,7 +102,28 @@ export class Personajes {
 
   selectedCharacter = signal<Character | null>(null);
 
-  constructor(private router: Router) {}
+  constructor(
+    private router: Router, 
+    private partidaService: PartidaService,
+    private snackBar: MatSnackBar
+  ) {}
+
+  ngOnInit(): void {
+    const nickname = this.partidaService.obtenerNombreUsuario();
+    if (nickname) {
+      this.partidaService.obtenerGeneral(nickname).subscribe({
+        next: (res) => {
+          if (res && res.generalId) {
+            const char = this.characters().find(c => c.id === res.generalId);
+            if (char) {
+              this.selectCharacter(char);
+            }
+          }
+        },
+        error: (err) => console.error('Error al cargar general:', err)
+      });
+    }
+  }
 
   selectCharacter(character: Character): void {
     const updated = this.characters().map((c) => ({
@@ -107,6 +132,31 @@ export class Personajes {
     }));
     this.characters.set(updated);
     this.selectedCharacter.set(character);
+  }
+
+  confirmarSeleccion(): void {
+    const char = this.selectedCharacter();
+    const nickname = this.partidaService.obtenerNombreUsuario();
+
+    if (!char || !nickname) return;
+
+    this.partidaService.guardarGeneral(nickname, char.id).subscribe({
+      next: () => {
+        this.snackBar.open('Operativo confirmado con éxito', 'Cerrar', {
+          duration: 3000,
+          horizontalPosition: 'center',
+          verticalPosition: 'bottom',
+          panelClass: ['success-snackbar']
+        });
+      },
+      error: (err) => {
+        console.error('Error al guardar general:', err);
+        this.snackBar.open('Error al confirmar el operativo', 'Cerrar', {
+          duration: 3000,
+          panelClass: ['error-snackbar']
+        });
+      }
+    });
   }
 
   navigateTo(route: string): void {
