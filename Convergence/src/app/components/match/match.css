@@ -68,30 +68,6 @@
   pointer-events: none;
 }
 
-/* ═══ BACK BUTTON ═══ */
-.btn-back {
-  position: absolute;
-  bottom: 12px;
-  left: 12px;
-  z-index: 30;
-  padding: 1.5rem 3rem;
-  background: rgba(10, 11, 10, 0.85);
-  border: 1px solid #3a3d2e;
-  border-radius: 3px;
-  color: #828a5e;
-  font-family: 'Press Start 2P', monospace;
-  font-size: 1.5rem;
-  cursor: pointer;
-  transition: all 0.2s;
-  backdrop-filter: blur(4px);
-}
-
-.btn-back:hover {
-  border-color: #00ff41;
-  color: #00ff41;
-  box-shadow: 0 0 10px rgba(0, 255, 65, 0.15);
-}
-
 /* ═══ ANGULAR MATERIAL DIALOG OVERRIDES ═══ */
 ::ng-deep .military-dialog {
   .mat-mdc-dialog-surface {

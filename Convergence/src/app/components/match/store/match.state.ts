@@ -214,3 +214,4 @@ export const initialMatchState: MatchState = {
   selectedArmyId: null,
   highlightedTerritoryIds: [],
 };
+

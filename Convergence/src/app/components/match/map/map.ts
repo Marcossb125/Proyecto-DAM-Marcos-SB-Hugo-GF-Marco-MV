@@ -1,5 +1,5 @@
 /* ═══════════════════════════════════════════════════════════════
-   MAP COMPONENT — PixiJS Hex Grid Renderer
+   MAP COMPONENT — PixiJS Hex Grid Renderer with Viewport Camera
    ═══════════════════════════════════════════════════════════════ */
 
 import {
@@ -59,6 +59,7 @@ interface MapTerritoryData {
       height: 100%;
       background: #0a0b0a;
       position: relative;
+      touch-action: none;
     }
 
     .map-container canvas {
@@ -75,11 +76,15 @@ export class MapComponent implements AfterViewInit, OnDestroy {
 
   private app: any = null; // PixiJS Application
   private pixi: any = null; // PixiJS module reference
+  private viewport: any = null; // pixi-viewport Viewport
   private subscriptions: Subscription[] = [];
   private hexGraphics: Map<string, any> = new Map();
   private currentPhase: GamePhase = 'RECAUDACION';
   private selectedArmyId: string | null = null;
   private currentData: MapTerritoryData[] = [];
+  private resizeObserver: ResizeObserver | null = null;
+  private gridBgGraphics: any = null;
+  private isFirstDraw = true;
 
   async ngAfterViewInit(): Promise<void> {
     if (!isPlatformBrowser(this.platformId)) return;
@@ -90,14 +95,18 @@ export class MapComponent implements AfterViewInit, OnDestroy {
 
   ngOnDestroy(): void {
     this.subscriptions.forEach(s => s.unsubscribe());
+    if (this.resizeObserver) {
+      this.resizeObserver.disconnect();
+    }
     if (this.app) {
       this.app.destroy(true);
     }
   }
 
   private async initPixi(): Promise<void> {
-    // Dynamic import PixiJS to avoid SSR issues
+    // Dynamic import PixiJS and pixi-viewport to avoid SSR issues
     this.pixi = await import('pixi.js');
+    const { Viewport } = await import('pixi-viewport');
 
     const container = this.mapContainer.nativeElement;
     const width = container.clientWidth || 800;
@@ -115,42 +124,70 @@ export class MapComponent implements AfterViewInit, OnDestroy {
 
     container.appendChild(this.app.canvas);
 
+    // Draw grid lines background (fixed, behind viewport)
+    this.drawGridBackground(width, height);
+
+    // Create viewport for camera controls
+    this.viewport = new Viewport({
+      screenWidth: width,
+      screenHeight: height,
+      worldWidth: 800,
+      worldHeight: 800,
+      events: this.app.renderer.events,
+    });
+
+    this.app.stage.addChild(this.viewport);
+
+    // Configure viewport plugins
+    this.viewport
+      .drag({ mouseButtons: 'all' })  // Drag with any mouse button + touch
+      .pinch()                          // Pinch zoom on mobile
+      .wheel({ smooth: 5, percent: 0.08 })  // Mouse wheel zoom
+      .clampZoom({ minScale: 0.25, maxScale: 2.5 });
+
     // Handle resize
-    const resizeObserver = new ResizeObserver((entries) => {
+    this.resizeObserver = new ResizeObserver((entries) => {
       for (const entry of entries) {
         const { width: w, height: h } = entry.contentRect;
         if (w > 0 && h > 0) {
           this.app.renderer.resize(w, h);
-          this.drawGrid(this.currentData);
+          this.viewport.resize(w, h);
+          this.drawGridBackground(w, h);
         }
       }
     });
-    resizeObserver.observe(container);
-
-    // Draw grid lines background
-    this.drawGridBackground(width, height);
+    this.resizeObserver.observe(container);
   }
 
   private drawGridBackground(width: number, height: number): void {
     if (!this.pixi || !this.app) return;
 
-    const gridBg = new this.pixi.Graphics();
+    // Remove old grid background if it exists
+    if (this.gridBgGraphics) {
+      if (this.gridBgGraphics.parent) {
+        this.gridBgGraphics.parent.removeChild(this.gridBgGraphics);
+      }
+      this.gridBgGraphics.destroy();
+    }
+
+    this.gridBgGraphics = new this.pixi.Graphics();
     const gridColor = 0x00ff41;
     const gridAlpha = 0.04;
 
     // Vertical lines
     for (let x = 0; x < width; x += 30) {
-      gridBg.moveTo(x, 0);
-      gridBg.lineTo(x, height);
+      this.gridBgGraphics.moveTo(x, 0);
+      this.gridBgGraphics.lineTo(x, height);
     }
     // Horizontal lines
     for (let y = 0; y < height; y += 30) {
-      gridBg.moveTo(0, y);
-      gridBg.lineTo(width, y);
+      this.gridBgGraphics.moveTo(0, y);
+      this.gridBgGraphics.lineTo(width, y);
     }
-    gridBg.stroke({ width: 0.5, color: gridColor, alpha: gridAlpha });
+    this.gridBgGraphics.stroke({ width: 0.5, color: gridColor, alpha: gridAlpha });
 
-    this.app.stage.addChild(gridBg);
+    // Add at index 0 so it's behind the viewport
+    this.app.stage.addChildAt(this.gridBgGraphics, 0);
   }
 
   private setupStoreSubscriptions(): void {
@@ -177,7 +214,7 @@ export class MapComponent implements AfterViewInit, OnDestroy {
   }
 
   private drawGrid(data?: MapTerritoryData[]): void {
-    if (!this.app || !this.pixi || !data || data.length === 0) return;
+    if (!this.app || !this.pixi || !this.viewport || !data || data.length === 0) return;
 
     // Clear previous hex graphics
     this.hexGraphics.forEach(g => {
@@ -185,10 +222,6 @@ export class MapComponent implements AfterViewInit, OnDestroy {
       g.destroy();
     });
     this.hexGraphics.clear();
-
-    // Calculate center offset based on canvas size
-    const canvasW = this.app.renderer.width / (window.devicePixelRatio || 1);
-    const canvasH = this.app.renderer.height / (window.devicePixelRatio || 1);
 
     // Find grid bounds
     const allX = data.map(t => this.hexToPixelX(t.hexQ, t.hexR));
@@ -198,15 +231,56 @@ export class MapComponent implements AfterViewInit, OnDestroy {
     const minY = Math.min(...allY);
     const maxY = Math.max(...allY);
 
-    const gridWidth = maxX - minX;
-    const gridHeight = maxY - minY;
+    const gridWidth = (maxX - minX) + HEX_WIDTH * 2;
+    const gridHeight = (maxY - minY) + HEX_HEIGHT * 2;
 
-    const offsetX = (canvasW - gridWidth) / 2 - minX;
-    const offsetY = (canvasH - gridHeight) / 2 - minY;
+    // Offset so hexes are drawn starting from a margin
+    const offsetX = -minX + HEX_WIDTH;
+    const offsetY = -minY + HEX_HEIGHT;
 
+    // Draw all hexes into the viewport
     data.forEach(territory => {
       this.drawHex(territory, offsetX, offsetY);
     });
+
+    // Update viewport world size
+    this.viewport.worldWidth = gridWidth;
+    this.viewport.worldHeight = gridHeight;
+
+    // Update clamp to prevent panning too far
+    // Remove previous clamp plugin if exists, then re-add
+    if (this.viewport.plugins.get('clamp')) {
+      this.viewport.plugins.remove('clamp');
+    }
+    this.viewport.clamp({
+      left: -HEX_WIDTH,
+      right: gridWidth + HEX_WIDTH,
+      top: -HEX_HEIGHT,
+      bottom: gridHeight + HEX_HEIGHT,
+    });
+
+    // On first draw, fit entire map in view and center
+    if (this.isFirstDraw) {
+      this.isFirstDraw = false;
+      this.fitMapInView(gridWidth, gridHeight);
+    }
+  }
+
+  /** Fit the entire map in the viewport and center it */
+  private fitMapInView(gridWidth: number, gridHeight: number): void {
+    if (!this.viewport) return;
+
+    const screenW = this.viewport.screenWidth;
+    const screenH = this.viewport.screenHeight;
+
+    // Calculate scale to fit with 85% padding (leave room for HUD)
+    const padding = 0.85;
+    const scaleX = (screenW * padding) / gridWidth;
+    const scaleY = (screenH * padding) / gridHeight;
+    const scale = Math.min(scaleX, scaleY);
+
+    this.viewport.setZoom(scale, true);
+    this.viewport.moveCenter(gridWidth / 2, gridHeight / 2);
   }
 
   private hexToPixelX(q: number, r: number): number {
@@ -397,7 +471,7 @@ export class MapComponent implements AfterViewInit, OnDestroy {
       });
     });
 
-    this.app.stage.addChild(container);
+    this.viewport.addChild(container);
     this.hexGraphics.set(territory.id, container);
   }
 

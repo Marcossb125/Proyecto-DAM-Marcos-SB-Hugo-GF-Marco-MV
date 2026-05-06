@@ -1,10 +1,11 @@
 /* ═══════════════════════════════════════════════════════════════
-   HUD COMPONENT — Game UI Overlay
+   HUD COMPONENT — Game UI Overlay (Responsive)
    ═══════════════════════════════════════════════════════════════ */
 
-import { Component, inject } from '@angular/core';
+import { Component, inject, HostListener, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Store } from '@ngrx/store';
+import { Router } from '@angular/router';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { PhaseActions, MapActions } from '../store/match.actions';
@@ -25,8 +26,9 @@ import {
   templateUrl: './hud.html',
   styleUrl: './hud.css',
 })
-export class HudComponent {
+export class HudComponent implements OnInit {
   private readonly store = inject(Store);
+  private readonly router = inject(Router);
 
   phase$ = this.store.select(selectPhase);
   currentPlayer$ = this.store.select(selectCurrentPlayer);
@@ -35,6 +37,29 @@ export class HudComponent {
   currentTurn$ = this.store.select(selectCurrentTurn);
   players$ = this.store.select(selectPlayers);
   playerTerritories$ = this.store.select(selectPlayerTerritories);
+
+  /** Whether the resource panel is collapsed (mobile mode) */
+  isResourcesCollapsed = false;
+
+  ngOnInit(): void {
+    this.checkScreenSize();
+  }
+
+  @HostListener('window:resize')
+  onResize(): void {
+    this.checkScreenSize();
+  }
+
+  private checkScreenSize(): void {
+    // Auto-collapse on small screens
+    if (typeof window !== 'undefined') {
+      this.isResourcesCollapsed = window.innerWidth < 768;
+    }
+  }
+
+  toggleResources(): void {
+    this.isResourcesCollapsed = !this.isResourcesCollapsed;
+  }
 
   getPhaseLabel(phase: string): string {
     const labels: Record<string, string> = {
@@ -98,7 +123,7 @@ export class HudComponent {
   }
 
   onBackToInicio(): void {
-    // Navigation handled by parent
+    this.router.navigate(['/inicio']);
   }
 
   getFactionIcon(faction: string): string {

@@ -1,5 +1,5 @@
 <!-- ═══════════════════════════════════════════════════════════════
-     HUD TEMPLATE — Game UI Overlay
+     HUD TEMPLATE — Game UI Overlay (Responsive)
      ═══════════════════════════════════════════════════════════════ -->
 
 <!-- ═══ TOP BAR ═══ -->
@@ -39,9 +39,23 @@
   </div>
 </div>
 
-<!-- ═══ LEFT PANEL (Resources) ═══ -->
-<div class="hud-left-panel" *ngIf="currentPlayer$ | async as player">
-  <div class="resource-panel">
+<!-- ═══ LEFT PANEL (Resources) — Collapsible on mobile ═══ -->
+<div class="hud-left-panel" *ngIf="currentPlayer$ | async as player" [class.collapsed]="isResourcesCollapsed">
+  <!-- Toggle button (visible on mobile) -->
+  <button class="resources-toggle" (click)="toggleResources()" id="resources-toggle-btn">
+    <mat-icon>{{ isResourcesCollapsed ? 'expand_more' : 'expand_less' }}</mat-icon>
+    <span class="toggle-label" *ngIf="isResourcesCollapsed">RECURSOS</span>
+  </button>
+
+  <!-- Compact inline resources (visible when collapsed) -->
+  <div class="resources-compact" *ngIf="isResourcesCollapsed">
+    <span class="compact-item">💰 {{ player.credits }}</span>
+    <span class="compact-divider">·</span>
+    <span class="compact-item">👥 {{ player.manpower }}</span>
+  </div>
+
+  <!-- Full resource panel (visible when expanded) -->
+  <div class="resource-panel" *ngIf="!isResourcesCollapsed">
     <div class="panel-header">
       <div class="panel-header-line"></div>
       <span class="panel-title">RECURSOS</span>
@@ -81,7 +95,7 @@
   </div>
 </div>
 
-<!-- ═══ BOTTOM BAR (Players) ═══ -->
+<!-- ═══ BOTTOM BAR (Players + Exit) ═══ -->
 <div class="hud-bottom-bar" *ngIf="players$ | async as players">
   <div class="players-strip" *ngIf="currentPlayer$ | async as current">
     <div
@@ -93,5 +107,11 @@
       <span class="chip-name">{{ p.name }}</span>
       <span class="chip-indicator" *ngIf="p.id === current.id">◄</span>
     </div>
+
+    <!-- SALIR button integrated into bottom bar -->
+    <button class="player-chip btn-exit" (click)="onBackToInicio()" id="hud-exit-btn">
+      <mat-icon class="exit-icon">logout</mat-icon>
+      <span class="chip-name">SALIR</span>
+    </button>
   </div>
 </div>

@@ -354,7 +354,4 @@ export class Match implements OnInit, OnDestroy {
     return Math.max(5, Math.min(95, Math.round(baseChance)));
   }
 
-  goBack(): void {
-    this.router.navigate(['/inicio']);
-  }
 }
