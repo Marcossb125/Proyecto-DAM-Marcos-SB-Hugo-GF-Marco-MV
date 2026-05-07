@@ -15,3 +15,5 @@ Datos del env para acceder a la api rest desde el backend (por si acaso): DB_HOS
 DB_USER=middleware_service
 DB_PASSWORD=Mid2024!
 DB_NAME=convergence
+
+encender api rest: cd "c:\Users\marcos.sanchez\Documents\GitHub\Proyecto-DAM-Marcos-SB-Hugo-GF-Marco-MV\Api rest\convergence"; .\mvnw.cmd -DskipTests=true spring-boot:run
