@@ -258,77 +258,175 @@
 }
 
 /* ═══════════════════════════════════════
-   PROFILE SECTION
+   COMMANDER CARD (profile section)
    ═══════════════════════════════════════ */
 .profile-section {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  padding: 1.5rem 1rem 1rem;
-  background: var(--war-panel);
+  padding: 1.25rem 1rem;
+  background: linear-gradient(180deg, #0d120d 0%, var(--war-bg) 100%);
   border-bottom: 1px solid var(--war-border);
 }
 
-.profile-card {
+.commander-card {
+  position: relative;
   display: flex;
   align-items: center;
-  gap: 1rem;
-  margin-bottom: 1.25rem;
+  gap: 1.25rem;
+  max-width: 480px;
+  margin: 0 auto;
+  padding: 1rem 1.25rem;
+  background: rgba(10, 15, 10, 0.85);
+  border: 1px solid rgba(75, 83, 32, 0.6);
+  border-radius: 6px;
+  backdrop-filter: blur(8px);
+  box-shadow:
+    0 0 0 1px rgba(0, 255, 65, 0.04),
+    0 4px 24px rgba(0, 0, 0, 0.6),
+    inset 0 1px 0 rgba(0, 255, 65, 0.06);
 }
 
-/* Avatar */
-.profile-avatar {
-  position: relative;
+/* — Esquinas militares decorativas — */
+.corner {
+  position: absolute;
+  width: 10px;
+  height: 10px;
+  border-color: var(--war-accent);
+  border-style: solid;
+  opacity: 0.7;
 }
+.corner.tl { top: 4px; left: 4px;  border-width: 1.5px 0 0 1.5px; }
+.corner.tr { top: 4px; right: 4px; border-width: 1.5px 1.5px 0 0; }
+.corner.bl { bottom: 4px; left: 4px;  border-width: 0 0 1.5px 1.5px; }
+.corner.br { bottom: 4px; right: 4px; border-width: 0 1.5px 1.5px 0; }
 
-.avatar-frame {
-  width: 56px;
-  height: 56px;
-  border: 2px solid var(--war-green);
+/* — FLAG SLOT — */
+.flag-slot {
+  flex-shrink: 0;
+  width: 90px;
+  height: 60px;
   border-radius: 4px;
-  padding: 3px;
-  background: rgba(0, 0, 0, 0.5);
+  overflow: hidden;
+  border: 1.5px solid var(--war-green);
+  box-shadow: 0 0 12px rgba(0, 255, 65, 0.15);
 }
 
-.avatar-inner {
+.flag-wrap {
+  position: relative;
   width: 100%;
   height: 100%;
-  background: radial-gradient(circle at 30% 30%, #3a4a2a, #1a1e14);
-  border-radius: 2px;
+  cursor: pointer;
+  overflow: hidden;
 }
 
-.status-indicator {
+.flag-wrap app-nation-flag {
+  display: flex !important;
+  width: 100% !important;
+  height: 100% !important;
+}
+
+.flag-wrap ::ng-deep .flag-container {
+  width: 100% !important;
+  height: 100% !important;
+}
+
+/* Overlay "EDITAR" al hacer hover */
+.flag-edit-overlay {
   position: absolute;
-  bottom: -2px;
-  right: -2px;
-  width: 14px;
-  height: 14px;
-  background: var(--war-accent);
-  border: 2px solid var(--war-bg);
-  border-radius: 50%;
-  box-shadow: 0 0 8px rgba(0, 255, 65, 0.5);
-}
-
-.profile-info {
+  inset: 0;
   display: flex;
   flex-direction: column;
-  gap: 0.25rem;
-}
-
-.profile-name {
-  font-size: 1.1rem;
-  font-weight: 700;
-  color: #fff;
-  text-transform: uppercase;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  background: rgba(0, 0, 0, 0.65);
+  color: var(--war-accent);
+  opacity: 0;
+  transition: opacity 0.2s;
+  font-family: var(--font-pixel, 'Press Start 2P', monospace);
+  font-size: 0.35rem;
   letter-spacing: 1px;
 }
+.flag-wrap:hover .flag-edit-overlay { opacity: 1; }
+.flag-edit-overlay mat-icon { font-size: 18px; }
 
-.profile-status {
+/* Línea de escaneo animada sobre la bandera */
+.flag-scan {
+  position: absolute;
+  top: -100%;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: linear-gradient(90deg,
+    transparent 0%,
+    rgba(0, 255, 65, 0.6) 50%,
+    transparent 100%);
+  animation: flagScan 3s linear infinite;
+  pointer-events: none;
+}
+@keyframes flagScan {
+  0%   { top: -5%; }
+  100% { top: 105%; }
+}
+
+/* Estado vacío */
+.flag-empty {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 3px;
+  cursor: pointer;
+  background: rgba(0, 255, 65, 0.04);
+  color: var(--war-accent);
+  font-family: var(--font-pixel, 'Press Start 2P', monospace);
+  font-size: 0.3rem;
+  letter-spacing: 0.5px;
+  text-align: center;
+  transition: background 0.2s;
+  animation: pulseNeon 2s infinite alternate;
+}
+.flag-empty mat-icon { font-size: 22px; opacity: 0.8; }
+.flag-empty:hover { background: rgba(0, 255, 65, 0.12); }
+
+@keyframes pulseNeon {
+  from { box-shadow: 0 0 5px rgba(0,255,65,0.2); border-color: rgba(0,255,65,0.4); }
+  to   { box-shadow: 0 0 12px rgba(0,255,65,0.8); border-color: var(--war-accent); }
+}
+
+/* — COMMANDER INFO — */
+.commander-info {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+  min-width: 0;
+}
+
+.commander-label {
+  font-family: var(--font-pixel, 'Press Start 2P', monospace);
+  font-size: 0.4rem;
+  color: var(--war-green-light);
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  opacity: 0.7;
+}
+
+.commander-name {
+  font-size: 1.2rem;
+  font-weight: 800;
+  color: #ffffff;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  text-shadow: 0 0 20px rgba(255,255,255,0.15);
+}
+
+.commander-status {
   display: flex;
   align-items: center;
   gap: 0.4rem;
-  font-size: 0.7rem;
-  color: var(--war-green-light);
 }
 
 .status-dot {
@@ -338,97 +436,84 @@
   border-radius: 50%;
   box-shadow: 0 0 6px var(--war-accent);
   animation: statusPulse 2s ease-in-out infinite;
+  flex-shrink: 0;
 }
 
 @keyframes statusPulse {
-  0%,
-  100% {
-    opacity: 1;
-  }
-  50% {
-    opacity: 0.4;
-  }
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0.3; }
 }
 
-.profile-details-column {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-}
-
-/* ═══ NATION FLAG AREA ═══ */
-.nation-flag-area {
-  display: flex;
-  align-items: center;
-  margin-left: 0;
-  gap: 15px;
-}
-
-.flag-display {
-  cursor: pointer;
-  border-radius: 4px;
-  transition: transform 0.2s, box-shadow 0.2s;
-}
-
-.flag-display:hover {
-  transform: scale(1.05);
-  box-shadow: 0 0 10px rgba(0, 255, 65, 0.4);
-}
-
-.flag-placeholder {
-  width: 60px;
-  height: 40px;
-  border: 1px dashed var(--war-accent);
-  border-radius: 4px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  background: rgba(0, 255, 65, 0.05);
+.status-text {
+  font-size: 0.68rem;
   color: var(--war-accent);
-  box-shadow: 0 0 5px rgba(0, 255, 65, 0.2);
-  animation: pulseNeon 2s infinite alternate;
+  font-weight: 600;
+  letter-spacing: 0.5px;
 }
 
-.flag-placeholder:hover {
-  background: rgba(0, 255, 65, 0.15);
-  box-shadow: 0 0 15px rgba(0, 255, 65, 0.6);
+.commander-divider {
+  height: 1px;
+  background: linear-gradient(90deg,
+    var(--war-accent) 0%,
+    rgba(0, 255, 65, 0.15) 60%,
+    transparent 100%);
+  margin: 2px 0;
 }
 
-@keyframes pulseNeon {
-  from {
-    box-shadow: 0 0 5px rgba(0, 255, 65, 0.2);
-    border-color: rgba(0, 255, 65, 0.4);
-  }
-  to {
-    box-shadow: 0 0 12px rgba(0, 255, 65, 0.8);
-    border-color: var(--war-accent);
-  }
-}
-
-.nation-name-line {
-  display: flex;
+/* — FACTION BADGE — */
+.faction-badge {
+  display: inline-flex;
   align-items: center;
+  gap: 0.35rem;
+  padding: 0.2rem 0.6rem 0.2rem 0.35rem;
+  background: rgba(0, 255, 65, 0.07);
+  border: 1px solid rgba(0, 255, 65, 0.25);
+  border-radius: 20px;
+  width: fit-content;
+  transition: all 0.2s;
 }
 
-.nation-name {
+.faction-badge:hover {
+  background: rgba(0, 255, 65, 0.13);
+  border-color: rgba(0, 255, 65, 0.5);
+}
+
+.faction-icon {
+  font-size: 14px !important;
+  width: 14px !important;
+  height: 14px !important;
+  color: var(--war-accent);
+  opacity: 0.85;
+}
+
+.faction-name {
   font-family: var(--font-pixel, 'Press Start 2P', monospace);
-  font-size: 0.85rem;
-  font-weight: bold;
-  color: #fff;
-  letter-spacing: 2px;
+  font-size: 0.5rem;
+  color: var(--war-accent);
+  letter-spacing: 1.5px;
   text-transform: uppercase;
-  margin-left: 15px;
-  text-shadow: 0 0 5px rgba(255, 255, 255, 0.3);
+  text-shadow: 0 0 8px rgba(0, 255, 65, 0.4);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 150px;
 }
 
-.sci-fi-line {
-  width: 60px;
-  height: 2px;
-  background: var(--war-accent);
-  position: relative;
-  box-shadow: 0 0 8px var(--war-accent);
+.faction-badge.empty {
+  cursor: pointer;
+  border-style: dashed;
+  opacity: 0.55;
 }
+.faction-badge.empty .faction-name {
+  color: var(--war-green-light);
+  text-shadow: none;
+}
+.faction-badge.empty:hover {
+  opacity: 1;
+  background: rgba(0, 255, 65, 0.08);
+}
+
+
 
 .sci-fi-line::after {
   content: '';
