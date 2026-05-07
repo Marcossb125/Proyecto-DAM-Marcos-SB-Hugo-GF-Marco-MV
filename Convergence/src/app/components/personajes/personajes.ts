@@ -5,7 +5,8 @@ import { MatIconModule } from '@angular/material/icon';
 import { TopActions } from '../top-actions/top-actions';
 import { BottomNavbar } from '../bottom-navbar/bottom-navbar';
 import { Banner } from '../banner/banner';
-import { PartidaService } from '../../servicios/partida.service';
+import { AuthService } from '../../servicios/auth.service';
+import { UserService } from '../../servicios/user.service';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { CommonModule } from '@angular/common';
 
@@ -104,14 +105,15 @@ export class Personajes {
 
   constructor(
     private router: Router, 
-    private partidaService: PartidaService,
+    private authService: AuthService,
+    private userService: UserService,
     private snackBar: MatSnackBar
   ) {}
 
   ngOnInit(): void {
-    const nickname = this.partidaService.obtenerNombreUsuario();
+    const nickname = this.authService.obtenerNombreUsuario();
     if (nickname) {
-      this.partidaService.obtenerGeneral(nickname).subscribe({
+      this.userService.obtenerGeneral(nickname).subscribe({
         next: (res) => {
           if (res && res.generalId) {
             const char = this.characters().find(c => c.id === res.generalId);
@@ -136,11 +138,11 @@ export class Personajes {
 
   confirmarSeleccion(): void {
     const char = this.selectedCharacter();
-    const nickname = this.partidaService.obtenerNombreUsuario();
+    const nickname = this.authService.obtenerNombreUsuario();
 
     if (!char || !nickname) return;
 
-    this.partidaService.guardarGeneral(nickname, char.id).subscribe({
+    this.userService.guardarGeneral(nickname, char.id).subscribe({
       next: () => {
         this.snackBar.open('Operativo confirmado con éxito', 'Cerrar', {
           duration: 3000,

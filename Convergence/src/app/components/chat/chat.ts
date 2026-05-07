@@ -4,7 +4,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
-import { PartidaService } from '../../servicios/partida.service';
+import { AuthService } from '../../servicios/auth.service';
 import { TopActions } from '../top-actions/top-actions';
 import { BottomNavbar } from '../bottom-navbar/bottom-navbar';
 import { Banner } from '../banner/banner';
@@ -26,7 +26,7 @@ interface ChatMessage {
 })
 export class Chat implements AfterViewChecked {
   private router = inject(Router);
-  private partidaService = inject(PartidaService);
+  private authService = inject(AuthService);
 
   @ViewChild('scrollContainer') private scrollContainer!: ElementRef;
 
@@ -41,7 +41,7 @@ export class Chat implements AfterViewChecked {
   ]);
 
   constructor() {
-    this.playerName.set(this.partidaService.obtenerNombreUsuario() || 'Comandante');
+    this.playerName.set(this.authService.obtenerNombreUsuario() || 'Comandante');
   }
 
   ngAfterViewChecked() {

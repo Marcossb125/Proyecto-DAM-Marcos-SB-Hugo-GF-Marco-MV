@@ -2,7 +2,7 @@ import { Component, signal } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
 import { Banner } from '../banner/banner';
 import { FormsModule } from '@angular/forms';
-import { PartidaService } from '../../servicios/partida.service';
+import { AuthService } from '../../servicios/auth.service';
 
 @Component({
   selector: 'app-login',
@@ -16,7 +16,7 @@ export class Login {
   isLoading = signal(false);
   errorMessage = signal('');
 
-  constructor(private router: Router, private partidaService: PartidaService) { }
+  constructor(private router: Router, private authService: AuthService) { }
 
   onLogin(): void {
 
@@ -29,13 +29,13 @@ export class Login {
 
     this.isLoading.set(true);
 
-    this.partidaService.loginUser({
+    this.authService.loginUser({
       nickname: this.username(),
       password: this.password()
     }).then((response) => {
       console.log(response);
       if (response) {
-        this.partidaService.guardarNombreUsuario(this.username());
+        this.authService.guardarNombreUsuario(this.username());
         this.router.navigate(['/inicio']);
       } else {
         this.errorMessage.set('Usuario o contraseña incorrectos.');
