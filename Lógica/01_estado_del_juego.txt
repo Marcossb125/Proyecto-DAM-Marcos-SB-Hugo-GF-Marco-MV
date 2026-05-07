@@ -1,0 +1,9 @@
+ARCHIVO OBSOLETO — Reemplazado por 01_estado_persistido.txt
+═══════════════════════════════════════════════════════════════
+
+Este archivo documentaba el estado del juego tal como lo gestionaba
+el store NgRx del frontend (Angular).
+
+Con la nueva arquitectura, la fuente de verdad es el backend.
+Ver: 01_estado_persistido.txt
+

@@ -1,0 +1,9 @@
+ARCHIVO OBSOLETO — Reemplazado por 02_reglas_del_juego.txt
+═══════════════════════════════════════════════════════════════
+
+Este archivo documentaba las fases del turno desde la perspectiva
+del frontend Angular (NgRx actions, dialogs, reducers).
+
+Con la nueva arquitectura, la logica de fases la ejecuta el backend.
+Ver: 02_reglas_del_juego.txt
+

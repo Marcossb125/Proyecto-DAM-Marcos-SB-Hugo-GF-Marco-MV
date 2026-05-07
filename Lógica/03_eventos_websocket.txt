@@ -1,0 +1,160 @@
+═══════════════════════════════════════════════════════════════
+EVENTOS WEBSOCKET — Protocolo cliente ↔ backend (turnos SIMULTANEOS)
+═══════════════════════════════════════════════════════════════
+
+Todos los jugadores estan conectados a la vez.
+Cada evento lleva el playerId del remitente.
+El backend valida la identidad comparando el socket con el playerId.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+EVENTOS CLIENTE → BACKEND
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Todos los eventos pasan las siguientes validaciones globales:
+  - El socket corresponde al playerId declarado.
+  - La fase actual del juego permite ese tipo de evento.
+  - El jugador no ha marcado isReady=true aun (salvo CANCEL_READY).
+
+--- RECAUDACION ---
+
+PLAYER_READY
+  payload: { matchId, playerId }
+  El jugador confirma la recaudacion y queda listo.
+  Cuando todos ready → el backend avanza a CONSTRUCCION.
+
+--- CONSTRUCCION ---
+
+BUILD
+  payload: { matchId, playerId, territoryId, buildingType }
+  Validaciones:
+    - territory.ownerId === playerId
+    - territory.buildingType === null
+    - player.credits >= BUILDING_COSTS[buildingType]
+    - buildingType en {CUARTEL, FABRICA, TORRE, MURO}
+
+DESTROY_BUILDING
+  payload: { matchId, playerId, territoryId }
+  Validaciones:
+    - territory.ownerId === playerId
+    - territory.buildingType !== null
+
+PLAYER_READY
+  payload: { matchId, playerId }
+  El jugador termina de construir y queda listo.
+  Cuando todos ready → avanza a RECLUTAMIENTO.
+
+--- RECLUTAMIENTO ---
+
+RECRUIT
+  payload: { matchId, playerId, territoryId, troopSize }
+  Validaciones:
+    - territory.ownerId === playerId
+    - territory.hasSupremeBase === true
+    - troopSize >= 1
+    - troopSize × 50 <= player.credits
+    - troopSize × 10 <= player.manpower
+
+PLAYER_READY
+  payload: { matchId, playerId }
+  Cuando todos ready → avanza a MOVIMIENTO.
+
+--- MOVIMIENTO ---
+
+QUEUE_MOVE
+  payload: { matchId, playerId, armyId, toTerritoryId }
+  Encola el movimiento (no se ejecuta aun).
+  Validaciones:
+    - army.ownerId === playerId
+    - army.hasActedThisTurn === false
+    - toTerritoryId en adjacentIds del territorio del ejercito
+    - El ejercito no tiene ya un movimiento encolado
+
+CANCEL_MOVE
+  payload: { matchId, playerId, armyId }
+  Elimina el movimiento encolado de ese ejercito.
+  Validacion: el ejercito pertenece al jugador y esta en pendingMoves.
+
+RETREAT
+  payload: { matchId, playerId, armyId }
+  Marca el ejercito como actuado sin moverlo.
+  army.hasActedThisTurn = true
+
+PLAYER_READY
+  payload: { matchId, playerId }
+  El jugador confirma todos sus movimientos.
+  Cuando todos ready → el backend resuelve todos los movimientos
+  simultaneamente y avanza a nueva ronda (RECAUDACION).
+
+--- GESTION DE SALA ---
+
+JOIN_MATCH
+  payload: { matchId, playerId }
+  Un humano se une a un slot (previamente bot).
+  El backend asigna el slot: player.isBot=false, player.isConnected=true.
+  Respuesta: GAME_STATE_UPDATE completo para sincronizar al cliente.
+
+LEAVE_MATCH
+  payload: { matchId, playerId }
+  El jugador abandona. El slot vuelve a ser bot.
+  player.isBot=true, player.isConnected=false.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+EVENTOS BACKEND → CLIENTES (broadcast a todos salvo indicacion)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+GAME_STATE_UPDATE  (broadcast)
+  payload: { matchId, currentPhase, currentTurn,
+             players[], territories[], armies[] }
+  Se emite despues de cualquier evento que modifique el estado.
+
+PLAYER_READY_UPDATE  (broadcast)
+  payload: { matchId, playerId, readyCount, totalPlayers }
+  Se emite cada vez que un jugador pulsa Listo, para mostrar
+  cuantos jugadores ya estan listos (ej. "3/4 listos").
+
+PHASE_TRANSITION  (broadcast)
+  payload: { matchId, fromPhase, toPhase, currentTurn }
+  Se emite justo antes del GAME_STATE_UPDATE de la nueva fase.
+
+COMBAT_RESULT  (broadcast)
+  payload: { matchId,
+             type: 'battle' | 'conquest' | 'draw',
+             attackerPlayerId, defenderPlayerId?,
+             attackerArmyId,  defenderArmyId?,
+             territoryId,
+             success: boolean,
+             survivingTroops: number,
+             defenseStrength?: number,
+             successChance?: number }
+  Se emite por cada combate resuelto durante la fase MOVIMIENTO.
+  Puede haber multiples COMBAT_RESULT seguidos antes del GAME_STATE_UPDATE final.
+
+ROUND_SNAPSHOT_SAVED  (broadcast, informativo)
+  payload: { matchId, currentTurn }
+  Se emite cuando el backend guarda el snapshot en BD.
+
+PLAYER_JOINED  (broadcast)
+  payload: { matchId, playerId, playerName }
+  Un humano se ha unido a un slot bot.
+
+PLAYER_LEFT  (broadcast)
+  payload: { matchId, playerId }
+  Un jugador humano ha abandonado (el slot vuelve a ser bot).
+
+VALIDATION_ERROR  (solo al socket remitente)
+  payload: { matchId, event: string, reason: string }
+  El evento enviado no ha pasado la validacion.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+FLUJO TIPICO DE UNA FASE (ejemplo CONSTRUCCION)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+1. Backend emite PHASE_TRANSITION + GAME_STATE_UPDATE (fase=CONSTRUCCION).
+2. p1 (humano) envia BUILD → backend valida, actualiza estado, emite GAME_STATE_UPDATE.
+3. p2 (bot)    construye automaticamente, emite GAME_STATE_UPDATE.
+4. p3 (humano) envia PLAYER_READY → backend emite PLAYER_READY_UPDATE (1/4).
+5. p2 (bot)    marca PLAYER_READY  → backend emite PLAYER_READY_UPDATE (2/4).
+6. p4 (bot)    marca PLAYER_READY  → backend emite PLAYER_READY_UPDATE (3/4).
+7. p1 (humano) envia PLAYER_READY  → backend emite PLAYER_READY_UPDATE (4/4).
+8. Todos listos → backend avanza fase → PHASE_TRANSITION + GAME_STATE_UPDATE (fase=RECLUTAMIENTO).
+

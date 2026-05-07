@@ -1,0 +1,13 @@
+ARCHIVO FRONTEND ONLY — No relevante para el backend
+═══════════════════════════════════════════════════════════════
+
+Este archivo documentaba el store NgRx del cliente Angular:
+acciones, reducer, effects y selectors.
+
+Todo ese contenido es exclusivo del frontend y no tiene
+equivalente directo en el backend.
+
+El equivalente backend del "store" es el estado en memoria del
+servicio de partida (GameService o similar).
+Ver: 02_reglas_del_juego.txt y 03_eventos_websocket.txt
+

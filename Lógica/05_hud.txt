@@ -1,0 +1,9 @@
+ARCHIVO FRONTEND ONLY — No relevante para el backend
+═══════════════════════════════════════════════════════════════
+
+Este archivo documentaba el componente HudComponent (Angular):
+panel de estado, recursos, fases, botones y responsive.
+
+Todo este contenido es exclusivo del cliente Angular.
+El backend no tiene ninguna responsabilidad sobre la UI.
+

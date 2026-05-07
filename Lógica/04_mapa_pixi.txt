@@ -1,0 +1,14 @@
+ARCHIVO FRONTEND ONLY — No relevante para el backend
+═══════════════════════════════════════════════════════════════
+
+Este archivo documentaba el componente MapComponent (PixiJS):
+renderizado del canvas hexagonal, camara, pan/zoom,
+capas visuales de cada hexagono y click handlers de UI.
+
+Todo este contenido es exclusivo del cliente Angular y no
+tiene ninguna logica que deba replicarse en el backend.
+
+El backend solo necesita conocer la definicion estatica del mapa
+(IDs, coordenadas q/r, adyacencias) para validar movimientos.
+Esa informacion esta en: 01_estado_persistido.txt (seccion MAPA)
+

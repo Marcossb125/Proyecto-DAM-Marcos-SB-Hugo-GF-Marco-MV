@@ -1,0 +1,17 @@
+ARCHIVO FRONTEND ONLY — No relevante para el backend
+═══════════════════════════════════════════════════════════════
+
+Este archivo documentaba el componente Match (Angular):
+orquestacion de dialogos, click handlers del mapa y
+despacho de acciones al store NgRx.
+
+Con la nueva arquitectura, esa orquestacion pasa al backend.
+El componente Match del cliente se limitara a:
+  1. Escuchar eventos WebSocket del backend (GAME_STATE_UPDATE, COMBAT_RESULT).
+  2. Actualizar el store local con el estado recibido.
+  3. Abrir dialogs para mostrar resultados (solo presentacion, sin calculos).
+  4. Enviar eventos al backend cuando el usuario actue.
+
+La logica de negocio (validaciones, calculos, transiciones de fase)
+ya no vive en el cliente. Ver: 02_reglas_del_juego.txt
+

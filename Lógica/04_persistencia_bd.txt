@@ -1,0 +1,94 @@
+═══════════════════════════════════════════════════════════════
+PERSISTENCIA EN BD — Cuando y que se guarda (turnos SIMULTANEOS)
+═══════════════════════════════════════════════════════════════
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+CUANDO SE HACE SNAPSHOT
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+El snapshot ocurre al final de cada RONDA COMPLETA, es decir,
+cuando todos los jugadores han pulsado PLAYER_READY en la fase
+MOVIMIENTO y el backend ha resuelto todos los combates.
+
+En ese momento:
+  currentTurn++
+  currentPhase = 'RECAUDACION'
+  armies.forEach(a => a.hasActedThisTurn = false)
+  players.forEach(p => p.isReady = false)
+  → SNAPSHOT guardado en BD
+  → ROUND_SNAPSHOT_SAVED emitido a todos los clientes
+
+NO se guarda en BD:
+  - Tras cada BUILD, RECRUIT, QUEUE_MOVE individual.
+  - Al avanzar entre fases (RECAUDACION→CONSTRUCCION, etc.)
+  - Durante la resolucion de combates.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+QUE CONTIENE EL SNAPSHOT
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+{
+  matchId       : string
+  savedAt       : timestamp
+  currentTurn   : number        // Ronda recien completada
+  currentPhase  : 'RECAUDACION' // Siempre RECAUDACION al guardar
+
+  players: [
+    { id, name, faction, color, credits, manpower, isReady }
+    // isReady siempre sera false al guardar
+    // isConnected e isBot NO se persisten (son estado de sesion)
+  ]
+
+  territories: [
+    { id, ownerId, buildingType, occupiedByArmyId }
+    // Solo campos dinamicos; los estaticos (hexQ, hexR, etc.)
+    // se recargan de la definicion fija del mapa
+  ]
+
+  armies: [
+    { id, ownerId, territoryId, troopSize, hasActedThisTurn }
+    // hasActedThisTurn siempre false al guardar
+  ]
+}
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+RECUPERACION TRAS FALLO DEL SERVIDOR
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Si el proceso backend cae y se reinicia:
+  1. Carga el ultimo snapshot de BD para el matchId.
+  2. Reconstruye el estado en memoria:
+       - Campos estaticos del mapa se recargan de la definicion.
+       - Todos los jugadores: isBot=true, isConnected=false.
+       - pendingMoves vaciado.
+  3. Los clientes se reconectan via JOIN_MATCH.
+  4. El backend emite GAME_STATE_UPDATE completo a cada reconexion.
+
+Consecuencia: se pierde el progreso de la ronda en curso.
+La partida retoma desde el inicio de la ultima ronda completada.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+CREACION INICIAL DE LA PARTIDA
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Al crear una partida (via REST API del lobby):
+  1. Backend genera matchId y construye el estado inicial en memoria.
+  2. Todos los slots comienzan como isBot=true.
+  3. Se guarda el snapshot inicial en BD (ronda 0).
+  4. A medida que los jugadores se unen via JOIN_MATCH, sus slots
+     pasan de bot a humano.
+  5. La partida puede comenzar con cualquier numero de humanos;
+     los slots vacios son bots hasta que alguien los ocupe.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+ESTRUCTURA EN BD
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Coleccion match_snapshots:
+  - matchId, savedAt, currentTurn, stateBlob (JSON completo)
+
+Coleccion matches (metadatos):
+  - matchId, createdAt, status ('waiting'|'in_progress'|'finished')
+  - playerSlots: [{ slotId, humanUserId | null }]
+  - latestTurn
+
