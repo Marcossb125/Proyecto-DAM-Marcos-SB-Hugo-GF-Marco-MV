@@ -41,6 +41,21 @@ export class HudComponent implements OnInit {
   /** Whether the resource panel is collapsed (mobile mode) */
   isResourcesCollapsed = false;
 
+  /** Whether the players list is collapsed */
+  isPlayersCollapsed = true;
+
+  /** Whether the game log sidebar is open */
+  isLogOpen = false;
+
+  /** Mock logs for demonstration */
+  mockLogs = [
+    { time: '10:00', message: 'Partida iniciada', type: 'system' },
+    { time: '10:05', message: 'Commander Alpha ha capturado REFINERÍA', type: 'action' },
+    { time: '10:10', message: 'Baron Delta ha reclutado 5 tropas', type: 'info' },
+    { time: '10:15', message: 'Combate en Zona Cero: Alpha vs Delta', type: 'combat' },
+    { time: '10:20', message: 'Alpha ha ganado el combate', type: 'result' },
+  ];
+
   ngOnInit(): void {
     this.checkScreenSize();
   }
@@ -59,6 +74,14 @@ export class HudComponent implements OnInit {
 
   toggleResources(): void {
     this.isResourcesCollapsed = !this.isResourcesCollapsed;
+  }
+
+  toggleLog(): void {
+    this.isLogOpen = !this.isLogOpen;
+  }
+
+  togglePlayers(): void {
+    this.isPlayersCollapsed = !this.isPlayersCollapsed;
   }
 
   getPhaseLabel(phase: string): string {
