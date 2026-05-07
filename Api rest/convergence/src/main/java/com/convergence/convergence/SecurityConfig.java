@@ -9,33 +9,29 @@ import org.springframework.http.HttpMethod;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import java.util.Arrays;
 
 @Configuration
 @EnableWebSecurity
 public class SecurityConfig {
 
-    @Bean
-public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-    http
-        .csrf(csrf -> csrf.disable())
-        .cors(cors -> cors.configurationSource(corsConfigurationSource()))
-        .authorizeHttpRequests(auth -> auth
-            .requestMatchers("/auth/register", "/auth/login").permitAll()
-            .requestMatchers(HttpMethod.POST, "/partidas/crear").permitAll()
-            .requestMatchers(HttpMethod.GET, "/partidas/buscar/activas").permitAll()
-            .requestMatchers(HttpMethod.DELETE, "/partidas/{id}").permitAll()
-            .requestMatchers(HttpMethod.GET, "/partidas/nombre/{nombre}").permitAll()
-            .requestMatchers(HttpMethod.PUT, "/bandera/guardar").permitAll()
-            .requestMatchers(HttpMethod.GET, "/bandera/{nickname}").permitAll()
-            .requestMatchers(HttpMethod.PUT, "/general/guardar").permitAll()
-            .requestMatchers(HttpMethod.GET, "/general/{nickname}").permitAll()
-            .requestMatchers("/error").permitAll()
-            
+    @Autowired
+    private JwtFilter jwtFilter;
 
-            .anyRequest().authenticated()
-        )
-        .httpBasic(basic -> basic.disable());
+    @Bean
+    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+        http
+            .csrf(csrf -> csrf.disable())
+            .cors(cors -> cors.configurationSource(corsConfigurationSource()))
+            .authorizeHttpRequests(auth -> auth
+                .requestMatchers("/auth/backend-login").permitAll()
+                .requestMatchers("/error").permitAll()
+                .anyRequest().authenticated()
+            )
+            .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class)
+            .httpBasic(basic -> basic.disable());
 
     return http.build();
 }

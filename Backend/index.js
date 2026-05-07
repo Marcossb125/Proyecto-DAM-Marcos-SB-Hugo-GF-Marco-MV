@@ -62,6 +62,38 @@ const obtenerGeneralPayload = z.object({
 const API_BASE_URL = process.env.API_BASE_URL;
 const JWT = process.env.JWT;
 
+let apiToken = null;
+
+async function authenticateBackend() {
+  try {
+    const response = await axios.post(`${API_BASE_URL}/auth/backend-login`, {
+      nickname: process.env.DB_USER,
+      password: process.env.DB_PASSWORD,
+    });
+    apiToken = response.data.token;
+    console.log('Successfully authenticated with API REST as middleware user');
+  } catch (error) {
+    console.error('Failed to authenticate with API REST:');
+    if (error.response) {
+      console.error(`Status: ${error.response.status}`);
+      console.error(`Data: ${JSON.stringify(error.response.data)}`);
+    } else {
+      console.error(`Message: ${error.message}`);
+    }
+    // You might want to handle retries here, but for now we just log it
+  }
+}
+
+axios.interceptors.request.use((config) => {
+  if (apiToken && config.url.startsWith(API_BASE_URL)) {
+    config.headers = config.headers || {};
+    config.headers.Authorization = `Bearer ${apiToken}`;
+  }
+  return config;
+}, (error) => {
+  return Promise.reject(error);
+});
+
 io.on('connection', (socket) => {
   console.log('Cliente conectado:', socket.id);
   console.log('Origen:', socket.handshake.headers.origin);
@@ -301,7 +333,10 @@ io.on('connection', (socket) => {
 
 
 const PORT = process.env.PORT;
-httpServer.listen(PORT, () => {
-  console.log(`Middleware Service running on port ${PORT}`);
-  console.log(`Forwarding requests to API at ${API_BASE_URL}`);
+
+authenticateBackend().then(() => {
+  httpServer.listen(PORT, () => {
+    console.log(`Middleware Service running on port ${PORT}`);
+    console.log(`Forwarding requests to API at ${API_BASE_URL}`);
+  });
 });

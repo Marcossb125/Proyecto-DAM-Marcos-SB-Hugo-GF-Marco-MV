@@ -8,12 +8,16 @@ import javax.crypto.SecretKey;
 import java.util.Date;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import io.jsonwebtoken.security.Keys;
+import java.nio.charset.StandardCharsets;
+import java.util.Map;
 
 import java.util.Optional;
 
@@ -27,11 +31,18 @@ public class AuthController {
     @Autowired
     private PasswordEncoder passwordEncoder;
 
-    // Generate a secret key for signing JWTs. This key is generated at application
-    // startup; to keep tokens valid across restarts you should persist or
-    // configure a fixed key (e.g. from environment variable).
-    private final SecretKey SECRET_KEY = Jwts.SIG.HS256.key().build();
+    @Value("${jwt.secret}")
+    private String jwtSecret;
 
+    @Value("${backend.auth.username}")
+    private String backendUser;
+
+    @Value("${backend.auth.password}")
+    private String backendPassword;
+
+    private SecretKey getSecretKey() {
+        return Keys.hmacShaKeyFor(jwtSecret.getBytes(StandardCharsets.UTF_8));
+    }
     public static class AuthRequest {
         public String nickname;
         public String password;
@@ -70,12 +81,29 @@ public class AuthController {
             return ResponseEntity.status(401).body("invalid credentials");
         }
     Date issuedAt = new Date();
-    String jwtGen = Jwts.builder()
-        .setSubject(user.get().getNickname())
-        .setIssuedAt(issuedAt)
-        .signWith(SECRET_KEY)
-        .compact();
+    
     // In a real app return a token (JWT) instead of the user
     return ResponseEntity.ok(req.nickname);
+    }
+
+    @PostMapping("/backend-login")
+    public ResponseEntity<?> backendLogin(@RequestBody AuthRequest req) {
+        if (req.nickname == null || req.password == null) {
+            return ResponseEntity.badRequest().body("nickname and password required");
+        }
+        
+        // Autenticar contra las credenciales del usuario de la base de datos (usuario MySQL)
+        if (!req.nickname.equals(backendUser) || !req.password.equals(backendPassword)) {
+            return ResponseEntity.status(401).body("invalid backend credentials");
+        }
+
+        Date issuedAt = new Date();
+        String jwtGen = Jwts.builder()
+            .setSubject(req.nickname)
+            .setIssuedAt(issuedAt)
+            .signWith(getSecretKey())
+            .compact();
+        
+        return ResponseEntity.ok(Map.of("token", jwtGen));
     }
 }
