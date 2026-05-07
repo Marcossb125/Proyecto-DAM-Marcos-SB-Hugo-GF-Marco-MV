@@ -1,0 +1,17 @@
+Consulta crear usuario dedicado: -- Crear usuario dedicado para el middleware
+CREATE USER 'middleware_service'@'localhost' IDENTIFIED BY 'Mid2024!';
+
+-- Darle permisos solo sobre la base de datos convergence
+GRANT SELECT, INSERT, UPDATE, DELETE ON convergence.* TO 'middleware_service'@'localhost';
+
+-- Aplicar cambios
+FLUSH PRIVILEGES;
+
+-- Verificar que se creó correctamente
+SHOW GRANTS FOR 'middleware_service'@'localhost';
+
+
+Datos del env para acceder a la api rest desde el backend (por si acaso): DB_HOST=localhost
+DB_USER=middleware_service
+DB_PASSWORD=Mid2024!
+DB_NAME=convergence
