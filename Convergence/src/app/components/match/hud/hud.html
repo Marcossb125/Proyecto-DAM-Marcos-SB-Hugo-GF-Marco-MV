@@ -1,117 +1,133 @@
 <!-- ═══════════════════════════════════════════════════════════════
-     HUD TEMPLATE — Game UI Overlay (Responsive)
+     PREMIUM HUD TEMPLATE
      ═══════════════════════════════════════════════════════════════ -->
 
 <!-- ═══ TOP BAR ═══ -->
 <div class="hud-top-bar">
-  <!-- Left: Phase info -->
+  <!-- Left: Phase info + Turn -->
   <div class="phase-section" *ngIf="phase$ | async as phase">
-    <div class="phase-indicator">
-      <div class="phase-number">{{ getPhaseNumber(phase) }}/4</div>
+    <div class="phase-card">
+      <div class="phase-number-box">{{ getPhaseNumber(phase) }}</div>
       <div class="phase-info">
-        <div class="phase-label">
-          <mat-icon class="phase-icon">{{ getPhaseIcon(phase) }}</mat-icon>
-          <span class="phase-name">{{ getPhaseLabel(phase) }}</span>
-        </div>
+        <span class="phase-name terminal-text">{{ getPhaseLabel(phase) }}</span>
         <span class="phase-desc">{{ getPhaseDescription(phase) }}</span>
+      </div>
+      <!-- Integrated Turn for Mobile -->
+      <div class="mobile-turn-badge" *ngIf="currentTurn$ | async as turn">
+        T{{ turn }}
       </div>
     </div>
   </div>
 
-  <!-- Center: Turn counter -->
-  <div class="turn-section" *ngIf="currentTurn$ | async as turn">
-    <div class="turn-badge">
-      <span class="turn-label">TURNO</span>
-      <span class="turn-number">{{ turn }}</span>
-    </div>
+  <!-- Center: Turn (Desktop Widget) -->
+  <div class="turn-widget glass-panel" *ngIf="currentTurn$ | async as turn">
+    <span class="turn-label terminal-text">Sector Turn</span>
+    <span class="turn-val">{{ turn }}</span>
   </div>
 
-  <!-- Right: Action button (hidden during RECAUDACIÓN — auto-advances) -->
+  <!-- Right: Action button -->
   <div class="action-section" *ngIf="phase$ | async as phase">
     <button
       *ngIf="phase !== 'RECAUDACION'"
-      class="btn-phase-action btn-listo"
-      (click)="onPhaseAction(phase)"
+      class="btn-tactical terminal-text"
+      (click)="$event.stopPropagation(); onPhaseAction(phase)"
       id="hud-phase-btn">
-      <mat-icon>check</mat-icon>
+      <mat-icon>flash_on</mat-icon>
       LISTO
     </button>
   </div>
 </div>
 
-<!-- ═══ LEFT PANEL (Resources) — Collapsible on mobile ═══ -->
-<div class="hud-left-panel" *ngIf="currentPlayer$ | async as player" [class.collapsed]="isResourcesCollapsed">
-  <!-- Toggle button (visible on mobile) -->
-  <button class="resources-toggle" (click)="toggleResources()" id="resources-toggle-btn">
-    <mat-icon>{{ isResourcesCollapsed ? 'expand_more' : 'expand_less' }}</mat-icon>
-    <span class="toggle-label" *ngIf="isResourcesCollapsed">RECURSOS</span>
-  </button>
-
-  <!-- Compact inline resources (visible when collapsed) -->
-  <div class="resources-compact" *ngIf="isResourcesCollapsed">
-    <span class="compact-item">💰 {{ player.credits }}</span>
-    <span class="compact-divider">·</span>
-    <span class="compact-item">👥 {{ player.manpower }}</span>
-  </div>
-
-  <!-- Full resource panel (visible when expanded) -->
-  <div class="resource-panel" *ngIf="!isResourcesCollapsed">
-    <div class="panel-header">
-      <div class="panel-header-line"></div>
-      <span class="panel-title">RECURSOS</span>
-      <div class="panel-header-line"></div>
+<!-- ═══ LEFT PANEL (Resources) ═══ -->
+<div class="hud-left-panel">
+  <div class="resources-card glass-panel" [class.collapsed]="isResourcesCollapsed">
+    <!-- Header/Toggle -->
+    <div class="card-header">
+      <span class="header-title terminal-text">Logistics</span>
+      <button class="toggle-btn" (click)="$event.stopPropagation(); toggleResources()">
+        <mat-icon>{{ isResourcesCollapsed ? 'unfold_more' : 'unfold_less' }}</mat-icon>
+      </button>
     </div>
 
-    <div class="resource-item">
-      <span class="resource-icon">💰</span>
-      <div class="resource-data">
-        <span class="resource-label">CRÉDITOS</span>
-        <span class="resource-value">{{ player.credits }}</span>
+    <!-- Full View -->
+    <div class="resources-list" *ngIf="!isResourcesCollapsed && (currentPlayer$ | async) as player">
+      <div class="res-item">
+        <div class="res-icon">💰</div>
+        <div class="res-info">
+          <span class="res-name terminal-text">Credits</span>
+          <span class="res-val">{{ player.credits }}</span>
+        </div>
+      </div>
+      <div class="res-item">
+        <div class="res-icon">👥</div>
+        <div class="res-info">
+          <span class="res-name terminal-text">Manpower</span>
+          <span class="res-val">{{ player.manpower }}</span>
+        </div>
       </div>
     </div>
 
-    <div class="resource-item">
-      <span class="resource-icon">👥</span>
-      <div class="resource-data">
-        <span class="resource-label">MANPOWER</span>
-        <span class="resource-value">{{ player.manpower }}</span>
-      </div>
-    </div>
-
-    <div class="resource-divider"></div>
-
-    <div class="faction-badge" [style.border-color]="player.color">
-      <span class="faction-icon">{{ getFactionIcon(player.faction) }}</span>
-      <div class="faction-info">
-        <span class="faction-name" [style.color]="player.color">{{ player.name }}</span>
-        <span class="faction-type">{{ player.faction }}</span>
-      </div>
-    </div>
-
-    <div class="territory-count" *ngIf="playerTerritories$ | async as territories">
-      <mat-icon>map</mat-icon>
-      <span>{{ territories.length }} territorios</span>
+    <!-- Compact View -->
+    <div class="res-compact" *ngIf="isResourcesCollapsed && (currentPlayer$ | async) as player">
+      <span>💰 {{ player.credits }}</span>
+      <span>👥 {{ player.manpower }}</span>
     </div>
   </div>
 </div>
 
-<!-- ═══ BOTTOM BAR (Players + Exit) ═══ -->
-<div class="hud-bottom-bar" *ngIf="players$ | async as players">
-  <div class="players-strip" *ngIf="currentPlayer$ | async as current">
-    <div
-      *ngFor="let p of players"
-      class="player-chip"
-      [class.active]="p.id === current.id"
-      [style.--player-color]="p.color">
-      <span class="chip-faction">{{ getFactionIcon(p.faction) }}</span>
-      <span class="chip-name">{{ p.name }}</span>
-      <span class="chip-indicator" *ngIf="p.id === current.id">◄</span>
+<!-- ═══ RIGHT PANEL (Game Log) ═══ -->
+<div class="hud-right-panel glass-panel" [class.open]="isLogOpen">
+  <div class="log-handle" (click)="$event.stopPropagation(); toggleLog()">
+    <mat-icon>{{ isLogOpen ? 'chevron_right' : 'history' }}</mat-icon>
+  </div>
+
+  <div class="log-content">
+    <div class="card-header">
+      <span class="header-title terminal-text">Intel Feed</span>
+    </div>
+    
+    <div class="log-entries">
+      <div *ngFor="let log of mockLogs" class="entry-row" [ngClass]="log.type">
+        <span class="e-time">{{ log.time }}</span>
+        <span class="e-msg">{{ log.message }}</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ BOTTOM BAR (Command & Abort) ═══ -->
+<div class="hud-bottom-bar">
+  <!-- Players Panel (Collapsible) -->
+  <div class="command-panel glass-panel" [class.expanded]="!isPlayersCollapsed">
+    <div class="command-header" (click)="togglePlayers()">
+      <div class="header-main" *ngIf="currentPlayer$ | async as current">
+        <div class="status-dot animate-pulse" [style.background-color]="current.color"></div>
+        <span class="terminal-text" style="font-size: 0.6rem;">ACTIVE COMMANDER: {{ current.name }}</span>
+      </div>
+      <mat-icon class="toggle-icon">{{ isPlayersCollapsed ? 'expand_less' : 'expand_more' }}</mat-icon>
     </div>
 
-    <!-- SALIR button integrated into bottom bar -->
-    <button class="player-chip btn-exit" (click)="onBackToInicio()" id="hud-exit-btn">
-      <mat-icon class="exit-icon">logout</mat-icon>
-      <span class="chip-name">SALIR</span>
-    </button>
+    <div class="command-body" *ngIf="!isPlayersCollapsed && (players$ | async) as players">
+      <ng-container *ngIf="currentPlayer$ | async as current">
+        <div
+          *ngFor="let p of players"
+          class="commander-row"
+          [class.active]="p.id === current.id"
+          [style.--p-color]="p.color">
+          <div class="commander-avatar">{{ getFactionIcon(p.faction) }}</div>
+          <div class="commander-info">
+            <span class="name">{{ p.name }}</span>
+            <span class="faction">{{ p.faction }}</span>
+          </div>
+          <div class="active-indicator" *ngIf="p.id === current.id">IN TURN</div>
+        </div>
+      </ng-container>
+    </div>
   </div>
+
+  <!-- Isolated Exit Button -->
+  <button class="btn-exit-tactical glass-panel terminal-text" (click)="$event.stopPropagation(); onBackToInicio()">
+    <mat-icon>power_settings_new</mat-icon>
+    <span>Abort Mission</span>
+  </button>
 </div>
