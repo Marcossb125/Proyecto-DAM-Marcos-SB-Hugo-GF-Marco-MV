@@ -5,6 +5,7 @@ import { TopActions } from '../top-actions/top-actions';
 import { BottomNavbar } from '../bottom-navbar/bottom-navbar';
 import { Banner } from '../banner/banner';
 import { PartidaService, Partida, Partidaa } from '../../servicios/partida.service';
+import { AuthService } from '../../servicios/auth.service';
 
 @Component({
   selector: 'app-lobby',
@@ -33,7 +34,7 @@ export class Lobby implements OnInit {
   }
 
   isHost(game: Partida): boolean {
-    const currentUser = this.partidaService.obtenerNombreUsuario();
+    const currentUser = this.authService.obtenerNombreUsuario();
     return game.host === currentUser;
   }
 
@@ -87,7 +88,8 @@ export class Lobby implements OnInit {
 
   constructor(
     private router: Router,
-    private partidaService: PartidaService
+    private partidaService: PartidaService,
+    private authService: AuthService
   ) { }
 
   ngOnInit(): void {
@@ -161,7 +163,7 @@ export class Lobby implements OnInit {
     const nuevaPartida: Partida = {
       id: this.partidaService.generarId(),
       name: name,
-      host: this.partidaService.obtenerNombreUsuario(),
+      host: this.authService.obtenerNombreUsuario(),
       currentPlayers: 1,
       maxPlayers: this.newGameMaxPlayers,
       status: 'open',
@@ -171,7 +173,7 @@ export class Lobby implements OnInit {
     const nuevaPartidaa: Partidaa = {
       nombre: name,
       jugadores_limite: this.newGameMaxPlayers,
-      hostNombre: this.partidaService.obtenerNombreUsuario(),
+      hostNombre: this.authService.obtenerNombreUsuario(),
     };
 
     this.partidaService.crearPartida(nuevaPartidaa).subscribe({

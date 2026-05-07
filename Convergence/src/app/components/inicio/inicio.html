@@ -4,48 +4,68 @@
 
   <!-- ═══ TACTICAL GRID BACKGROUND ═══ -->
   <div class="tactical-grid"></div>
+  <div class="scanline"></div>
+  <div class="sonar-contact contact-1"></div>
+  <div class="sonar-contact contact-2"></div>
+  <div class="sonar-contact contact-3"></div>
 
   <!-- ═══ BANNER ═══ -->
   <app-banner title="CONVERGENCE" subtitle="TACTICAL COMMAND CENTER"></app-banner>
 
   <!-- ═══ PERFIL ═══ -->
   <section class="profile-section">
-    <div class="profile-card">
-      <div class="profile-avatar">
-        <div class="avatar-frame">
-          <div class="avatar-inner"></div>
+    <div class="commander-card">
+
+      <!-- Esquinas decorativas -->
+      <span class="corner tl"></span>
+      <span class="corner tr"></span>
+      <span class="corner bl"></span>
+      <span class="corner br"></span>
+
+      <!-- BANDERA -->
+      <div class="flag-slot">
+        @if (nationData()) {
+        <div class="flag-wrap" (click)="openFlagBuilder()" role="button" tabindex="0" title="Editar Bandera">
+          <app-nation-flag [flagData]="nationData()!" width="100%" height="100%"></app-nation-flag>
+          <div class="flag-edit-overlay">
+            <mat-icon>edit</mat-icon>
+            <span>EDITAR</span>
+          </div>
         </div>
+        } @else {
+        <div class="flag-empty" (click)="openFlagBuilder()" role="button" tabindex="0" title="Crear Bandera">
+          <mat-icon>add_photo_alternate</mat-icon>
+          <span>CREAR BANDERA</span>
+        </div>
+        }
       </div>
-      <div class="profile-details-column">
-        <div class="profile-info">
-          <span class="profile-name">{{ playerName() }}</span>
-          <span class="profile-status">
-            <span class="status-dot"></span>
-            {{ playerStatus() }}
-          </span>
+
+      <!-- DATOS -->
+      <div class="commander-info">
+        <div class="commander-label">COMANDANTE</div>
+        <div class="commander-name">{{ playerName() }}</div>
+
+        <div class="commander-status">
+          <span class="status-dot"></span>
+          <span class="status-text">{{ playerStatus() }}</span>
         </div>
 
-        <!-- ═══ NATION FLAG AREA ═══ -->
-        <div class="nation-flag-area">
-          @if (nationData()) {
-          <div class="flag-display" (click)="openFlagBuilder()" role="button" tabindex="0" title="Editar Bandera">
-            <app-nation-flag [flagData]="nationData()!"></app-nation-flag>
-          </div>
-          <div class="nation-name-line">
-            <span class="nation-name">{{ nationData()!.nombre }}</span>
-          </div>
-          } @else {
-          <div class="flag-placeholder" (click)="openFlagBuilder()" role="button" tabindex="0" title="Crear Bandera">
-            <mat-icon>add</mat-icon>
-          </div>
-          <div class="nation-name-line empty">
-          </div>
-          }
+        <div class="commander-divider"></div>
+
+        @if (nationData()) {
+        <div class="faction-badge">
+          <mat-icon class="faction-icon">shield</mat-icon>
+          <span class="faction-name">{{ nationData()!.nombre }}</span>
         </div>
+        } @else {
+        <div class="faction-badge empty" (click)="openFlagBuilder()" role="button" tabindex="0">
+          <mat-icon class="faction-icon">add_circle_outline</mat-icon>
+          <span class="faction-name">Sin facción</span>
+        </div>
+        }
       </div>
+
     </div>
-
-
   </section>
 
   <!-- ═══ PARTIDA ACTIVA ═══ -->

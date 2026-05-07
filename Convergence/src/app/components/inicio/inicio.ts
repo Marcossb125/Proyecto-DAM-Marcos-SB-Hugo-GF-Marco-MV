@@ -3,7 +3,8 @@ import { Router } from '@angular/router';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatBadgeModule } from '@angular/material/badge';
-import { PartidaService } from '../../servicios/partida.service';
+import { AuthService } from '../../servicios/auth.service';
+import { UserService } from '../../servicios/user.service';
 import { NationFlag, NationData } from '../nation-flag/nation-flag';
 import { FlagBuilder } from '../flag-builder/flag-builder';
 import { TopActions } from '../top-actions/top-actions';
@@ -45,15 +46,19 @@ export class Inicio {
     hoursLeft: 2,
   });
 
-  constructor(private router: Router, private partidaService: PartidaService) { }
+  constructor(
+    private router: Router, 
+    private authService: AuthService,
+    private userService: UserService
+  ) { }
 
   ngOnInit(): void {
-    const nombre = this.partidaService.obtenerNombreUsuario();
+    const nombre = this.authService.obtenerNombreUsuario();
     this.playerName.set(nombre);
 
     // Cargar la bandera del usuario desde la base de datos
     if (nombre) {
-      this.partidaService.obtenerBandera(nombre).subscribe({
+      this.userService.obtenerBandera(nombre).subscribe({
         next: (bandera) => {
           if (bandera && bandera.layout) {
             this.nationData.set({
@@ -90,7 +95,7 @@ export class Inicio {
   }
 
   logout(): void {
-    // TODO: Connect to auth service for proper logout
+    this.authService.logoutUser();
     this.router.navigate(['/login']);
     console.log('Cerrando sesión táctica...');
   }
@@ -104,9 +109,9 @@ export class Inicio {
     this.isEditingFlag.set(false);
 
     // Guardar la bandera en la base de datos
-    const nickname = this.partidaService.obtenerNombreUsuario();
+    const nickname = this.authService.obtenerNombreUsuario();
     if (nickname) {
-      this.partidaService.guardarBandera(nickname, {
+      this.userService.guardarBandera(nickname, {
         layout: data.layout,
         nombre: data.nombre,
         colors: data.colors

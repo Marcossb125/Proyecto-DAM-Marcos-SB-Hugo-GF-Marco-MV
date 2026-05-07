@@ -1,7 +1,7 @@
 import { Component, signal } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
 import { FormsModule } from '@angular/forms';
-import { PartidaService } from '../../servicios/partida.service';
+import { AuthService } from '../../servicios/auth.service';
 import { Banner } from '../banner/banner';
 
 @Component({
@@ -18,7 +18,7 @@ export class Register {
   isLoading = signal(false);
   errorMessage = signal('');
 
-  constructor(private router: Router, private partidaService: PartidaService) { }
+  constructor(private router: Router, private authService: AuthService) { }
 
   onRegister(): void {
     this.errorMessage.set('');
@@ -41,7 +41,7 @@ export class Register {
     this.isLoading.set(true);
 
     // Simulate registration
-    this.partidaService.registerUser({
+    this.authService.registerUser({
       email: this.email(),
       password: this.password(),
       nickname: this.username()
