@@ -8,10 +8,10 @@ const INITIAL_PLAYERS = [
 ];
 
 const INITIAL_ARMIES = [
-  { id: 'a1', ownerId: 'p1', territoryId: 't01', troopSize: 10, hasActedThisTurn: false },
-  { id: 'a2', ownerId: 'p2', territoryId: 't03', troopSize: 10, hasActedThisTurn: false },
-  { id: 'a3', ownerId: 'p3', territoryId: 't39', troopSize: 10, hasActedThisTurn: false },
-  { id: 'a4', ownerId: 'p4', territoryId: 't41', troopSize: 10, hasActedThisTurn: false },
+  { id: 'a1', ownerId: 'p1', territoryId: 'A1', troopSize: 10, hasActedThisTurn: false },
+  { id: 'a2', ownerId: 'p2', territoryId: 'A7', troopSize: 10, hasActedThisTurn: false },
+  { id: 'a3', ownerId: 'p3', territoryId: 'G1', troopSize: 10, hasActedThisTurn: false },
+  { id: 'a4', ownerId: 'p4', territoryId: 'G7', troopSize: 10, hasActedThisTurn: false },
 ];
 
 function createInitialGameState(matchId, limiteJugadores = 4) {

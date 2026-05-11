@@ -82,17 +82,14 @@ const INITIAL_PLAYERS: Player[] = [
 ];
 
 /* ═══════════════════════════════════════════════════════════════
-   41-TERRITORY SYMMETRIC HEX MAP (odd-r offset)
+   7x7 SQUARE-ARRANGED HEX MAP (Battleship Coordinates)
    ═══════════════════════════════════════════════════════════════
-   Row 0 (3):  q=1,2,3        P1_HQ . P2_HQ
-   Row 1 (4):  q=1,2,3,4      P1 P1 P2 P2
-   Row 2 (5):  q=0,1,2,3,4    P1 P1 . P2 P2
-   Row 3 (6):  q=0,1,2,3,4,5  . . . . . .
-   Row 4 (5):  q=0,1,2,3,4    . . REF . .
-   Row 5 (6):  q=0,1,2,3,4,5  . . . . . .
-   Row 6 (5):  q=0,1,2,3,4    P3 P3 . P4 P4
-   Row 7 (4):  q=1,2,3,4      P3 P3 P4 P4
-   Row 8 (3):  q=1,2,3        P3_HQ . P4_HQ
+   Grid: A1 to G7 (49 territories)
+   - P1_HQ: A1 (Top-Left)
+   - P2_HQ: A7 (Top-Right)
+   - P3_HQ: G1 (Bottom-Left)
+   - P4_HQ: G7 (Bottom-Right)
+   - REFINERY: D4 (Center)
    ═══════════════════════════════════════════════════════════════ */
 
 // Helper to compute adjacency automatically
@@ -101,58 +98,41 @@ interface HexDef {
   ownerId: string | null; hasSupremeBase: boolean; isRefinery: boolean;
 }
 
-const HEX_DEFS: HexDef[] = [
-  // Row 0
-  { id: 't01', label: 'Alpha HQ', q: 1, r: 0, ownerId: 'p1', hasSupremeBase: true, isRefinery: false },
-  { id: 't02', label: 'Zona Cero', q: 2, r: 0, ownerId: null, hasSupremeBase: false, isRefinery: false },
-  { id: 't03', label: 'Delta HQ', q: 3, r: 0, ownerId: 'p2', hasSupremeBase: true, isRefinery: false },
-  // Row 1
-  { id: 't04', label: 'Puesto Noroeste', q: 1, r: 1, ownerId: 'p1', hasSupremeBase: false, isRefinery: false },
-  { id: 't05', label: 'Trinchera Alpha', q: 2, r: 1, ownerId: 'p1', hasSupremeBase: false, isRefinery: false },
-  { id: 't06', label: 'Trinchera Delta', q: 3, r: 1, ownerId: 'p2', hasSupremeBase: false, isRefinery: false },
-  { id: 't07', label: 'Puesto Noreste', q: 4, r: 1, ownerId: 'p2', hasSupremeBase: false, isRefinery: false },
-  // Row 2
-  { id: 't08', label: 'Fortín Oeste-N', q: 0, r: 2, ownerId: 'p1', hasSupremeBase: false, isRefinery: false },
-  { id: 't09', label: 'Meseta Noroeste', q: 1, r: 2, ownerId: 'p1', hasSupremeBase: false, isRefinery: false },
-  { id: 't10', label: 'Pradera Norte', q: 2, r: 2, ownerId: null, hasSupremeBase: false, isRefinery: false },
-  { id: 't11', label: 'Meseta Noreste', q: 3, r: 2, ownerId: 'p2', hasSupremeBase: false, isRefinery: false },
-  { id: 't12', label: 'Fortín Este-N', q: 4, r: 2, ownerId: 'p2', hasSupremeBase: false, isRefinery: false },
-  // Row 3
-  { id: 't13', label: 'Bosque del Lobo', q: 0, r: 3, ownerId: null, hasSupremeBase: false, isRefinery: false },
-  { id: 't14', label: 'Cruce Oeste-N', q: 1, r: 3, ownerId: null, hasSupremeBase: false, isRefinery: false },
-  { id: 't15', label: 'Valle Norte', q: 2, r: 3, ownerId: null, hasSupremeBase: false, isRefinery: false },
-  { id: 't16', label: 'Cruce Este-N', q: 3, r: 3, ownerId: null, hasSupremeBase: false, isRefinery: false },
-  { id: 't17', label: 'Paso Montaña-N', q: 4, r: 3, ownerId: null, hasSupremeBase: false, isRefinery: false },
-  { id: 't18', label: 'Frontera Norte', q: 5, r: 3, ownerId: null, hasSupremeBase: false, isRefinery: false },
-  // Row 4 (CENTER)
-  { id: 't19', label: 'Páramo Oeste', q: 0, r: 4, ownerId: null, hasSupremeBase: false, isRefinery: false },
-  { id: 't20', label: 'Antesala Oeste', q: 1, r: 4, ownerId: null, hasSupremeBase: false, isRefinery: false },
-  { id: 't21', label: 'REFINERÍA', q: 2, r: 4, ownerId: null, hasSupremeBase: false, isRefinery: true },
-  { id: 't22', label: 'Antesala Este', q: 3, r: 4, ownerId: null, hasSupremeBase: false, isRefinery: false },
-  { id: 't23', label: 'Páramo Este', q: 4, r: 4, ownerId: null, hasSupremeBase: false, isRefinery: false },
-  // Row 5
-  { id: 't24', label: 'Frontera Sur', q: 0, r: 5, ownerId: null, hasSupremeBase: false, isRefinery: false },
-  { id: 't25', label: 'Cruce Oeste-S', q: 1, r: 5, ownerId: null, hasSupremeBase: false, isRefinery: false },
-  { id: 't26', label: 'Valle Sur', q: 2, r: 5, ownerId: null, hasSupremeBase: false, isRefinery: false },
-  { id: 't27', label: 'Cruce Este-S', q: 3, r: 5, ownerId: null, hasSupremeBase: false, isRefinery: false },
-  { id: 't28', label: 'Paso Montaña-S', q: 4, r: 5, ownerId: null, hasSupremeBase: false, isRefinery: false },
-  { id: 't29', label: 'Bosque Austral', q: 5, r: 5, ownerId: null, hasSupremeBase: false, isRefinery: false },
-  // Row 6
-  { id: 't30', label: 'Fortín Oeste-S', q: 0, r: 6, ownerId: 'p3', hasSupremeBase: false, isRefinery: false },
-  { id: 't31', label: 'Meseta Suroeste', q: 1, r: 6, ownerId: 'p3', hasSupremeBase: false, isRefinery: false },
-  { id: 't32', label: 'Pradera Sur', q: 2, r: 6, ownerId: null, hasSupremeBase: false, isRefinery: false },
-  { id: 't33', label: 'Meseta Sureste', q: 3, r: 6, ownerId: 'p4', hasSupremeBase: false, isRefinery: false },
-  { id: 't34', label: 'Fortín Este-S', q: 4, r: 6, ownerId: 'p4', hasSupremeBase: false, isRefinery: false },
-  // Row 7
-  { id: 't35', label: 'Puesto Suroeste', q: 1, r: 7, ownerId: 'p3', hasSupremeBase: false, isRefinery: false },
-  { id: 't36', label: 'Trinchera Omega', q: 2, r: 7, ownerId: 'p3', hasSupremeBase: false, isRefinery: false },
-  { id: 't37', label: 'Trinchera Sigma', q: 3, r: 7, ownerId: 'p4', hasSupremeBase: false, isRefinery: false },
-  { id: 't38', label: 'Puesto Sureste', q: 4, r: 7, ownerId: 'p4', hasSupremeBase: false, isRefinery: false },
-  // Row 8
-  { id: 't39', label: 'Omega HQ', q: 1, r: 8, ownerId: 'p3', hasSupremeBase: true, isRefinery: false },
-  { id: 't40', label: 'Zona Sur', q: 2, r: 8, ownerId: null, hasSupremeBase: false, isRefinery: false },
-  { id: 't41', label: 'Sigma HQ', q: 3, r: 8, ownerId: 'p4', hasSupremeBase: true, isRefinery: false },
-];
+function generateSquareMap(): HexDef[] {
+  const defs: HexDef[] = [];
+  const size = 7;
+  for (let r = 0; r < size; r++) {
+    for (let q = 0; q < size; q++) {
+      const rowChar = String.fromCharCode(65 + r); // A, B, C...
+      const colNum = q + 1; // 1, 2, 3...
+      const id = `${rowChar}${colNum}`;
+
+      let ownerId: string | null = null;
+      let hasSupremeBase = false;
+      let isRefinery = false;
+
+      // Corners: Supreme Bases
+      if (r === 0 && q === 0) { ownerId = 'p1'; hasSupremeBase = true; }
+      else if (r === 0 && q === 6) { ownerId = 'p2'; hasSupremeBase = true; }
+      else if (r === 6 && q === 0) { ownerId = 'p3'; hasSupremeBase = true; }
+      else if (r === 6 && q === 6) { ownerId = 'p4'; hasSupremeBase = true; }
+
+      // Center: Refinery
+      else if (r === 3 && q === 3) { isRefinery = true; }
+
+      // Extra Faction Territories (at least one more per faction)
+      else if ((r === 0 && q === 1) || (r === 1 && q === 0)) { ownerId = 'p1'; } // Near P1
+      else if ((r === 0 && q === 5) || (r === 1 && q === 6)) { ownerId = 'p2'; } // Near P2
+      else if ((r === 6 && q === 1) || (r === 5 && q === 0)) { ownerId = 'p3'; } // Near P3
+      else if ((r === 6 && q === 5) || (r === 5 && q === 6)) { ownerId = 'p4'; } // Near P4
+
+      defs.push({ id, label: id, q, r, ownerId, hasSupremeBase, isRefinery });
+    }
+  }
+  return defs;
+}
+
+const HEX_DEFS: HexDef[] = generateSquareMap();
 
 // Build coordinate lookup and compute adjacencies
 function buildTerritories(): Territory[] {
@@ -190,10 +170,10 @@ function buildTerritories(): Territory[] {
 const INITIAL_TERRITORIES: Territory[] = buildTerritories();
 
 const INITIAL_ARMIES: Army[] = [
-  { id: 'a1', ownerId: 'p1', territoryId: 't01', troopSize: 10, hasActedThisTurn: false },
-  { id: 'a2', ownerId: 'p2', territoryId: 't03', troopSize: 10, hasActedThisTurn: false },
-  { id: 'a3', ownerId: 'p3', territoryId: 't39', troopSize: 10, hasActedThisTurn: false },
-  { id: 'a4', ownerId: 'p4', territoryId: 't41', troopSize: 10, hasActedThisTurn: false },
+  { id: 'a1', ownerId: 'p1', territoryId: 'A1', troopSize: 10, hasActedThisTurn: false },
+  { id: 'a2', ownerId: 'p2', territoryId: 'A7', troopSize: 10, hasActedThisTurn: false },
+  { id: 'a3', ownerId: 'p3', territoryId: 'G1', troopSize: 10, hasActedThisTurn: false },
+  { id: 'a4', ownerId: 'p4', territoryId: 'G7', troopSize: 10, hasActedThisTurn: false },
 ];
 
 // Set occupiedByArmyId on initial territories
