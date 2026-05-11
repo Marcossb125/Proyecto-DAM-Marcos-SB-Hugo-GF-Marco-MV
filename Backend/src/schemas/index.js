@@ -43,3 +43,53 @@ export const generalPayload = z.object({
 export const obtenerGeneralPayload = z.object({
   nickname: z.string().min(3).max(100).trim(),
 });
+
+export const joinMatchPayload = z.object({
+  matchId: z.string().min(1),
+  playerId: z.string().min(1),
+});
+
+export const playerReadyPayload = z.object({
+  matchId: z.string().min(1),
+  playerId: z.string().min(1),
+});
+
+export const buildPayload = z.object({
+  matchId: z.string().min(1),
+  playerId: z.string().min(1),
+  territoryId: z.string().min(1),
+  buildingType: z.string().min(1),
+});
+
+export const destroyBuildingPayload = z.object({
+  matchId: z.string().min(1),
+  playerId: z.string().min(1),
+  territoryId: z.string().min(1),
+});
+
+export const recruitPayload = z.object({
+  matchId: z.string().min(1),
+  playerId: z.string().min(1),
+  territoryId: z.string().min(1),
+  troopSize: z.number().min(1),
+});
+
+export const queueMovePayload = z.object({
+  matchId: z.string().min(1),
+  playerId: z.string().min(1),
+  armyId: z.string().min(1),
+  toTerritoryId: z.string().min(1),
+});
+
+export const cancelMovePayload = z.object({
+  matchId: z.string().min(1),
+  playerId: z.string().min(1),
+  armyId: z.string().min(1),
+});
+
+export const retreatPayload = z.object({
+  matchId: z.string().min(1),
+  playerId: z.string().min(1),
+  armyId: z.string().min(1),
+});
+

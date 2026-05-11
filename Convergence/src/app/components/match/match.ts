@@ -4,22 +4,21 @@
 
 import { Component, inject, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { Router } from '@angular/router';
+import { Router, ActivatedRoute } from '@angular/router';
 import { Store } from '@ngrx/store';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
-import { Subscription, combineLatest } from 'rxjs';
-import { filter, take, withLatestFrom, distinctUntilChanged } from 'rxjs/operators';
+import { Subscription } from 'rxjs';
+import { filter, withLatestFrom } from 'rxjs/operators';
 
 import { MapComponent } from './map/map';
 import { HudComponent } from './hud/hud';
+import { AuthService } from '../../servicios/auth.service';
 
 import {
   MapActions,
-  BuildingActions,
-  ArmyActions,
   CombatActions,
   CityActions,
-  PhaseActions,
+  MatchSocketActions,
 } from './store/match.actions';
 import {
   selectPhase,
@@ -27,18 +26,16 @@ import {
   selectSelectedArmyId,
   selectTerritories,
   selectArmies,
-  selectCurrentPlayer,
-  selectCurrentPlayerId,
+  selectLocalPlayer,
   selectHighlightedTerritoryIds,
   selectPlayers,
 } from './store/match.selectors';
-import { Territory, Army, Player, BASE_INCOME, TERRITORY_BONUS, REFINERY_BONUS } from './store/match.state';
+import { Territory, Army, Player } from './store/match.state';
 
 import { BuildDialog, BuildDialogResult } from './dialogs/build-dialog';
 import { RecruitDialog, RecruitDialogResult } from './dialogs/recruit-dialog';
 import { BattleDialog, BattleDialogResult } from './dialogs/battle-dialog';
 import { CityDialog, CityDialogResult } from './dialogs/city-dialog';
-import { CollectionDialog, CollectionDialogData } from './dialogs/collection-dialog';
 
 @Component({
   selector: 'app-match',
@@ -51,11 +48,22 @@ export class Match implements OnInit, OnDestroy {
   private readonly store = inject(Store);
   private readonly dialog = inject(MatDialog);
   private readonly router = inject(Router);
+  private readonly route = inject(ActivatedRoute);
+  private readonly authService = inject(AuthService);
   private subscriptions: Subscription[] = [];
 
   ngOnInit(): void {
+    const matchId = this.route.snapshot.paramMap.get('id');
+    const playerId = this.authService.obtenerNombreUsuario();
+
+    if (matchId && playerId) {
+      this.store.dispatch(MatchSocketActions.joinMatch({ matchId, playerId }));
+    } else {
+      this.router.navigate(['/inicio']);
+      return;
+    }
+
     this.setupTerritoryClickHandler();
-    this.setupAutoCollection();
   }
 
   ngOnDestroy(): void {
@@ -63,46 +71,7 @@ export class Match implements OnInit, OnDestroy {
   }
 
   /**
-   * Auto-collection: when phase enters RECAUDACION, show popup and advance automatically.
-   */
-  private setupAutoCollection(): void {
-    const sub = this.store.select(selectPhase).pipe(
-      distinctUntilChanged(),
-      filter(phase => phase === 'RECAUDACION'),
-      withLatestFrom(
-        this.store.select(selectCurrentPlayer),
-        this.store.select(selectTerritories),
-      ),
-    ).subscribe(([_, player, territories]) => {
-      if (!player) return;
 
-      const ownedTerritories = territories.filter(t => t.ownerId === player.id);
-      const creditBonus = BASE_INCOME.credits + (ownedTerritories.length * TERRITORY_BONUS.credits);
-      const manpowerBonus = BASE_INCOME.manpower + (ownedTerritories.length * TERRITORY_BONUS.manpower);
-      const ownsRefinery = territories.some(t => t.isRefinery && t.ownerId === player.id);
-      const refineryBonus = ownsRefinery ? REFINERY_BONUS.credits : 0;
-
-      const dialogRef = this.dialog.open(CollectionDialog, {
-        data: {
-          playerName: player.name,
-          playerColor: player.color,
-          creditBonus,
-          manpowerBonus,
-          refineryBonus,
-          totalCredits: player.credits + creditBonus + refineryBonus,
-          totalManpower: player.manpower + manpowerBonus,
-        } as CollectionDialogData,
-        panelClass: 'military-dialog',
-        disableClose: true,
-      });
-
-      dialogRef.afterClosed().subscribe(() => {
-        this.store.dispatch(PhaseActions.continueFromRecaudacion());
-      });
-    });
-
-    this.subscriptions.push(sub);
-  }
 
   /**
    * Central handler that reacts to territory selections from the map canvas.
@@ -115,28 +84,31 @@ export class Match implements OnInit, OnDestroy {
         this.store.select(selectPhase),
         this.store.select(selectTerritories),
         this.store.select(selectArmies),
-        this.store.select(selectCurrentPlayer),
-        this.store.select(selectCurrentPlayerId),
+        this.store.select(selectLocalPlayer),
         this.store.select(selectHighlightedTerritoryIds),
         this.store.select(selectSelectedArmyId),
         this.store.select(selectPlayers),
       ),
-    ).subscribe(([territoryId, phase, territories, armies, currentPlayer, currentPlayerId, highlightedIds, selectedArmyId, players]) => {
-      if (!currentPlayer) return;
+    ).subscribe(([territoryId, phase, territories, armies, localPlayer, highlightedIds, selectedArmyId, players]) => {
+      console.log('[Match] Territory clicked:', territoryId, '| Fase:', phase, '| LocalPlayer:', localPlayer?.id ?? 'NULL');
+      if (!localPlayer) {
+        console.warn('[Match] No localPlayer disponible — el joinMatch no se ha completado aún');
+        return;
+      }
 
       const territory = territories.find(t => t.id === territoryId);
       if (!territory) return;
 
       switch (phase) {
         case 'CONSTRUCCION':
-          this.handleConstruccionClick(territory, currentPlayer);
+          this.handleConstruccionClick(territory, localPlayer);
           break;
         case 'RECLUTAMIENTO':
-          this.handleReclutamientoClick(territory, currentPlayer, armies);
+          this.handleReclutamientoClick(territory, localPlayer, armies);
           break;
         case 'MOVIMIENTO':
           this.handleMovimientoClick(
-            territory, currentPlayer, currentPlayerId, armies,
+            territory, localPlayer, localPlayer.id, armies,
             territories, highlightedIds, selectedArmyId, players,
           );
           break;
@@ -167,15 +139,27 @@ export class Match implements OnInit, OnDestroy {
         return;
       }
 
+      const matchId = this.route.snapshot.paramMap.get('id')!;
+      const playerId = this.authService.obtenerNombreUsuario()!;
+
       if (result.action === 'build' && result.buildingType && result.cost !== undefined) {
-        this.store.dispatch(BuildingActions.buildOnTerritory({
-          territoryId: territory.id,
-          buildingType: result.buildingType,
-          cost: result.cost,
+        this.store.dispatch(MatchSocketActions.syncAction({
+          action: 'build',
+          data: {
+            matchId,
+            playerId,
+            territoryId: territory.id,
+            buildingType: result.buildingType,
+          }
         }));
       } else if (result.action === 'destroy') {
-        this.store.dispatch(BuildingActions.destroyBuilding({
-          territoryId: territory.id,
+        this.store.dispatch(MatchSocketActions.syncAction({
+          action: 'destroyBuilding',
+          data: {
+            matchId,
+            playerId,
+            territoryId: territory.id,
+          }
         }));
       }
 
@@ -207,24 +191,19 @@ export class Match implements OnInit, OnDestroy {
         return;
       }
 
-      if (result.action === 'recruit' && result.troopSize && result.creditsCost !== undefined && result.manpowerCost !== undefined) {
-        if (existingArmy) {
-          // Reinforce existing army
-          this.store.dispatch(ArmyActions.reinforceArmy({
-            armyId: existingArmy.id,
-            troopSize: result.troopSize,
-            creditsCost: result.creditsCost,
-            manpowerCost: result.manpowerCost,
-          }));
-        } else {
-          // Create new army
-          this.store.dispatch(ArmyActions.createArmy({
+      const matchId = this.route.snapshot.paramMap.get('id')!;
+      const playerId = this.authService.obtenerNombreUsuario()!;
+
+      if (result.action === 'recruit' && result.troopSize) {
+        this.store.dispatch(MatchSocketActions.syncAction({
+          action: 'recruit',
+          data: {
+            matchId,
+            playerId,
             territoryId: territory.id,
             troopSize: result.troopSize,
-            creditsCost: result.creditsCost,
-            manpowerCost: result.manpowerCost,
-          }));
-        }
+          }
+        }));
       }
 
       this.store.dispatch(MapActions.clearSelection());
@@ -326,9 +305,17 @@ export class Match implements OnInit, OnDestroy {
       }
 
       // ── Normal move ──
-      this.store.dispatch(ArmyActions.moveArmy({
-        armyId: selectedArmyId,
-        toTerritoryId: territory.id,
+      const matchId = this.route.snapshot.paramMap.get('id')!;
+      const playerId = this.authService.obtenerNombreUsuario()!;
+
+      this.store.dispatch(MatchSocketActions.syncAction({
+        action: 'queueMove',
+        data: {
+          matchId,
+          playerId,
+          armyId: selectedArmyId,
+          toTerritoryId: territory.id,
+        }
       }));
       return;
     }

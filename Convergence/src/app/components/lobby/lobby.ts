@@ -124,6 +124,14 @@ export class Lobby implements OnInit {
   joinGame(game: Partida): void {
     if (game.status === 'open') {
       console.log(`Joining game: ${game.name}`);
+      this.partidaService.unirseAPartida(game.id).subscribe({
+        next: () => {
+          this.router.navigate(['/match', game.id]);
+        },
+        error: (err) => {
+          alert('No se pudo unir a la partida: ' + err);
+        }
+      });
     }
   }
 
@@ -179,13 +187,12 @@ export class Lobby implements OnInit {
     this.partidaService.crearPartida(nuevaPartidaa).subscribe({
       next: (res) => {
         console.log('Partida creada con éxito:', res);
-        // También la guardamos localmente si es necesario (aunque el backend es la fuente principal)
-        this.partidaService.guardarPartida(nuevaPartida);
         this.closeModal();
-        this.cargarPartidas(); // Ahora sí recargamos tras la confirmación
+        // Redirigir directamente a la partida recién creada
+        this.router.navigate(['/match', res.id]);
       },
       error: (err) => {
-        this.formError.set('Nombre en uso, pruebe otro por favor');
+        this.formError.set(err || 'Nombre en uso o límite de partidas alcanzado');
       }
     });
   }

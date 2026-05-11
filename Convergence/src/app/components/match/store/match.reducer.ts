@@ -11,13 +11,13 @@ import {
   REFINERY_BONUS,
 } from './match.state';
 import {
-  PhaseActions,
   ResourceActions,
   BuildingActions,
   ArmyActions,
   CombatActions,
   CityActions,
   MapActions,
+  MatchSocketActions,
 } from './match.actions';
 
 export const matchFeature = createFeature({
@@ -25,70 +25,35 @@ export const matchFeature = createFeature({
   reducer: createReducer(
     initialMatchState,
 
-    // ═══ PHASE TRANSITIONS ═══
-
-    on(PhaseActions.continueFromRecaudacion, (state): MatchState => {
-      // Collect resources for current player
-      const player = state.players.find(p => p.id === state.currentPlayerId);
-      if (!player) return state;
-
-      const ownedTerritories = state.territories.filter(t => t.ownerId === state.currentPlayerId);
-      let creditBonus = BASE_INCOME.credits + (ownedTerritories.length * TERRITORY_BONUS.credits);
-      const manpowerBonus = BASE_INCOME.manpower + (ownedTerritories.length * TERRITORY_BONUS.manpower);
-
-      // Refinery bonus: if player controls the refinery territory
-      const ownsRefinery = state.territories.some(t => t.isRefinery && t.ownerId === state.currentPlayerId);
-      if (ownsRefinery) {
-        creditBonus += REFINERY_BONUS.credits;
-      }
-
-      return {
-        ...state,
-        phase: 'CONSTRUCCION',
-        players: state.players.map(p =>
-          p.id === state.currentPlayerId
-            ? { ...p, credits: p.credits + creditBonus, manpower: p.manpower + manpowerBonus }
-            : p
-        ),
-        selectedTerritoryId: null,
-        selectedArmyId: null,
-        highlightedTerritoryIds: [],
-      };
-    }),
-
-    on(PhaseActions.finishConstruccion, (state): MatchState => ({
+    // ═══ SOCKET SYNC ═══
+    on(MatchSocketActions.joinMatch, (state, { playerId }): MatchState => ({
       ...state,
-      phase: 'RECLUTAMIENTO',
+      localPlayerId: playerId
+    })),
+
+    on(MatchSocketActions.updateState, (state, { state: newState }): MatchState => ({
+      ...state,
+      phase: newState.currentPhase,
+      currentTurn: newState.currentTurn,
+      currentPlayerId: newState.currentPlayerId ?? state.currentPlayerId,
+      players: newState.players.map((p: any) => ({
+        id: p.id,
+        name: p.name,
+        faction: p.faction,
+        color: p.color,
+        credits: p.credits,
+        manpower: p.manpower,
+        isReady: p.isReady,
+        isBot: p.isBot,
+        isLocal: p.id === state.localPlayerId,
+      })),
+      territories: newState.territories,
+      armies: newState.armies,
+      // Reset UI selection state on every server update to prevent double-dispatch
       selectedTerritoryId: null,
       selectedArmyId: null,
       highlightedTerritoryIds: [],
     })),
-
-    on(PhaseActions.finishReclutamiento, (state): MatchState => ({
-      ...state,
-      phase: 'MOVIMIENTO',
-      selectedTerritoryId: null,
-      selectedArmyId: null,
-      highlightedTerritoryIds: [],
-    })),
-
-    on(PhaseActions.finishMovimiento, (state): MatchState => {
-      // Advance to next player or next turn
-      const playerIdx = state.players.findIndex(p => p.id === state.currentPlayerId);
-      const nextIdx = (playerIdx + 1) % state.players.length;
-      const isNewTurn = nextIdx === 0;
-
-      return {
-        ...state,
-        phase: 'RECAUDACION',
-        currentPlayerId: state.players[nextIdx].id,
-        currentTurn: isNewTurn ? state.currentTurn + 1 : state.currentTurn,
-        armies: state.armies.map(a => ({ ...a, hasActedThisTurn: false })),
-        selectedTerritoryId: null,
-        selectedArmyId: null,
-        highlightedTerritoryIds: [],
-      };
-    }),
 
     // ═══ RESOURCES ═══
 

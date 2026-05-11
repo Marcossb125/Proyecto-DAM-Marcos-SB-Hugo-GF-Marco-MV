@@ -76,25 +76,29 @@
       <div class="section-title-line"></div>
     </div>
 
-    @if (activeGame()) {
-    <div class="game-card">
-      <div class="game-card-left">
-        <div class="game-thumbnail">
-          <div class="game-thumb-icon">⚔</div>
+    @if (activeGames().length > 0) {
+      <div class="active-games-list">
+        @for (game of activeGames(); track game.id) {
+        <div class="game-card">
+          <div class="game-card-left">
+            <div class="game-thumbnail">
+              <div class="game-thumb-icon">⚔</div>
+            </div>
+            <div class="game-details">
+              <span class="game-card-name">{{ game.name }}</span>
+              <span class="game-card-meta">
+                #{{ game.id }} |
+                👥 {{ game.currentPlayers }}/{{ game.maxPlayers }} |
+                Host: {{ game.host }}
+              </span>
+            </div>
+          </div>
+          <button class="btn-continue" (click)="continueGame(game.id)" [id]="'inicio-continue-' + game.id">
+            ▶ CONTINUAR
+          </button>
         </div>
-        <div class="game-details">
-          <span class="game-card-name">{{ activeGame()!.name }}</span>
-          <span class="game-card-meta">
-            #{{ activeGame()!.id }} |
-            ⏱ {{ activeGame()!.daysPassed }}d {{ activeGame()!.hoursLeft }}h |
-            👥 {{ activeGame()!.currentPlayers }}/{{ activeGame()!.maxPlayers }}
-          </span>
-        </div>
+        }
       </div>
-      <button class="btn-continue" (click)="continueGame()" id="inicio-continue">
-        ▶ CONTINUAR
-      </button>
-    </div>
     } @else {
     <div class="no-game-card">
       <span class="no-game-text">No tienes partidas activas</span>

@@ -141,6 +141,17 @@ PLAYER_LEFT  (broadcast)
   payload: { matchId, playerId }
   Un jugador humano ha abandonado (el slot vuelve a ser bot).
 
+GAME_LOG_ENTRY  (broadcast)
+  payload: { 
+    matchId, 
+    time: string (HH:mm), 
+    message: string, 
+    type: 'system' | 'action' | 'info' | 'combat' | 'result'
+  }
+  Se emite cada vez que un jugador (humano o bot) realiza una accion
+  significativa (construir, reclutar, atacar, capturar, etc.).
+  Este evento alimenta el "Intel Feed" del HUD.
+
 VALIDATION_ERROR  (solo al socket remitente)
   payload: { matchId, event: string, reason: string }
   El evento enviado no ha pasado la validacion.

@@ -2,13 +2,13 @@
    HUD COMPONENT — Game UI Overlay (Responsive)
    ═══════════════════════════════════════════════════════════════ */
 
-import { Component, inject, HostListener, OnInit } from '@angular/core';
+import { Component, inject, HostListener, OnInit, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Store } from '@ngrx/store';
 import { Router } from '@angular/router';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
-import { PhaseActions, MapActions } from '../store/match.actions';
+import { PhaseActions, MapActions, MatchSocketActions } from '../store/match.actions';
 import {
   selectPhase,
   selectCurrentPlayer,
@@ -18,6 +18,9 @@ import {
   selectPlayers,
   selectPlayerTerritories,
 } from '../store/match.selectors';
+import { SocketService } from '../../../servicios/socket.service';
+import { AuthService } from '../../../servicios/auth.service';
+import { Subscription, tap } from 'rxjs';
 
 @Component({
   selector: 'app-hud',
@@ -29,14 +32,18 @@ import {
 export class HudComponent implements OnInit {
   private readonly store = inject(Store);
   private readonly router = inject(Router);
+  private readonly socketService = inject(SocketService);
+  private readonly authService = inject(AuthService);
+  private readonly cdr = inject(ChangeDetectorRef);
+  private socketSub?: Subscription;
 
-  phase$ = this.store.select(selectPhase);
-  currentPlayer$ = this.store.select(selectCurrentPlayer);
-  localPlayer$ = this.store.select(selectLocalPlayer);
-  isLocalTurn$ = this.store.select(selectIsLocalTurn);
-  currentTurn$ = this.store.select(selectCurrentTurn);
-  players$ = this.store.select(selectPlayers);
-  playerTerritories$ = this.store.select(selectPlayerTerritories);
+  phase$ = this.store.select(selectPhase).pipe(tap(() => this.cdr.markForCheck()));
+  currentPlayer$ = this.store.select(selectCurrentPlayer).pipe(tap(() => this.cdr.markForCheck()));
+  localPlayer$ = this.store.select(selectLocalPlayer).pipe(tap(() => this.cdr.markForCheck()));
+  isLocalTurn$ = this.store.select(selectIsLocalTurn).pipe(tap(() => this.cdr.markForCheck()));
+  currentTurn$ = this.store.select(selectCurrentTurn).pipe(tap(() => this.cdr.markForCheck()));
+  players$ = this.store.select(selectPlayers).pipe(tap(() => this.cdr.markForCheck()));
+  playerTerritories$ = this.store.select(selectPlayerTerritories).pipe(tap(() => this.cdr.markForCheck()));
 
   /** Whether the resource panel is collapsed (mobile mode) */
   isResourcesCollapsed = false;
@@ -47,17 +54,64 @@ export class HudComponent implements OnInit {
   /** Whether the game log sidebar is open */
   isLogOpen = false;
 
-  /** Mock logs for demonstration */
-  mockLogs = [
-    { time: '10:00', message: 'Partida iniciada', type: 'system' },
-    { time: '10:05', message: 'Commander Alpha ha capturado REFINERÍA', type: 'action' },
-    { time: '10:10', message: 'Baron Delta ha reclutado 5 tropas', type: 'info' },
-    { time: '10:15', message: 'Combate en Zona Cero: Alpha vs Delta', type: 'combat' },
-    { time: '10:20', message: 'Alpha ha ganado el combate', type: 'result' },
-  ];
+  gameLogs: Array<{ time: string; message: string; type: string }> = [];
+
+  // ── Recaudación Dialog ──
+  showRecaudacionDialog = false;
+  recaudacionData: {
+    round: number;
+    myIncome: {
+      creditsGained: number;
+      manpowerGained: number;
+      totalCredits: number;
+      totalManpower: number;
+      territories: number;
+      refineries: number;
+      fabricas: number;
+      cuarteles: number;
+    } | null;
+  } | null = null;
+  private recaudacionSub?: import('rxjs').Subscription;
 
   ngOnInit(): void {
     this.checkScreenSize();
+    this.socketSub = this.socketService.listen('GAME_LOG_ENTRY').subscribe(log => {
+      this.gameLogs.push({
+        time: new Date(log.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+        message: log.message,
+        type: log.type
+      });
+      // Auto-scroll logic if needed could be added here
+      setTimeout(() => this.scrollToBottom(), 50);
+    });
+
+    // Escuchar resumen de recaudación
+    this.recaudacionSub = this.socketService.listen('RECAUDACION_SUMMARY').subscribe((data: any) => {
+      const playerId = this.authService.obtenerNombreUsuario();
+      const myEntry = data?.incomeSummary?.find((e: any) => e.playerId === playerId);
+      this.recaudacionData = {
+        round: data.round,
+        myIncome: myEntry ?? null,
+      };
+      this.showRecaudacionDialog = true;
+      this.cdr.markForCheck();
+    });
+  }
+
+  ngOnDestroy(): void {
+    if (this.socketSub) {
+      this.socketSub.unsubscribe();
+    }
+    if (this.recaudacionSub) {
+      this.recaudacionSub.unsubscribe();
+    }
+  }
+
+  private scrollToBottom(): void {
+    const el = document.querySelector('.log-entries');
+    if (el) {
+      el.scrollTop = el.scrollHeight;
+    }
   }
 
   @HostListener('window:resize')
@@ -129,20 +183,21 @@ export class HudComponent implements OnInit {
   }
 
   onPhaseAction(phase: string): void {
-    switch (phase) {
-      case 'RECAUDACION':
-        this.store.dispatch(PhaseActions.continueFromRecaudacion());
-        break;
-      case 'CONSTRUCCION':
-        this.store.dispatch(PhaseActions.finishConstruccion());
-        break;
-      case 'RECLUTAMIENTO':
-        this.store.dispatch(PhaseActions.finishReclutamiento());
-        break;
-      case 'MOVIMIENTO':
-        this.store.dispatch(PhaseActions.finishMovimiento());
-        break;
-    }
+    const matchId = this.router.url.split('/').pop(); // Get ID from URL
+    const playerId = this.authService.obtenerNombreUsuario();
+
+    if (!matchId || !playerId) return;
+
+    // In the real engine, all phase advances are 'playerReady'
+    this.store.dispatch(MatchSocketActions.syncAction({ 
+      action: 'playerReady', 
+      data: { matchId, playerId } 
+    }));
+  }
+
+  closeRecaudacionDialog(): void {
+    this.showRecaudacionDialog = false;
+    this.recaudacionData = null;
   }
 
   onBackToInicio(): void {

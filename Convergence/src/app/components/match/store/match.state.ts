@@ -52,6 +52,7 @@ export interface MatchState {
   selectedTerritoryId: string | null;
   selectedArmyId: string | null;
   highlightedTerritoryIds: string[];
+  localPlayerId: string | null;
 }
 
 // ── Building Costs ──
@@ -204,7 +205,7 @@ INITIAL_TERRITORIES.forEach(t => {
 });
 
 export const initialMatchState: MatchState = {
-  phase: 'RECAUDACION',
+  phase: 'CONSTRUCCION',
   currentTurn: 1,
   currentPlayerId: 'p1',
   players: INITIAL_PLAYERS,
@@ -213,5 +214,6 @@ export const initialMatchState: MatchState = {
   selectedTerritoryId: null,
   selectedArmyId: null,
   highlightedTerritoryIds: [],
+  localPlayerId: null,
 };
 

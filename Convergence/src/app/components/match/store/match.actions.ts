@@ -73,3 +73,13 @@ export const MapActions = createActionGroup({
     'Highlight Territories': props<{ territoryIds: string[] }>(),
   },
 });
+
+// ── Socket / Sync Actions ──
+export const MatchSocketActions = createActionGroup({
+  source: 'Match Socket',
+  events: {
+    'Join Match': props<{ matchId: string; playerId: string }>(),
+    'Update State': props<{ state: any }>(),
+    'Sync Action': props<{ action: string; data: any }>(),
+  },
+});

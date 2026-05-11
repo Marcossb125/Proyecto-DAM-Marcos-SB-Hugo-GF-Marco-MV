@@ -409,8 +409,8 @@ export class MapComponent implements AfterViewInit, OnDestroy {
       const bldgText = new this.pixi.Text({
         text: this.getBuildingSymbol(territory.buildingType),
         style: {
-          fontFamily: 'Press Start 2P, monospace',
-          fontSize: 6,
+          fontFamily: 'Inter, Arial, sans-serif',
+          fontSize: 14,
           fill: 0x00ff41,
           align: 'center',
         },
@@ -420,12 +420,12 @@ export class MapComponent implements AfterViewInit, OnDestroy {
     }
 
     // ── Territory label ──
-    const labelY = territory.hasSupremeBase || territory.isRefinery ? HEX_RADIUS * 0.05 : -HEX_RADIUS * 0.15;
+    const labelY = territory.hasSupremeBase || territory.isRefinery ? HEX_RADIUS * 0.4 : -HEX_RADIUS * 0.15;
     const label = new this.pixi.Text({
       text: territory.label,
       style: {
         fontFamily: 'Inter, sans-serif',
-        fontSize: 7,
+        fontSize: 10,
         fill: territory.isRefinery ? 0xffd700 : 0xe0e0e0,
         align: 'center',
         fontWeight: '600',
@@ -452,10 +452,11 @@ export class MapComponent implements AfterViewInit, OnDestroy {
       const armyText = new this.pixi.Text({
         text: `⚔${territory.army.troopSize}`,
         style: {
-          fontFamily: 'Press Start 2P, monospace',
-          fontSize: 6,
+          fontFamily: 'Inter, Arial, sans-serif',
+          fontSize: 11,
           fill: armyOwnerColor,
           align: 'center',
+          fontWeight: 'bold'
         },
       });
       armyText.anchor.set(0.5);
