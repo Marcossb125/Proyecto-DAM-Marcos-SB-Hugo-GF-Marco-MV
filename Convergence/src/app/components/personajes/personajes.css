@@ -732,14 +732,16 @@
 
 .confirmed-title {
   font-family: var(--font-pixel, 'Press Start 2P', monospace);
-  font-size: 0.55rem;
+  font-size: 0.7rem;
+  font-weight: 400;
   color: var(--war-accent);
   letter-spacing: 3px;
   text-shadow: 0 0 8px rgba(0, 255, 65, 0.4);
 }
 
 .confirmed-name {
-  font-size: 0.65rem;
+  font-size: 0.8rem;
+  font-weight: 400;
   color: var(--war-green-light);
   letter-spacing: 0.5px;
 }
