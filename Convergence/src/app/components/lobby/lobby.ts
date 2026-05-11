@@ -16,21 +16,37 @@ import { AuthService } from '../../servicios/auth.service';
 export class Lobby implements OnInit {
 
   /**
-   * Elimina una partida buscando su ID por nombre en la API y actualiza la lista.
+   * Marca una partida para confirmar borrado (muestra mensaje inline).
    */
   deleteGame(game: Partida): void {
-    if (confirm(`¿Estás seguro de que deseas borrar la partida "${game.name}"?`)) {
-      this.partidaService.borrarPartida(game.name).subscribe({
-        next: () => {
-          console.log('Partida borrada con éxito');
-          this.cargarPartidas();
-        },
-        error: (err) => {
-          console.error('Error al borrar la partida:', err);
-          alert('No se pudo borrar la partida: ' + err);
-        }
-      });
-    }
+    this.gameToDelete.set(game);
+  }
+
+  /**
+   * Confirma el borrado de la partida seleccionada.
+   */
+  confirmDelete(): void {
+    const game = this.gameToDelete();
+    if (!game) return;
+
+    this.partidaService.borrarPartida(game.name).subscribe({
+      next: () => {
+        console.log('Partida borrada con éxito');
+        this.gameToDelete.set(null);
+        this.cargarPartidas();
+      },
+      error: (err) => {
+        console.error('Error al borrar la partida:', err);
+        this.gameToDelete.set(null);
+      }
+    });
+  }
+
+  /**
+   * Cancela el borrado de la partida.
+   */
+  cancelDelete(): void {
+    this.gameToDelete.set(null);
   }
 
   isHost(game: Partida): boolean {
@@ -70,6 +86,7 @@ export class Lobby implements OnInit {
   newGameName = '';
   newGameMaxPlayers = 2;
   formError = signal('');
+  gameToDelete = signal<Partida | null>(null);
 
   searchText = signal('');
 
