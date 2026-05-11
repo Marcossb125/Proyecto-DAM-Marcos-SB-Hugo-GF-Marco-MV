@@ -35,7 +35,7 @@ export default (io, socket) => {
 
       // Initialize match in memory
       const matchId = partidaResponse.data.id.toString();
-      initMatch(matchId, sanitize.data.jugadores_limite);
+      initMatch(matchId, sanitize.data.jugadores_limite, sanitize.data.hostNombre);
       saveSnapshot(matchId);
 
       callback && callback({ success: true, data: partidaResponse.data });

@@ -2,6 +2,11 @@ package com.convergence.convergence.controller;
 
 import com.convergence.convergence.model.MatchSnapshot;
 import com.convergence.convergence.repository.MatchSnapshotRepository;
+import com.convergence.convergence.model.mongodb.PartidaMongo;
+import com.convergence.convergence.model.mongodb.UsuarioMongo;
+import com.convergence.convergence.repository.mongodb.PartidaMongoRepository;
+import com.convergence.convergence.repository.mongodb.UsuarioMongoRepository;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -15,10 +20,20 @@ public class SnapshotController {
     @Autowired
     private MatchSnapshotRepository snapshotRepository;
 
+    @Autowired
+    private PartidaMongoRepository partidaMongoRepository;
+
+    @Autowired
+    private UsuarioMongoRepository usuarioMongoRepository;
+
+    private final ObjectMapper objectMapper = new ObjectMapper();
+
     public static class SaveSnapshotRequest {
         public Long matchId;
         public int ronda;
         public String stateJson;
+        public String idHost;
+        public String idGanador;
     }
 
     @PostMapping("/guardar")
@@ -39,6 +54,36 @@ public class SnapshotController {
         }
 
         snapshotRepository.save(snapshot);
+
+        // --- Sync with MongoDB ---
+        try {
+            PartidaMongo mongoPartida = new PartidaMongo();
+            mongoPartida.setId(req.matchId.toString());
+            mongoPartida.setIdHost(req.idHost);
+            mongoPartida.setIdGanador(req.idGanador);
+            
+            // Parse JSON state to Object for MongoDB
+            Object stateObj = objectMapper.readValue(req.stateJson, Object.class);
+            mongoPartida.setSnapshot(stateObj);
+            
+            partidaMongoRepository.save(mongoPartida);
+
+            // Update victory if winner is reported
+            if (req.idGanador != null && !req.idGanador.isEmpty()) {
+                UsuarioMongo mongoUser = usuarioMongoRepository.findById(req.idGanador).orElseGet(() -> {
+                    UsuarioMongo u = new UsuarioMongo();
+                    u.setId(req.idGanador);
+                    u.setIdGeneral(0);
+                    u.setVictorias(0);
+                    return u;
+                });
+                mongoUser.setVictorias((mongoUser.getVictorias() != null ? mongoUser.getVictorias() : 0) + 1);
+                usuarioMongoRepository.save(mongoUser);
+            }
+        } catch (Exception e) {
+            System.err.println("Fallo al sincronizar con MongoDB: " + e.getMessage());
+        }
+
         return ResponseEntity.ok("Snapshot guardado con éxito");
     }
 

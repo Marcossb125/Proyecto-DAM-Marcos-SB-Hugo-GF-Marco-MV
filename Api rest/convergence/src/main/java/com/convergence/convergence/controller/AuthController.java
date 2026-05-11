@@ -20,6 +20,8 @@ import java.nio.charset.StandardCharsets;
 import java.util.Map;
 
 import java.util.Optional;
+import com.convergence.convergence.model.mongodb.UsuarioMongo;
+import com.convergence.convergence.repository.mongodb.UsuarioMongoRepository;
 
 @RestController
 @RequestMapping("/auth")
@@ -27,6 +29,9 @@ public class AuthController {
 
     @Autowired
     private UserRepository userRepository;
+
+    @Autowired
+    private UsuarioMongoRepository usuarioMongoRepository;
 
     @Autowired
     private PasswordEncoder passwordEncoder;
@@ -80,10 +85,17 @@ public class AuthController {
         if (!passwordEncoder.matches(req.password, user.get().getPassword())) {
             return ResponseEntity.status(401).body("invalid credentials");
         }
-    Date issuedAt = new Date();
-    
-    // In a real app return a token (JWT) instead of the user
-    return ResponseEntity.ok(req.nickname);
+
+        // Sync with MongoDB
+        if (!usuarioMongoRepository.existsById(req.nickname)) {
+            UsuarioMongo mongoUser = new UsuarioMongo();
+            mongoUser.setId(req.nickname);
+            mongoUser.setIdGeneral(0);
+            mongoUser.setVictorias(0);
+            usuarioMongoRepository.save(mongoUser);
+        }
+
+        return ResponseEntity.ok(req.nickname);
     }
 
     @PostMapping("/backend-login")

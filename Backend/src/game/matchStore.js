@@ -4,8 +4,9 @@ import apiClient from '../config/apiClient.js';
 
 const matchStates = new Map();
 
-function initMatch(matchId, limite) {
+function initMatch(matchId, limite, hostId) {
   const initialState = createInitialGameState(matchId, limite);
+  initialState.hostId = hostId;
   matchStates.set(matchId, initialState);
   return initialState;
 }
@@ -24,12 +25,15 @@ async function saveSnapshot(matchId) {
   if (!state) return false;
   
   try {
+    const winnerId = checkWinner(state);
     await apiClient.post('/snapshots/guardar', {
       matchId: parseInt(matchId),
       ronda: state.currentTurn,
-      stateJson: JSON.stringify(state)
+      stateJson: JSON.stringify(state),
+      idHost: state.hostId || 'unknown',
+      idGanador: winnerId
     });
-    console.log(`[Snapshot] Partida ${matchId} (Ronda ${state.currentTurn}) guardada en BD.`);
+    console.log(`[Snapshot] Partida ${matchId} (Ronda ${state.currentTurn}) guardada en API (Java + MongoDB).`);
     return true;
   } catch (error) {
     console.error(`[Snapshot Error] Fallo al guardar partida ${matchId}:`, error.message);
@@ -62,6 +66,14 @@ async function loadLatestSnapshot(matchId) {
   }
 }
 
+function checkWinner(state) {
+  // Simple logic: if only one player owns territories, they win.
+  const activePlayers = new Set(state.territories.map(t => t.ownerId).filter(id => id !== null));
+  if (activePlayers.size === 1) {
+    return Array.from(activePlayers)[0];
+  }
+  return null;
+}
 
 export {
   matchStates,

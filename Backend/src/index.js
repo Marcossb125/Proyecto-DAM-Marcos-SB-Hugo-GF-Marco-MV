@@ -9,6 +9,7 @@ import registerAuthHandlers from './handlers/auth.js';
 import registerPartidaHandlers from './handlers/partidas.js';
 import registerBanderaHandlers from './handlers/bandera.js';
 import registerGeneralHandlers from './handlers/general.js';
+import registerRankingHandlers from './handlers/ranking.js';
 
 const app = express();
 const httpServer = createServer(app);
@@ -31,6 +32,7 @@ io.on('connection', (socket) => {
   registerPartidaHandlers(io, socket);
   registerBanderaHandlers(io, socket);
   registerGeneralHandlers(io, socket);
+  registerRankingHandlers(io, socket);
 
   socket.on('disconnect', () => {
     console.log(`Client disconnected: ${socket.id}`);

@@ -9,6 +9,8 @@ export default (io, socket) => {
         callback({ success: false, error: "Datos de general no válidos" });
         return;
       }
+      
+      // Update Java Backend
       const response = await apiClient.put(
         `/general/guardar`,
         {
@@ -16,6 +18,7 @@ export default (io, socket) => {
           generalId: sanitize.data.generalId
         }
       );
+
       callback({ success: true, data: response.data });
     } catch (error) {
       console.log('Error al guardar general:', error.message);
