@@ -28,7 +28,7 @@ export const routes: Routes = [
       import('./components/personajes/personajes').then((m) => m.Personajes),
   },
   {
-    path: 'match',
+    path: 'match/:id',
     loadComponent: () =>
       import('./components/match/match').then((m) => m.Match),
   },

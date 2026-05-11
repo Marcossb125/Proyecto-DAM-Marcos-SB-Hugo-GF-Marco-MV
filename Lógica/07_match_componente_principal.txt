@@ -7,7 +7,7 @@ despacho de acciones al store NgRx.
 
 Con la nueva arquitectura, esa orquestacion pasa al backend.
 El componente Match del cliente se limitara a:
-  1. Escuchar eventos WebSocket del backend (GAME_STATE_UPDATE, COMBAT_RESULT).
+  1. Escuchar eventos WebSocket del backend (GAME_STATE_UPDATE, COMBAT_RESULT, GAME_LOG_ENTRY).
   2. Actualizar el store local con el estado recibido.
   3. Abrir dialogs para mostrar resultados (solo presentacion, sin calculos).
   4. Enviar eventos al backend cuando el usuario actue.

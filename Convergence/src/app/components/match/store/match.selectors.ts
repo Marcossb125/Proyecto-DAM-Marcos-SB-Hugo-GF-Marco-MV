@@ -38,10 +38,11 @@ export const selectCurrentPlayer = createSelector(
   (players, currentId) => players.find(p => p.id === currentId) ?? null
 );
 
-/** Local (human) player object */
+/** Local (human) player object — uses localPlayerId for reliability */
 export const selectLocalPlayer = createSelector(
   selectPlayers,
-  (players) => players.find(p => p.isLocal) ?? null
+  selectMatchState,
+  (players, state) => players.find(p => p.id === state.localPlayerId) ?? null
 );
 
 /** Is it the local player's turn? */

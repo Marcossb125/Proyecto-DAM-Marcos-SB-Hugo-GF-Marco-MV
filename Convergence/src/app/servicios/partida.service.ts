@@ -94,7 +94,6 @@ export class PartidaService {
     return new Observable((subscriber) => {
       this.socketService.emitWithCallback('buscarPartidas', null, (response: any) => {
         if (response.success) {
-          // Mapeamos los campos del backend (en español) a la interfaz del frontend (en inglés)
           const mappedPartidas: Partida[] = response.data.map((p: any) => ({
             id: p.id,
             name: p.nombre,
@@ -105,6 +104,44 @@ export class PartidaService {
             ping: p.ping || Math.floor(Math.random() * 60) + 10
           }));
           subscriber.next(mappedPartidas);
+        } else {
+          subscriber.error(response.error);
+        }
+        subscriber.complete();
+      });
+    });
+  }
+
+  buscarMisPartidas(): Observable<Partida[]> {
+    const nickname = this.authService.obtenerNombreUsuario();
+    return new Observable((subscriber) => {
+      this.socketService.emitWithCallback('buscarMisPartidas', { nickname }, (response: any) => {
+        if (response.success) {
+          const mappedPartidas: Partida[] = response.data.map((p: any) => ({
+            id: p.id,
+            name: p.nombre,
+            host: p.hostNombre || `ID: ${p.hostId}`,
+            currentPlayers: p.jugadoresActuales,
+            maxPlayers: p.jugadoresLimite,
+            status: p.estado === 'En curso' ? 'open' : 'full',
+            ping: p.ping || Math.floor(Math.random() * 60) + 10
+          }));
+          subscriber.next(mappedPartidas);
+        } else {
+          subscriber.error(response.error);
+        }
+        subscriber.complete();
+      });
+    });
+  }
+
+
+  unirseAPartida(partidaId: number): Observable<any> {
+    const nickname = this.authService.obtenerNombreUsuario();
+    return new Observable((subscriber) => {
+      this.socketService.emitWithCallback('joinMatch', { matchId: partidaId.toString(), playerId: nickname }, (response: any) => {
+        if (response.success) {
+          subscriber.next(response.data);
         } else {
           subscriber.error(response.error);
         }

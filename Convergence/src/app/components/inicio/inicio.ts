@@ -10,6 +10,8 @@ import { FlagBuilder } from '../flag-builder/flag-builder';
 import { TopActions } from '../top-actions/top-actions';
 import { BottomNavbar } from '../bottom-navbar/bottom-navbar';
 import { Banner } from '../banner/banner';
+import { PartidaService, Partida } from '../../servicios/partida.service';
+import { CommonModule } from '@angular/common';
 
 interface ActiveGame {
   id: number;
@@ -23,7 +25,7 @@ interface ActiveGame {
 
 @Component({
   selector: 'app-inicio',
-  imports: [MatButtonModule, MatIconModule, MatBadgeModule, NationFlag, FlagBuilder, BottomNavbar, Banner, TopActions],
+  imports: [CommonModule, MatButtonModule, MatIconModule, MatBadgeModule, NationFlag, FlagBuilder, BottomNavbar, Banner, TopActions],
   templateUrl: './inicio.html',
   styleUrl: './inicio.css',
 })
@@ -35,26 +37,20 @@ export class Inicio {
   nationData = signal<NationData | null>(null);
   isEditingFlag = signal<boolean>(false);
 
-  // TODO: Fetch from backend API
-  activeGame = signal<ActiveGame | null>({
-    id: 1,
-    name: 'Dark Crusade',
-    mode: 'Conquest',
-    currentPlayers: 6,
-    maxPlayers: 12,
-    daysPassed: 37,
-    hoursLeft: 2,
-  });
+  activeGames = signal<Partida[]>([]);
 
   constructor(
     private router: Router, 
     private authService: AuthService,
-    private userService: UserService
+    private userService: UserService,
+    private partidaService: PartidaService
   ) { }
 
   ngOnInit(): void {
     const nombre = this.authService.obtenerNombreUsuario();
     this.playerName.set(nombre);
+
+    this.cargarMisPartidas();
 
     // Cargar la bandera del usuario desde la base de datos
     if (nombre) {
@@ -75,10 +71,20 @@ export class Inicio {
     }
   }
 
+  cargarMisPartidas(): void {
+    this.partidaService.buscarMisPartidas().subscribe({
+      next: (partidas) => {
+        // Limitar a 3 como pide el usuario, aunque el backend ya debería filtrarlas
+        this.activeGames.set(partidas.slice(0, 3));
+      },
+      error: (err) => {
+        console.error('Error al cargar mis partidas:', err);
+      }
+    });
+  }
 
-
-  continueGame(): void {
-    this.router.navigate(['/match']);
+  continueGame(id: number): void {
+    this.router.navigate(['/match', id]);
   }
 
   navigateTo(route: string): void {
