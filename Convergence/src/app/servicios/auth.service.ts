@@ -84,4 +84,10 @@ export class AuthService {
       return [];
     }
   }
+
+  estaLogueado(): boolean {
+    if (!isPlatformBrowser(this.platformId)) return false;
+    const token = localStorage.getItem(this.STORAGE_KEY_token);
+    return !!token && token.length > 0;
+  }
 }
