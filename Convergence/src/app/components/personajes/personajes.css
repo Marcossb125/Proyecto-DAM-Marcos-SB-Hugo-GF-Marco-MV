@@ -693,6 +693,68 @@
   border-bottom-width: 1px;
 }
 
+/* ═══ CONFIRMED STATE ═══ */
+.confirm-card.confirmed {
+  border-color: var(--war-accent);
+  background: rgba(0, 255, 65, 0.06);
+  box-shadow: 0 0 25px rgba(0, 255, 65, 0.2), inset 0 0 15px rgba(0, 255, 65, 0.05);
+}
+
+.confirmed-state {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 0.4rem 0;
+  animation: confirmFadeIn 0.4s ease-out;
+}
+
+.confirmed-check {
+  width: 40px;
+  height: 40px;
+  min-width: 40px;
+  background: var(--war-accent);
+  color: var(--war-bg);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.2rem;
+  font-weight: 900;
+  box-shadow: 0 0 20px rgba(0, 255, 65, 0.5);
+  animation: confirmCheckPop 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.confirmed-text {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+}
+
+.confirmed-title {
+  font-family: var(--font-pixel, 'Press Start 2P', monospace);
+  font-size: 0.55rem;
+  color: var(--war-accent);
+  letter-spacing: 3px;
+  text-shadow: 0 0 8px rgba(0, 255, 65, 0.4);
+}
+
+.confirmed-name {
+  font-size: 0.65rem;
+  color: var(--war-green-light);
+  letter-spacing: 0.5px;
+}
+
+@keyframes confirmFadeIn {
+  from { opacity: 0; transform: translateX(-10px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+
+@keyframes confirmCheckPop {
+  0% { transform: scale(0) rotate(-45deg); }
+  60% { transform: scale(1.2) rotate(0deg); }
+  100% { transform: scale(1) rotate(0deg); }
+}
+
 /* ═══════════════════════════════════════
    BOTTOM NAVBAR
    ═══════════════════════════════════════ */

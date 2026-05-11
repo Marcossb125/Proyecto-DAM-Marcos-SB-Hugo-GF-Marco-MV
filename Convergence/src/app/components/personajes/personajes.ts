@@ -102,6 +102,8 @@ export class Personajes {
   ]);
 
   selectedCharacter = signal<Character | null>(null);
+  confirmed = signal<boolean>(false);
+  confirmedCharacterId = signal<number | null>(null);
 
   constructor(
     private router: Router, 
@@ -119,6 +121,8 @@ export class Personajes {
             const char = this.characters().find(c => c.id === res.generalId);
             if (char) {
               this.selectCharacter(char);
+              this.confirmedCharacterId.set(char.id);
+              this.confirmed.set(true);
             }
           }
         },
@@ -134,6 +138,7 @@ export class Personajes {
     }));
     this.characters.set(updated);
     this.selectedCharacter.set(character);
+    this.confirmed.set(false);
   }
 
   confirmarSeleccion(): void {
@@ -144,12 +149,8 @@ export class Personajes {
 
     this.userService.guardarGeneral(nickname, char.id).subscribe({
       next: () => {
-        this.snackBar.open('Operativo confirmado con éxito', 'Cerrar', {
-          duration: 3000,
-          horizontalPosition: 'center',
-          verticalPosition: 'bottom',
-          panelClass: ['success-snackbar']
-        });
+        this.confirmed.set(true);
+        this.confirmedCharacterId.set(char.id);
       },
       error: (err) => {
         console.error('Error al guardar general:', err);

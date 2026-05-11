@@ -63,8 +63,8 @@
         }
       </div>
 
-      <!-- Check seleccionado -->
-      @if (character.selected) {
+      <!-- Check confirmado -->
+      @if (character.id === confirmedCharacterId()) {
       <div class="selected-check">✓</div>
       }
     </div>
@@ -74,7 +74,8 @@
   <!-- ═══ CONFIRMAR OPERATIVO (justo debajo) ═══ -->
   @if (selectedCharacter()) {
   <section class="confirm-section">
-    <div class="confirm-card">
+    <div class="confirm-card" [class.confirmed]="confirmed()">
+      @if (!confirmed()) {
       <div class="confirm-top">
         <span class="confirm-avatar">{{ selectedCharacter()!.avatar }}</span>
         <div class="confirm-info">
@@ -88,6 +89,15 @@
         }
       </div>
       <button class="btn-deploy" id="personajes-deploy" (click)="confirmarSeleccion()">▶ CONFIRMAR OPERATIVO</button>
+      } @else {
+      <div class="confirmed-state">
+        <div class="confirmed-check">✓</div>
+        <div class="confirmed-text">
+          <span class="confirmed-title">OPERATIVO CONFIRMADO</span>
+          <span class="confirmed-name">{{ selectedCharacter()!.name }} · {{ selectedCharacter()!.codename }}</span>
+        </div>
+      </div>
+      }
     </div>
   </section>
   }
