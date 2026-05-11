@@ -66,9 +66,26 @@ CREATE TABLE `usuarios` (
   `Bandera` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_bin DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
+-- --------------------------------------------------------
+
+--
+-- Estructura de tabla para la tabla `match_snapshots`
+--
+
+CREATE TABLE `match_snapshots` (
+  `id` bigint(20) NOT NULL,
+  `match_id` bigint(20) NOT NULL,
+  `ronda` int(11) NOT NULL,
+  `state_json` longtext NOT NULL,
+  `timestamp` datetime DEFAULT CURRENT_TIMESTAMP
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- --------------------------------------------------------
+
 --
 -- Índices para tablas volcadas
 --
+
 
 --
 -- Indices de la tabla `participantes`
@@ -81,6 +98,14 @@ ALTER TABLE `participantes`
 --
 ALTER TABLE `partidas`
   ADD PRIMARY KEY (`Id`);
+
+--
+-- Indices de la tabla `match_snapshots`
+--
+ALTER TABLE `match_snapshots`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `idx_match_ronda` (`match_id`,`ronda`);
+
 
 --
 -- Indices de la tabla `usuarios`
@@ -105,6 +130,13 @@ ALTER TABLE `participantes`
 --
 ALTER TABLE `partidas`
   MODIFY `Id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=9;
+
+--
+-- AUTO_INCREMENT de la tabla `match_snapshots`
+--
+ALTER TABLE `match_snapshots`
+  MODIFY `id` bigint(20) NOT NULL AUTO_INCREMENT;
+
 
 --
 -- AUTO_INCREMENT de la tabla `usuarios`
