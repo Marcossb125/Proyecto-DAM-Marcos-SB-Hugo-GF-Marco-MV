@@ -1,0 +1,64 @@
+<div class="dialog-container">
+  <div class="dialog-header">
+    <div class="header-line"></div>
+    <h2 class="dialog-title">RECLUTAMIENTO</h2>
+    <div class="header-line"></div>
+  </div>
+
+  <div class="base-info">
+    <mat-icon class="base-icon">home</mat-icon>
+    <div class="base-text">
+      <span class="base-label">BASE SUPREMA</span>
+      <span class="base-territory">{{ data.territoryLabel }}</span>
+    </div>
+  </div>
+
+  <div class="recruit-controls">
+    <div class="troop-display">
+      <div class="troop-icon-group">
+        <mat-icon>groups</mat-icon>
+        <span class="troop-count">{{ troopCount() }}</span>
+      </div>
+      <span class="troop-label">TROPAS</span>
+    </div>
+
+    <div class="slider-row">
+      <button class="btn-adjust" (click)="decrementTroops()" [disabled]="troopCount() <= 1">−</button>
+      <mat-slider
+        [min]="1"
+        [max]="maxTroops()"
+        [step]="1"
+        discrete
+        class="recruit-slider">
+        <input matSliderThumb [ngModel]="troopCount()" (ngModelChange)="troopCount.set($event)">
+      </mat-slider>
+      <button class="btn-adjust" (click)="incrementTroops()" [disabled]="troopCount() >= maxTroops()">+</button>
+    </div>
+
+    <div class="cost-breakdown">
+      <div class="cost-row">
+        <span class="cost-label">Créditos:</span>
+        <span class="cost-value" [class.insufficient]="creditsCost() > data.player.credits">
+          💰 {{ creditsCost() }} / {{ data.player.credits }}
+        </span>
+      </div>
+      <div class="cost-row">
+        <span class="cost-label">Manpower:</span>
+        <span class="cost-value" [class.insufficient]="manpowerCost() > data.player.manpower">
+          👥 {{ manpowerCost() }} / {{ data.player.manpower }}
+        </span>
+      </div>
+    </div>
+  </div>
+
+  <div class="dialog-footer">
+    <button class="btn-cancel" (click)="onCancel()">CANCELAR</button>
+    <button
+      class="btn-recruit"
+      [disabled]="!canRecruit()"
+      (click)="onRecruit()">
+      <mat-icon>military_tech</mat-icon>
+      RECLUTAR
+    </button>
+  </div>
+</div>

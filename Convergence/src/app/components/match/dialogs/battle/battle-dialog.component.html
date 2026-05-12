@@ -1,0 +1,84 @@
+<div class="dialog-container">
+  <div class="dialog-header">
+    <div class="header-line"></div>
+    <h2 class="dialog-title">⚔ COMBATE ⚔</h2>
+    <div class="header-line"></div>
+  </div>
+
+  <div class="battle-zone-label">{{ data.territoryLabel }}</div>
+
+  @if (data.mode === 'confirm') {
+    <div class="battle-matchup">
+      <div class="combatant attacker">
+        <div class="combatant-header">ATACANTE</div>
+        <div class="combatant-name" [style.color]="data.attackerPlayer.color">
+          {{ data.attackerPlayer.name }}
+        </div>
+        <div class="combatant-troops">
+          <mat-icon>groups</mat-icon>
+          <span class="troop-number">{{ data.attackerArmy.troopSize }}</span>
+        </div>
+        <div class="combatant-faction">{{ data.attackerPlayer.faction }}</div>
+      </div>
+
+      <div class="vs-divider">
+        <div class="vs-line"></div>
+        <span class="vs-text">VS</span>
+        <div class="vs-line"></div>
+      </div>
+
+      <div class="combatant defender">
+        <div class="combatant-header">DEFENSOR</div>
+        <div class="combatant-name" [style.color]="data.defenderPlayer.color">
+          {{ data.defenderPlayer.name }}
+        </div>
+        <div class="combatant-troops">
+          <mat-icon>shield</mat-icon>
+          <span class="troop-number">{{ data.defenderArmy.troopSize }}</span>
+        </div>
+        <div class="combatant-faction">{{ data.defenderPlayer.faction }}</div>
+      </div>
+    </div>
+
+    <div class="win-probability">
+        Probabilidad de éxito: <span [style.color]="getProbColor()">{{ calculateWinProb() }}%</span>
+    </div>
+
+    <div class="dialog-actions">
+      <button class="btn-fight" (click)="onConfirmAttack()">
+        <mat-icon>send</mat-icon>
+        ORDENAR ATAQUE
+      </button>
+      <button class="btn-retreat" (click)="onCancel()">
+        CANCELAR
+      </button>
+    </div>
+  } @else {
+    <div class="battle-result" [class.victory]="isVictory()" [class.defeat]="!isVictory()">
+      <div class="result-icon">
+        @if (isVictory()) {
+          <mat-icon>emoji_events</mat-icon>
+        } @else {
+          <mat-icon>dangerous</mat-icon>
+        }
+      </div>
+      <div class="result-text">{{ isVictory() ? '¡VICTORIA!' : 'DERROTA' }}</div>
+      
+      <div class="result-summary">
+          <div class="summary-side">
+              <div class="side-label">Tus tropas</div>
+              <div class="side-value">{{ data.result?.finalAttackerSize }} / {{ data.attackerArmy.troopSize }}</div>
+          </div>
+          <div class="summary-side">
+              <div class="side-label">Enemigo</div>
+              <div class="side-value">{{ data.result?.finalDefenderSize }} / {{ data.defenderArmy.troopSize }}</div>
+          </div>
+      </div>
+
+      <div class="result-details">
+        {{ data.result?.resultMessage }}
+      </div>
+      <button class="btn-continue-result" (click)="onClose()">CONTINUAR</button>
+    </div>
+  }
+</div>

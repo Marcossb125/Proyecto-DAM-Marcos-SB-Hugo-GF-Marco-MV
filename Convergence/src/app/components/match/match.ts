@@ -33,10 +33,10 @@ import {
 } from './store/match.selectors';
 import { Territory, Army, Player } from './store/match.state';
 
-import { BuildDialog, BuildDialogResult } from './dialogs/build-dialog';
-import { RecruitDialog, RecruitDialogResult } from './dialogs/recruit-dialog';
-import { BattleDialog, BattleDialogResult } from './dialogs/battle-dialog';
-import { CityDialog, CityDialogResult } from './dialogs/city-dialog';
+import { BuildDialog, BuildDialogResult } from './dialogs/build/build-dialog.component';
+import { RecruitDialog, RecruitDialogResult } from './dialogs/recruit/recruit-dialog.component';
+import { BattleDialog, BattleDialogResult } from './dialogs/battle/battle-dialog.component';
+import { CityDialog, CityDialogResult } from './dialogs/city/city-dialog.component';
 
 @Component({
   selector: 'app-match',
