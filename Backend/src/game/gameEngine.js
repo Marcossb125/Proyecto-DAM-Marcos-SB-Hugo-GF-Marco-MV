@@ -233,15 +233,18 @@ function applyPlayerReady(state, playerId) {
   let phaseLogs = [];
   let recaudacionSummary = null;
   
+  let combatResults = null;
+
   if (readyCount >= total) {
     const advanceResult = advancePhase(state);
     state = advanceResult.state;
     phaseLogs = advanceResult.logs;
     phaseAdvanced = true;
     recaudacionSummary = advanceResult.recaudacionSummary ?? null;
+    combatResults = advanceResult.combatResults;
   }
 
-  return { state, logs: [...logs, ...phaseLogs], phaseAdvanced, recaudacionSummary };
+  return { state, logs: [...logs, ...phaseLogs], phaseAdvanced, recaudacionSummary, combatResults };
 }
 
 function resolveMovementPhase(state) {
@@ -268,36 +271,59 @@ function resolveMovementPhase(state) {
       if (toTerritory.buildingType === 'MURO') defenderTroops += 5;
       if (toTerritory.buildingType === 'TORRE') defenderTroops += 3;
 
+      // Random losses
       const attackerLosses = Math.floor(Math.random() * Math.min(defenderTroops, attackerTroops + 1));
       const defenderLosses = Math.floor(Math.random() * Math.min(attackerTroops, defenderTroops + 1));
+
+      const initialAttackerSize = army.troopSize;
+      const initialDefenderSize = defenderArmy.troopSize;
 
       army.troopSize -= attackerLosses;
       defenderArmy.troopSize -= defenderLosses;
 
       let winner = null;
+      let winnerId = null;
+      let conquered = false;
+
       if (army.troopSize <= 0 && defenderArmy.troopSize <= 0) {
-        // Both destroyed, defender keeps territory
+        winner = 'Empate (Ambos destruidos)';
         state.armies = state.armies.filter(a => a.id !== army.id && a.id !== defenderArmy.id);
         fromTerritory.occupiedByArmyId = null;
         toTerritory.occupiedByArmyId = null;
-        winner = 'Empate (Ambos destruidos)';
       } else if (army.troopSize <= 0) {
-        // Attacker destroyed
+        winner = 'Defensor';
+        winnerId = defenderArmy.ownerId;
         state.armies = state.armies.filter(a => a.id !== army.id);
         fromTerritory.occupiedByArmyId = null;
-        winner = 'Defensor';
       } else if (defenderArmy.troopSize <= 0) {
-        // Defender destroyed
+        winner = 'Atacante (Conquista)';
+        winnerId = army.ownerId;
+        conquered = true;
         state.armies = state.armies.filter(a => a.id !== defenderArmy.id);
         fromTerritory.occupiedByArmyId = null;
         army.territoryId = toTerritory.id;
         toTerritory.occupiedByArmyId = army.id;
-        toTerritory.ownerId = army.ownerId; // Conquered
-        winner = 'Atacante (Conquista)';
+        toTerritory.ownerId = army.ownerId;
       } else {
-        // Both survive, attacker retreats
         winner = 'Defensor (Atacante se retira)';
+        winnerId = defenderArmy.ownerId;
+        // Attacker survives but doesn't move
       }
+
+      combatResults.push({
+        matchId: state.matchId,
+        territoryId: toTerritory.id,
+        territoryLabel: toTerritory.label,
+        attackerId: army.ownerId,
+        defenderId: defenderArmy.ownerId,
+        winnerId: winnerId,
+        conquered,
+        initialAttackerSize,
+        initialDefenderSize,
+        finalAttackerSize: army.troopSize > 0 ? army.troopSize : 0,
+        finalDefenderSize: defenderArmy.troopSize > 0 ? defenderArmy.troopSize : 0,
+        resultMessage: winner
+      });
 
       logs.push(createLog(state.matchId, 'combat', 'Sistema', `⚔️ Combate en ${toTerritory.label} — Resultado: ${winner}`));
     } else if (defenderArmy && defenderArmy.ownerId === army.ownerId) {
@@ -307,15 +333,83 @@ function resolveMovementPhase(state) {
       fromTerritory.occupiedByArmyId = null;
       logs.push(createLog(state.matchId, 'action', 'Sistema', `Ejércitos combinados en ${toTerritory.label}`));
     } else {
-      // Move peacefully
-      fromTerritory.occupiedByArmyId = null;
-      army.territoryId = toTerritory.id;
-      toTerritory.occupiedByArmyId = army.id;
-      if (toTerritory.ownerId !== army.ownerId) {
-        toTerritory.ownerId = army.ownerId; // Conquered empty territory
-        logs.push(createLog(state.matchId, 'action', 'Sistema', `Territorio ${toTerritory.label} capturado`));
+      // Peaceful move or City Conquest
+      const isCityConquest = toTerritory.ownerId && toTerritory.ownerId !== army.ownerId && toTerritory.buildingType;
+
+      if (isCityConquest) {
+        // Calculate defenses
+        let defenseStrength = 30; // Base defense
+        if (toTerritory.buildingType === 'MURO') defenseStrength += 30;
+        if (toTerritory.buildingType === 'TORRE') defenseStrength += 20;
+        if (toTerritory.hasSupremeBase) defenseStrength += 20;
+        defenseStrength = Math.min(defenseStrength, 95);
+
+        // Success chance
+        const baseChance = (army.troopSize * 5) - (defenseStrength * 0.5);
+        const successChance = Math.max(5, Math.min(95, Math.round(baseChance)));
+
+        const roll = Math.random() * 100;
+        const success = roll <= successChance;
+
+        const initialAttackerSize = army.troopSize;
+
+        if (success) {
+          // Success: Occupy and conquer with 30% losses (simulating conquest effort)
+          army.troopSize = Math.max(1, Math.floor(army.troopSize * 0.7));
+          fromTerritory.occupiedByArmyId = null;
+          army.territoryId = toTerritory.id;
+          toTerritory.occupiedByArmyId = army.id;
+          toTerritory.ownerId = army.ownerId;
+          
+          combatResults.push({
+            type: 'conquest',
+            matchId: state.matchId,
+            territoryId: toTerritory.id,
+            territoryLabel: toTerritory.label,
+            attackerId: army.ownerId,
+            defenderId: toTerritory.ownerId,
+            winnerId: army.ownerId,
+            conquered: true,
+            initialAttackerSize,
+            initialDefenderSize: 0, // No army, just buildings
+            finalAttackerSize: army.troopSize,
+            finalDefenderSize: 0,
+            resultMessage: `¡Ciudad ${toTerritory.label} conquistada!`
+          });
+          logs.push(createLog(state.matchId, 'action', 'Sistema', `Ciudad ${toTerritory.label} capturada por ${army.ownerId}`));
+        } else {
+          // Failure: Army destroyed
+          state.armies = state.armies.filter(a => a.id !== army.id);
+          fromTerritory.occupiedByArmyId = null;
+
+          combatResults.push({
+            type: 'conquest',
+            matchId: state.matchId,
+            territoryId: toTerritory.id,
+            territoryLabel: toTerritory.label,
+            attackerId: army.ownerId,
+            defenderId: toTerritory.ownerId,
+            winnerId: toTerritory.ownerId,
+            conquered: false,
+            initialAttackerSize,
+            initialDefenderSize: 0,
+            finalAttackerSize: 0,
+            finalDefenderSize: 0,
+            resultMessage: `Ataque a ${toTerritory.label} fallido. Ejército destruido.`
+          });
+          logs.push(createLog(state.matchId, 'action', 'Sistema', `Ataque fallido a ${toTerritory.label}`));
+        }
       } else {
-         logs.push(createLog(state.matchId, 'action', 'Sistema', `Ejército movido a ${toTerritory.label}`));
+        // Normal peaceful move
+        fromTerritory.occupiedByArmyId = null;
+        army.territoryId = toTerritory.id;
+        toTerritory.occupiedByArmyId = army.id;
+        if (toTerritory.ownerId !== army.ownerId) {
+          toTerritory.ownerId = army.ownerId; // Conquered empty undefended territory
+          logs.push(createLog(state.matchId, 'action', 'Sistema', `Territorio ${toTerritory.label} capturado`));
+        } else {
+          logs.push(createLog(state.matchId, 'action', 'Sistema', `Ejército movido a ${toTerritory.label}`));
+        }
       }
     }
   });
@@ -342,10 +436,12 @@ function advancePhase(state) {
     // Actually, movement resolution should happen AT the end of the movement phase, before transitioning to Recaudacion.
   }
 
+  let combatResults = null;
   if (state.currentPhase === 'MOVIMIENTO') {
       const res = resolveMovementPhase(state);
       state = res.state;
       logs.push(...res.logs);
+      combatResults = res.combatResults;
       logs.push(createLog(state.matchId, 'system', 'Sistema', `💾 Ronda ${state.currentTurn - 1} finalizada`));
   }
 
@@ -368,7 +464,7 @@ function advancePhase(state) {
     logs.push(createLog(state.matchId, 'phase', 'Sistema', `⚡ Nueva fase: CONSTRUCCION`));
   }
 
-  return { state, logs, recaudacionSummary };
+  return { state, logs, recaudacionSummary, combatResults };
 }
 
 export {

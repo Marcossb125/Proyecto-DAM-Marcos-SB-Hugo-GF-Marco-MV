@@ -15,6 +15,14 @@ export interface BattleDialogData {
   attackerPlayer: Player;
   defenderPlayer: Player;
   territoryLabel: string;
+  mode: 'confirm' | 'result';
+  result?: {
+    winnerId: string;
+    finalAttackerSize: number;
+    finalDefenderSize: number;
+    conquered: boolean;
+    resultMessage: string;
+  };
 }
 
 export interface BattleDialogResult {
@@ -37,7 +45,7 @@ export interface BattleDialogResult {
 
       <div class="battle-zone-label">{{ data.territoryLabel }}</div>
 
-      @if (!battleResolved()) {
+      @if (data.mode === 'confirm') {
         <div class="battle-matchup">
           <div class="combatant attacker">
             <div class="combatant-header">ATACANTE</div>
@@ -70,14 +78,17 @@ export interface BattleDialogResult {
           </div>
         </div>
 
+        <div class="win-probability">
+            Probabilidad de éxito: <span [style.color]="getProbColor()">{{ calculateWinProb() }}%</span>
+        </div>
+
         <div class="dialog-actions">
-          <button class="btn-fight" (click)="onFight()">
-            <mat-icon>swords</mat-icon>
-            LUCHAR
+          <button class="btn-fight" (click)="onConfirmAttack()">
+            <mat-icon>send</mat-icon>
+            ORDENAR ATAQUE
           </button>
-          <button class="btn-retreat" (click)="onRetreat()">
-            <mat-icon>directions_run</mat-icon>
-            RETIRARSE
+          <button class="btn-retreat" (click)="onCancel()">
+            CANCELAR
           </button>
         </div>
       } @else {
@@ -90,8 +101,20 @@ export interface BattleDialogResult {
             }
           </div>
           <div class="result-text">{{ isVictory() ? '¡VICTORIA!' : 'DERROTA' }}</div>
+          
+          <div class="result-summary">
+              <div class="summary-side">
+                  <div class="side-label">Tus tropas</div>
+                  <div class="side-value">{{ data.result?.finalAttackerSize }} / {{ data.attackerArmy.troopSize }}</div>
+              </div>
+              <div class="summary-side">
+                  <div class="side-label">Enemigo</div>
+                  <div class="side-value">{{ data.result?.finalDefenderSize }} / {{ data.defenderArmy.troopSize }}</div>
+              </div>
+          </div>
+
           <div class="result-details">
-            {{ isVictory() ? 'Has conquistado el territorio' : 'Tu ejército ha sido destruido' }}
+            {{ data.result?.resultMessage }}
           </div>
           <button class="btn-continue-result" (click)="onClose()">CONTINUAR</button>
         </div>
@@ -374,43 +397,78 @@ export interface BattleDialogResult {
       50% { opacity: 1; transform: scale(1.02); }
       100% { transform: scale(1); }
     }
+
+    .win-probability {
+        text-align: center;
+        margin-bottom: 1.5rem;
+        font-family: 'Press Start 2P', monospace;
+        font-size: 0.5rem;
+        color: #828a5e;
+    }
+
+    .win-probability span {
+        font-size: 0.7rem;
+    }
+
+    .result-summary {
+        display: flex;
+        gap: 2rem;
+        margin: 1rem 0;
+    }
+
+    .summary-side {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .side-label {
+        font-size: 0.6rem;
+        color: #828a5e;
+        text-transform: uppercase;
+        margin-bottom: 0.3rem;
+    }
+
+    .side-value {
+        font-family: 'Press Start 2P', monospace;
+        font-size: 0.6rem;
+    }
   `],
 })
 export class BattleDialog {
   readonly data: BattleDialogData = inject(MAT_DIALOG_DATA);
   private readonly dialogRef = inject(MatDialogRef<BattleDialog>);
 
-  battleResolved = signal(false);
-  private victory = signal(false);
-
   isVictory(): boolean {
-    return this.victory();
+    if (this.data.mode === 'result') {
+      return this.data.result?.winnerId === this.data.attackerPlayer.id;
+    }
+    return false;
   }
 
-  private resultData: BattleDialogResult | null = null;
-
-  onFight(): void {
-    // Combat resolution: attacker power * random(0.8–1.2) vs defender
-    const attackPower = this.data.attackerArmy.troopSize * (0.8 + Math.random() * 0.4);
-    const defendPower = this.data.defenderArmy.troopSize;
-
-    const attackerWins = attackPower > defendPower;
-    this.victory.set(attackerWins);
-
-    this.resultData = {
-      action: 'fight',
-      winnerArmyId: attackerWins ? this.data.attackerArmy.id : this.data.defenderArmy.id,
-      loserArmyId: attackerWins ? this.data.defenderArmy.id : this.data.attackerArmy.id,
-    };
-
-    this.battleResolved.set(true);
+  calculateWinProb(): number {
+    const atk = this.data.attackerArmy.troopSize;
+    const def = this.data.defenderArmy.troopSize;
+    const prob = (atk / (atk + def)) * 100;
+    return Math.round(prob);
   }
 
-  onRetreat(): void {
+  getProbColor(): string {
+    const prob = this.calculateWinProb();
+    if (prob >= 70) return '#00ff41';
+    if (prob >= 40) return '#ffaa00';
+    return '#ff4444';
+  }
+
+  onConfirmAttack(): void {
+    this.dialogRef.close({ action: 'fight' } as BattleDialogResult);
+  }
+
+  onCancel(): void {
     this.dialogRef.close({ action: 'retreat' } as BattleDialogResult);
   }
 
   onClose(): void {
-    this.dialogRef.close(this.resultData);
+    this.dialogRef.close();
   }
 }

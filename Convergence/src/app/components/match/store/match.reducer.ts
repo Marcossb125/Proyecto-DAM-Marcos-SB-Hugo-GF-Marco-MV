@@ -161,35 +161,8 @@ export const matchFeature = createFeature({
 
     // ═══ COMBAT ═══
 
-    on(CombatActions.resolveBattle, (state, { winnerArmyId, loserArmyId, territoryId }): MatchState => {
-      const winner = state.armies.find(a => a.id === winnerArmyId);
-      if (!winner) return state;
-
-      // Remove loser, move winner to territory, reduce winner troops by 20%
-      const survivingTroops = Math.max(1, Math.floor(winner.troopSize * 0.8));
-
-      return {
-        ...state,
-        armies: state.armies
-          .filter(a => a.id !== loserArmyId)
-          .map(a => a.id === winnerArmyId
-            ? { ...a, territoryId, troopSize: survivingTroops, hasActedThisTurn: true }
-            : a
-          ),
-        territories: state.territories.map(t => {
-          if (t.id === territoryId) {
-            return { ...t, occupiedByArmyId: winnerArmyId, ownerId: winner.ownerId };
-          }
-          // Clear winner's old position
-          if (t.occupiedByArmyId === winnerArmyId) {
-            return { ...t, occupiedByArmyId: null };
-          }
-          return t;
-        }),
-        selectedArmyId: null,
-        highlightedTerritoryIds: [],
-      };
-    }),
+    // ═══ COMBAT (Now server-side resolved) ═══
+    // We remove resolveBattle local mutation to avoid desync
 
     on(CombatActions.retreat, (state, { armyId }): MatchState => ({
       ...state,
@@ -199,43 +172,6 @@ export const matchFeature = createFeature({
       selectedArmyId: null,
       highlightedTerritoryIds: [],
     })),
-
-    // ═══ CITY CONQUEST ═══
-
-    on(CityActions.conquestCity, (state, { armyId, territoryId, success }): MatchState => {
-      if (!success) {
-        // Failed conquest — destroy army
-        return {
-          ...state,
-          armies: state.armies.filter(a => a.id !== armyId),
-          selectedArmyId: null,
-          highlightedTerritoryIds: [],
-        };
-      }
-
-      const army = state.armies.find(a => a.id === armyId);
-      if (!army) return state;
-
-      return {
-        ...state,
-        armies: state.armies.map(a =>
-          a.id === armyId
-            ? { ...a, territoryId, hasActedThisTurn: true, troopSize: Math.max(1, Math.floor(a.troopSize * 0.7)) }
-            : a
-        ),
-        territories: state.territories.map(t => {
-          if (t.id === territoryId) {
-            return { ...t, occupiedByArmyId: armyId, ownerId: army.ownerId };
-          }
-          if (t.occupiedByArmyId === armyId) {
-            return { ...t, occupiedByArmyId: null };
-          }
-          return t;
-        }),
-        selectedArmyId: null,
-        highlightedTerritoryIds: [],
-      };
-    }),
 
     // ═══ MAP INTERACTIONS ═══
 

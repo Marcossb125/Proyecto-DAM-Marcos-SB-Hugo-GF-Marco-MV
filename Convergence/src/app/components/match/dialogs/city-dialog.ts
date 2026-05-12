@@ -2,7 +2,7 @@
    CITY DIALOG — City Conquest
    ═══════════════════════════════════════════════════════════════ */
 
-import { Component, inject, signal } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MAT_DIALOG_DATA, MatDialogRef, MatDialogModule } from '@angular/material/dialog';
 import { MatButtonModule } from '@angular/material/button';
@@ -14,6 +14,13 @@ export interface CityDialogData {
   territory: Territory;
   defenseStrength: number;
   successChance: number;
+  mode: 'confirm' | 'result';
+  result?: {
+    winnerId: string;
+    finalAttackerSize: number;
+    conquered: boolean;
+    resultMessage: string;
+  };
 }
 
 export interface CityDialogResult {
@@ -33,7 +40,7 @@ export interface CityDialogResult {
         <div class="header-line"></div>
       </div>
 
-      @if (!conquestResolved()) {
+      @if (data.mode === 'confirm') {
         <div class="city-info">
           <div class="city-name">{{ data.territory.label }}</div>
           <div class="city-stats">
@@ -53,8 +60,8 @@ export interface CityDialogResult {
                      [class.low]="data.successChance < 40"></div>
               </div>
               <span class="stat-value" [class.high]="data.successChance >= 70"
-                    [class.medium]="data.successChance >= 40 && data.successChance < 70"
-                    [class.low]="data.successChance < 40">
+                     [class.medium]="data.successChance >= 40 && data.successChance < 70"
+                     [class.low]="data.successChance < 40">
                 {{ data.successChance }}%
               </span>
             </div>
@@ -67,15 +74,12 @@ export interface CityDialogResult {
         </div>
 
         <div class="dialog-actions">
-          <button class="btn-conquest" (click)="onConquest()">
-            <mat-icon>flag</mat-icon>
-            CONQUISTAR
+          <button class="btn-conquest" (click)="onConfirmConquest()">
+            <mat-icon>send</mat-icon>
+            ORDENAR CONQUISTA
           </button>
-          <button class="btn-ignore" (click)="onIgnore()">
-            IGNORAR
-          </button>
-          <button class="btn-retreat-city" (click)="onRetreat()">
-            RETIRARSE
+          <button class="btn-ignore" (click)="onCancel()">
+            CANCELAR
           </button>
         </div>
       } @else {
@@ -83,7 +87,7 @@ export interface CityDialogResult {
           <mat-icon class="result-icon">{{ conquestSuccess() ? 'flag' : 'close' }}</mat-icon>
           <div class="result-text">{{ conquestSuccess() ? '¡CONQUISTADA!' : 'FALLIDA' }}</div>
           <div class="result-details">
-            {{ conquestSuccess() ? 'La ciudad es tuya' : 'Tu ejército ha sido destruido' }}
+            {{ data.result?.resultMessage }}
           </div>
           <button class="btn-continue-result" (click)="onClose()">CONTINUAR</button>
         </div>
@@ -249,7 +253,7 @@ export interface CityDialogResult {
 
     .btn-conquest mat-icon { font-size: 16px; width: 16px; height: 16px; }
 
-    .btn-ignore, .btn-retreat-city {
+    .btn-ignore {
       flex: 1;
       padding: 0.65rem 0.5rem;
       background: transparent;
@@ -262,7 +266,7 @@ export interface CityDialogResult {
       transition: all 0.2s;
     }
 
-    .btn-ignore:hover, .btn-retreat-city:hover {
+    .btn-ignore:hover {
       border-color: #828a5e;
       color: #e0e0e0;
     }
@@ -336,28 +340,22 @@ export class CityDialog {
   readonly data: CityDialogData = inject(MAT_DIALOG_DATA);
   private readonly dialogRef = inject(MatDialogRef<CityDialog>);
 
-  conquestResolved = signal(false);
-  conquestSuccess = signal(false);
-
-  private resultData: CityDialogResult | null = null;
-
-  onConquest(): void {
-    const roll = Math.random() * 100;
-    const success = roll <= this.data.successChance;
-    this.conquestSuccess.set(success);
-    this.resultData = { action: 'conquest', success };
-    this.conquestResolved.set(true);
+  conquestSuccess(): boolean {
+    if (this.data.mode === 'result') {
+      return this.data.result?.conquered ?? false;
+    }
+    return false;
   }
 
-  onIgnore(): void {
+  onConfirmConquest(): void {
+    this.dialogRef.close({ action: 'conquest' } as CityDialogResult);
+  }
+
+  onCancel(): void {
     this.dialogRef.close({ action: 'ignore' } as CityDialogResult);
   }
 
-  onRetreat(): void {
-    this.dialogRef.close({ action: 'retreat' } as CityDialogResult);
-  }
-
   onClose(): void {
-    this.dialogRef.close(this.resultData);
+    this.dialogRef.close();
   }
 }

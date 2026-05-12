@@ -57,7 +57,9 @@ async function runBotsForCurrentPhase(matchId, emitUpdateAndLog, emitSummary) {
       if (readyRes.phaseAdvanced) {
         // Si hubo recaudación, emitir resumen antes del estado
         if (readyRes.recaudacionSummary && emitSummary) {
-          emitSummary(readyRes.recaudacionSummary);
+          emitSummary(readyRes.recaudacionSummary, readyRes.combatResults);
+        } else if (readyRes.combatResults && emitSummary) {
+          emitSummary(null, readyRes.combatResults);
         }
         // Emit state update as phase advanced
         emitUpdateAndLog(getMatch(matchId), null);

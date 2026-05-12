@@ -110,8 +110,9 @@ export default (io, socket) => {
   };
 
   const checkBotsAndPhase = (matchId) => {
-    const emitSummary = (summary) => {
-      io.to(matchId).emit('RECAUDACION_SUMMARY', summary);
+    const emitSummary = (summary, combatResults) => {
+      if (summary) io.to(matchId).emit('RECAUDACION_SUMMARY', summary);
+      if (combatResults && combatResults.length > 0) io.to(matchId).emit('COMBAT_SUMMARY', combatResults);
     };
     runBotsForCurrentPhase(matchId, (state, logEntry) => {
       emitGameUpdate(matchId, state, logEntry);
@@ -233,17 +234,20 @@ export default (io, socket) => {
       res.logs.forEach(log => emitGameUpdate(matchId, null, log));
 
       if (res.phaseAdvanced) {
-        // Si hubo recaudación, emitir resumen ANTES del estado actualizado
+        // Emitir resúmenes ANTES del estado actualizado
         if (res.recaudacionSummary) {
           io.to(matchId).emit('RECAUDACION_SUMMARY', res.recaudacionSummary);
         }
+        if (res.combatResults && res.combatResults.length > 0) {
+          io.to(matchId).emit('COMBAT_SUMMARY', res.combatResults);
+        }
         emitGameUpdate(matchId, res.state, null);
-        socket.emit('GAME_STATE_UPDATE', res.state); // garantía directa
+        socket.emit('GAME_STATE_UPDATE', res.state); 
         saveSnapshot(matchId);
         checkBotsAndPhase(matchId);
       } else {
         emitGameUpdate(matchId, res.state, null);
-        socket.emit('GAME_STATE_UPDATE', res.state); // garantía directa
+        socket.emit('GAME_STATE_UPDATE', res.state); 
         checkBotsAndPhase(matchId);
       }
 

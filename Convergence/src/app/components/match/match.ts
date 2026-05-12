@@ -13,6 +13,7 @@ import { filter, withLatestFrom } from 'rxjs/operators';
 import { MapComponent } from './map/map';
 import { HudComponent } from './hud/hud';
 import { AuthService } from '../../servicios/auth.service';
+import { SocketService } from '../../servicios/socket.service';
 
 import {
   MapActions,
@@ -50,6 +51,7 @@ export class Match implements OnInit, OnDestroy {
   private readonly router = inject(Router);
   private readonly route = inject(ActivatedRoute);
   private readonly authService = inject(AuthService);
+  private readonly socketService = inject(SocketService);
   private subscriptions: Subscription[] = [];
 
   ngOnInit(): void {
@@ -64,6 +66,7 @@ export class Match implements OnInit, OnDestroy {
     }
 
     this.setupTerritoryClickHandler();
+    this.setupCombatSummaryListener();
   }
 
   ngOnDestroy(): void {
@@ -242,6 +245,7 @@ export class Match implements OnInit, OnDestroy {
             attackerPlayer: currentPlayer,
             defenderPlayer,
             territoryLabel: territory.label,
+            mode: 'confirm',
           },
           panelClass: 'military-dialog',
           disableClose: true,
@@ -250,18 +254,21 @@ export class Match implements OnInit, OnDestroy {
         dialogRef.afterClosed().subscribe((result: BattleDialogResult | undefined) => {
           if (!result) return;
 
-          if (result.action === 'fight' && result.winnerArmyId && result.loserArmyId) {
-            this.store.dispatch(CombatActions.resolveBattle({
-              winnerArmyId: result.winnerArmyId,
-              loserArmyId: result.loserArmyId,
-              territoryId: territory.id,
-            }));
-          } else if (result.action === 'retreat') {
-            this.store.dispatch(CombatActions.retreat({
-              armyId: movingArmy.id,
-              fromTerritoryId: territory.id,
+          if (result.action === 'fight') {
+            const matchId = this.route.snapshot.paramMap.get('id')!;
+            const playerId = this.authService.obtenerNombreUsuario()!;
+            
+            this.store.dispatch(MatchSocketActions.syncAction({
+              action: 'queueMove',
+              data: {
+                matchId,
+                playerId,
+                armyId: selectedArmyId,
+                toTerritoryId: territory.id,
+              }
             }));
           }
+          this.store.dispatch(MapActions.clearSelection());
         });
         return;
       }
@@ -278,6 +285,7 @@ export class Match implements OnInit, OnDestroy {
             territory,
             defenseStrength,
             successChance,
+            mode: 'confirm'
           },
           panelClass: 'military-dialog',
           disableClose: true,
@@ -287,18 +295,19 @@ export class Match implements OnInit, OnDestroy {
           if (!result) return;
 
           if (result.action === 'conquest') {
-            this.store.dispatch(CityActions.conquestCity({
-              armyId: movingArmy.id,
-              territoryId: territory.id,
-              success: result.success ?? false,
-            }));
-          } else if (result.action === 'retreat') {
-            this.store.dispatch(CombatActions.retreat({
-              armyId: movingArmy.id,
-              fromTerritoryId: territory.id,
+            const matchId = this.route.snapshot.paramMap.get('id')!;
+            const playerId = this.authService.obtenerNombreUsuario()!;
+
+            this.store.dispatch(MatchSocketActions.syncAction({
+              action: 'queueMove',
+              data: {
+                matchId,
+                playerId,
+                armyId: movingArmy.id,
+                toTerritoryId: territory.id,
+              }
             }));
           }
-          // 'ignore' — just clear selection
           this.store.dispatch(MapActions.clearSelection());
         });
         return;
@@ -341,4 +350,60 @@ export class Match implements OnInit, OnDestroy {
     return Math.max(5, Math.min(95, Math.round(baseChance)));
   }
 
+  private setupCombatSummaryListener(): void {
+    const sub = this.socketService.listenForGame('COMBAT_SUMMARY').pipe(
+      withLatestFrom(
+        this.store.select(selectLocalPlayer),
+        this.store.select(selectPlayers),
+        this.store.select(selectArmies),
+        this.store.select(selectTerritories),
+      )
+    ).subscribe(([results, localPlayer, players, armies, territories]) => {
+      if (!localPlayer || !results) return;
+
+      // Find results where the local player was involved
+      const myResult = results.find((r: any) => r.attackerId === localPlayer.id || r.defenderId === localPlayer.id);
+      
+      if (myResult) {
+        const attackerPlayer = players.find(p => p.id === myResult.attackerId);
+        const defenderPlayer = players.find(p => p.id === myResult.defenderId);
+        const territory = territories.find(t => t.id === myResult.territoryId);
+
+        // We need the *original* army data for the dialog. 
+        // Note: The armies in the store might have already updated to the new state.
+        // We'll use dummy army objects for the display if needed, or rely on sizes from result.
+        
+        if (myResult.type === 'conquest') {
+          this.dialog.open(CityDialog, {
+            data: {
+              army: { troopSize: myResult.initialAttackerSize } as Army,
+              territory: territory!,
+              defenseStrength: 0, // Not needed for result
+              successChance: 0, 
+              mode: 'result',
+              result: myResult
+            },
+            panelClass: 'military-dialog',
+            disableClose: false
+          });
+        } else {
+          this.dialog.open(BattleDialog, {
+            data: {
+              attackerArmy: { troopSize: myResult.initialAttackerSize } as Army,
+              defenderArmy: { troopSize: myResult.initialDefenderSize } as Army,
+              attackerPlayer: attackerPlayer!,
+              defenderPlayer: defenderPlayer!,
+              territoryLabel: myResult.territoryLabel,
+              mode: 'result',
+              result: myResult
+            },
+            panelClass: 'military-dialog',
+            disableClose: false
+          });
+        }
+      }
+    });
+
+    this.subscriptions.push(sub);
+  }
 }
