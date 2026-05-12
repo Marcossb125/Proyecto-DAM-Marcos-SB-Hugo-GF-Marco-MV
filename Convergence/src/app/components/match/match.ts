@@ -33,7 +33,7 @@ import {
 } from './store/match.selectors';
 import { Territory, Army, Player } from './store/match.state';
 
-import { BuildDialog, BuildDialogResult } from './dialogs/build/build-dialog.component';
+import { BuildDialog, BuildDialogResult } from './dialogs/build22/build-dialog.component';
 import { RecruitDialog, RecruitDialogResult } from './dialogs/recruit/recruit-dialog.component';
 import { BattleDialog, BattleDialogResult } from './dialogs/battle/battle-dialog.component';
 import { CityDialog, CityDialogResult } from './dialogs/city/city-dialog.component';
@@ -257,7 +257,7 @@ export class Match implements OnInit, OnDestroy {
           if (result.action === 'fight') {
             const matchId = this.route.snapshot.paramMap.get('id')!;
             const playerId = this.authService.obtenerNombreUsuario()!;
-            
+
             this.store.dispatch(MatchSocketActions.syncAction({
               action: 'queueMove',
               data: {
@@ -363,7 +363,7 @@ export class Match implements OnInit, OnDestroy {
 
       // Find results where the local player was involved
       const myResult = results.find((r: any) => r.attackerId === localPlayer.id || r.defenderId === localPlayer.id);
-      
+
       if (myResult) {
         const attackerPlayer = players.find(p => p.id === myResult.attackerId);
         const defenderPlayer = players.find(p => p.id === myResult.defenderId);
@@ -372,14 +372,14 @@ export class Match implements OnInit, OnDestroy {
         // We need the *original* army data for the dialog. 
         // Note: The armies in the store might have already updated to the new state.
         // We'll use dummy army objects for the display if needed, or rely on sizes from result.
-        
+
         if (myResult.type === 'conquest') {
           this.dialog.open(CityDialog, {
             data: {
               army: { troopSize: myResult.initialAttackerSize } as Army,
               territory: territory!,
               defenseStrength: 0, // Not needed for result
-              successChance: 0, 
+              successChance: 0,
               mode: 'result',
               result: myResult
             },
