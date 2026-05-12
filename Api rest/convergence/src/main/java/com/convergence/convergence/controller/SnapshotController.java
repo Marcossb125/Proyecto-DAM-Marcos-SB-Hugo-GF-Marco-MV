@@ -45,7 +45,7 @@ public class SnapshotController {
         // Check if snapshot for this round already exists
         Optional<MatchSnapshot> existing = snapshotRepository.findByMatchIdAndRonda(req.matchId, req.ronda);
         MatchSnapshot snapshot;
-        
+
         if (existing.isPresent()) {
             snapshot = existing.get();
             snapshot.setStateJson(req.stateJson);
@@ -55,37 +55,45 @@ public class SnapshotController {
 
         snapshotRepository.save(snapshot);
 
-        // --- Sync with MongoDB ---
-        try {
-            PartidaMongo mongoPartida = new PartidaMongo();
-            mongoPartida.setId(req.matchId.toString());
-            mongoPartida.setIdHost(req.idHost);
-            mongoPartida.setIdGanador(req.idGanador);
-            
-            // Parse JSON state to Object for MongoDB
-            Object stateObj = objectMapper.readValue(req.stateJson, Object.class);
-            mongoPartida.setSnapshot(stateObj);
-            
-            partidaMongoRepository.save(mongoPartida);
-
-            // Update victory if winner is reported
-            if (req.idGanador != null && !req.idGanador.isEmpty()) {
-                UsuarioMongo mongoUser = usuarioMongoRepository.findById(req.idGanador).orElseGet(() -> {
-                    UsuarioMongo u = new UsuarioMongo();
-                    u.setId(req.idGanador);
-                    u.setIdGeneral(0);
-                    u.setVictorias(0);
-                    return u;
-                });
-                mongoUser.setVictorias((mongoUser.getVictorias() != null ? mongoUser.getVictorias() : 0) + 1);
-                usuarioMongoRepository.save(mongoUser);
-            }
-        } catch (Exception e) {
-            System.err.println("Fallo al sincronizar con MongoDB: " + e.getMessage());
-        }
-
         return ResponseEntity.ok("Snapshot guardado con éxito");
     }
+
+    /*
+     * --- Sync with MongoDB ---
+     * try {
+     * PartidaMongo mongoPartida = new PartidaMongo();
+     * mongoPartida.setId(req.matchId.toString());
+     * mongoPartida.setIdHost(req.idHost);
+     * mongoPartida.setIdGanador(req.idGanador);
+     * 
+     * // Parse JSON state to Object for MongoDB
+     * Object stateObj = objectMapper.readValue(req.stateJson, Object.class);
+     * mongoPartida.setSnapshot(stateObj);
+     * 
+     * partidaMongoRepository.save(mongoPartida);
+     * 
+     * // Update victory if winner is reported
+     * if (req.idGanador != null && !req.idGanador.isEmpty()) {
+     * UsuarioMongo mongoUser =
+     * usuarioMongoRepository.findById(req.idGanador).orElseGet(() -> {
+     * UsuarioMongo u = new UsuarioMongo();
+     * u.setId(req.idGanador);
+     * u.setIdGeneral(0);
+     * u.setVictorias(0);
+     * return u;
+     * });
+     * mongoUser.setVictorias((mongoUser.getVictorias() != null ?
+     * mongoUser.getVictorias() : 0) + 1);
+     * usuarioMongoRepository.save(mongoUser);
+     * }
+     * } catch (Exception e) {
+     * System.err.println("Fallo al sincronizar con MongoDB: " + e.getMessage());
+     * }
+     * 
+     * return ResponseEntity.ok("Snapshot guardado con éxito");
+     * }
+     * 
+     */
 
     @GetMapping("/match/{matchId}/ronda/{ronda}")
     public ResponseEntity<?> obtenerSnapshot(@PathVariable Long matchId, @PathVariable int ronda) {

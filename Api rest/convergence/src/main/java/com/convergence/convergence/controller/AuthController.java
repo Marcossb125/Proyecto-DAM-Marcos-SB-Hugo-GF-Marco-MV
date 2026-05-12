@@ -48,6 +48,7 @@ public class AuthController {
     private SecretKey getSecretKey() {
         return Keys.hmacShaKeyFor(jwtSecret.getBytes(StandardCharsets.UTF_8));
     }
+
     public static class AuthRequest {
         public String nickname;
         public String password;
@@ -75,7 +76,7 @@ public class AuthController {
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody AuthRequest req) {
         if (req.nickname == null || req.password == null) {
-            
+
             return ResponseEntity.badRequest().body("nickname and password required");
         }
         Optional<User> user = userRepository.findByNickname(req.nickname);
@@ -86,36 +87,48 @@ public class AuthController {
             return ResponseEntity.status(401).body("invalid credentials");
         }
 
-        // Sync with MongoDB
-        if (!usuarioMongoRepository.existsById(req.nickname)) {
-            UsuarioMongo mongoUser = new UsuarioMongo();
-            mongoUser.setId(req.nickname);
-            mongoUser.setIdGeneral(0);
-            mongoUser.setVictorias(0);
-            usuarioMongoRepository.save(mongoUser);
-        }
-
         return ResponseEntity.ok(req.nickname);
     }
+
+    /*
+     * Sync with MongoDB
+     * try {
+     * if (!usuarioMongoRepository.existsById(req.nickname)) {
+     * UsuarioMongo mongoUser = new UsuarioMongo();
+     * mongoUser.setId(req.nickname);
+     * mongoUser.setIdGeneral(0);
+     * mongoUser.setVictorias(0);
+     * usuarioMongoRepository.save(mongoUser);
+     * }
+     * } catch (Exception e) {
+     * System.err.
+     * println("[WARN] MongoDB no disponible, se omite la sincronización: " +
+     * e.getMessage());
+     * }
+     * 
+     * return ResponseEntity.ok(req.nickname);
+     * }
+     */
 
     @PostMapping("/backend-login")
     public ResponseEntity<?> backendLogin(@RequestBody AuthRequest req) {
         if (req.nickname == null || req.password == null) {
             return ResponseEntity.badRequest().body("nickname and password required");
         }
-        
-        // Autenticar contra las credenciales del usuario de la base de datos (usuario MySQL)
+
+        // Autenticar contra las credenciales del usuario de la base de datos (usuario
+        // MySQL)
         if (!req.nickname.equals(backendUser) || !req.password.equals(backendPassword)) {
             return ResponseEntity.status(401).body("invalid backend credentials");
         }
 
         Date issuedAt = new Date();
         String jwtGen = Jwts.builder()
-            .setSubject(req.nickname)
-            .setIssuedAt(issuedAt)
-            .signWith(getSecretKey())
-            .compact();
-        
+                .setSubject(req.nickname)
+                .setIssuedAt(issuedAt)
+                .signWith(getSecretKey())
+                .compact();
+
         return ResponseEntity.ok(Map.of("token", jwtGen));
     }
 }

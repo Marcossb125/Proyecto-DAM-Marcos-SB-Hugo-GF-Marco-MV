@@ -51,22 +51,28 @@ public class GeneralController {
         user.setGeneralId(req.generalId);
         userRepository.save(user);
 
-        // Sync with MongoDB
-        UsuarioMongo mongoUser = usuarioMongoRepository.findById(req.nickname).orElseGet(() -> {
-            UsuarioMongo u = new UsuarioMongo();
-            u.setId(req.nickname);
-            u.setVictorias(0);
-            return u;
-        });
-        mongoUser.setIdGeneral(req.generalId.intValue());
-        usuarioMongoRepository.save(mongoUser);
-
-        Map<String, Object> response = new HashMap<>();
-        response.put("nickname", req.nickname);
-        response.put("generalId", req.generalId);
-
-        return ResponseEntity.ok(response);
+        return ResponseEntity.ok("General guardado con éxito");
     }
+
+    /*
+     * Sync with MongoDB
+     * UsuarioMongo mongoUser =
+     * usuarioMongoRepository.findById(req.nickname).orElseGet(() -> {
+     * UsuarioMongo u = new UsuarioMongo();
+     * u.setId(req.nickname);
+     * u.setVictorias(0);
+     * return u;
+     * });
+     * mongoUser.setIdGeneral(req.generalId.intValue());
+     * usuarioMongoRepository.save(mongoUser);
+     * 
+     * Map<String, Object> response = new HashMap<>();
+     * response.put("nickname", req.nickname);
+     * response.put("generalId", req.generalId);
+     * 
+     * return ResponseEntity.ok(response);
+     * }
+     */
 
     /**
      * Obtiene el general de un usuario por su nickname.
