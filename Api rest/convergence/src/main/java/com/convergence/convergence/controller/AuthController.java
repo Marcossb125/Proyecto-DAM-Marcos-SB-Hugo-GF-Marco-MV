@@ -26,6 +26,8 @@ import java.util.Optional;
 @RequestMapping("/auth")
 public class AuthController {
 
+    private static final Logger logger = LoggerFactory.getLogger(AuthController.class);
+
     @Autowired
     private UserRepository userRepository;
 
@@ -52,6 +54,25 @@ public class AuthController {
         public String nickname;
         public String password;
         public String email;
+    }
+
+    /**
+     * Sincroniza un usuario con MongoDB.
+     * Si no existe, lo crea con valores iniciales.
+     */
+    private void syncUserWithMongo(String nickname, Long generalId) {
+        try {
+            if (!usuarioMongoRepository.existsById(nickname)) {
+                UsuarioMongo mongoUser = new UsuarioMongo();
+                mongoUser.setId(nickname);
+                mongoUser.setIdGeneral(generalId != null ? generalId.intValue() : 0);
+                mongoUser.setVictorias(0);
+                usuarioMongoRepository.save(mongoUser);
+                logger.info("Usuario {} sincronizado con MongoDB", nickname);
+            }
+        } catch (Exception e) {
+            logger.warn("No se pudo sincronizar el usuario {} con MongoDB: {}", nickname, e.getMessage());
+        }
     }
 
     @PostMapping("/register")

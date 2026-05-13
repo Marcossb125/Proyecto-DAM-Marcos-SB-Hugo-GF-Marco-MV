@@ -8,6 +8,7 @@ import { UserService } from '../../servicios/user.service';
 import { TopActions } from '../top-actions/top-actions';
 import { BottomNavbar } from '../bottom-navbar/bottom-navbar';
 import { Banner } from '../banner/banner';
+import { UserService } from '../../servicios/user.service';
 
 interface PlayerRanking {
   id: string;
