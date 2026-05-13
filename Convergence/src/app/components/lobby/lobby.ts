@@ -89,6 +89,7 @@ export class Lobby implements OnInit {
   gameToDelete = signal<Partida | null>(null);
 
   searchText = signal('');
+  errorModalMessage = signal('');
 
   filteredGames = computed(() => {
     const search = this.searchText().toLowerCase();
@@ -146,10 +147,19 @@ export class Lobby implements OnInit {
           this.router.navigate(['/match', game.id]);
         },
         error: (err) => {
-          alert('No se pudo unir a la partida: ' + err);
+          if (err === 'La partida está llena') {
+            this.errorModalMessage.set('No puedes unirte a esta partida porque ya está llena.');
+          } else {
+            this.errorModalMessage.set('Error táctico: ' + (err || 'desconocido'));
+          }
+          console.error('Error al unirse:', err);
         }
       });
     }
+  }
+
+  closeErrorModal(): void {
+    this.errorModalMessage.set('');
   }
 
   /**

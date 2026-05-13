@@ -83,9 +83,6 @@ public class PartidaController {
         }
 
         Partida partida = partidaOpt.get();
-        if (partida.getJugadoresActuales() >= partida.getJugadoresLimite()) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("La partida está llena");
-        }
 
         Optional<User> userOpt = userRepository.findByNickname(nickname);
         if (userOpt.isEmpty()) {
@@ -98,6 +95,11 @@ public class PartidaController {
         Optional<Participante> existing = participanteRepository.findByPartidaIdAndUsuarioId(id, user.getId());
         if (existing.isPresent()) {
             return ResponseEntity.ok(partida); // Ya está dentro
+        }
+
+        // Si no está dentro, entonces verificamos si hay hueco
+        if (partida.getJugadoresActuales() >= partida.getJugadoresLimite()) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("La partida está llena");
         }
 
         // Verificar el límite de 3 partidas
