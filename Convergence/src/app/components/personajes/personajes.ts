@@ -1,5 +1,5 @@
 import { Component, signal } from '@angular/core';
-import { Router } from '@angular/router';
+import { Router, ActivatedRoute } from '@angular/router';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { TopActions } from '../top-actions/top-actions';
@@ -106,13 +106,23 @@ export class Personajes {
   confirmedCharacterId = signal<number | null>(null);
 
   constructor(
-    private router: Router, 
+    private router: Router,
+    private route: ActivatedRoute,
     private authService: AuthService,
     private userService: UserService,
     private snackBar: MatSnackBar
   ) {}
 
   ngOnInit(): void {
+    if (this.route.snapshot.queryParamMap.get('needLobbySetup') === 'general') {
+      this.snackBar.open(
+        'Para entrar al lobby debes elegir y confirmar un general.',
+        'Entendido',
+        { duration: 6000 }
+      );
+      void this.router.navigate(['/personajes'], { replaceUrl: true, queryParams: {} });
+    }
+
     const nickname = this.authService.obtenerNombreUsuario();
     if (nickname) {
       this.userService.obtenerGeneral(nickname).subscribe({

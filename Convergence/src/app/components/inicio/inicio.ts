@@ -1,8 +1,9 @@
 import { Component, signal } from '@angular/core';
-import { Router } from '@angular/router';
+import { Router, ActivatedRoute } from '@angular/router';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatBadgeModule } from '@angular/material/badge';
+import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { AuthService } from '../../servicios/auth.service';
 import { UserService } from '../../servicios/user.service';
 import { NationFlag, NationData } from '../nation-flag/nation-flag';
@@ -25,7 +26,7 @@ interface ActiveGame {
 
 @Component({
   selector: 'app-inicio',
-  imports: [CommonModule, MatButtonModule, MatIconModule, MatBadgeModule, NationFlag, FlagBuilder, BottomNavbar, Banner, TopActions],
+  imports: [CommonModule, MatButtonModule, MatIconModule, MatBadgeModule, MatSnackBarModule, NationFlag, FlagBuilder, BottomNavbar, Banner, TopActions],
   templateUrl: './inicio.html',
   styleUrl: './inicio.css',
 })
@@ -40,13 +41,24 @@ export class Inicio {
   activeGames = signal<Partida[]>([]);
 
   constructor(
-    private router: Router, 
+    private router: Router,
+    private route: ActivatedRoute,
     private authService: AuthService,
     private userService: UserService,
-    private partidaService: PartidaService
+    private partidaService: PartidaService,
+    private snackBar: MatSnackBar
   ) { }
 
   ngOnInit(): void {
+    if (this.route.snapshot.queryParamMap.get('needLobbySetup') === 'profile') {
+      this.snackBar.open(
+        'Para entrar al lobby necesitas guardar una bandera (diseño y colores) y un nombre de facción. Edita la bandera desde tu perfil.',
+        'Entendido',
+        { duration: 8000 }
+      );
+      void this.router.navigate(['/inicio'], { replaceUrl: true, queryParams: {} });
+    }
+
     const nombre = this.authService.obtenerNombreUsuario();
     this.playerName.set(nombre);
 

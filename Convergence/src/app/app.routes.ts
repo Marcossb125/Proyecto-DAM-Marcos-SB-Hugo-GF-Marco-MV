@@ -1,5 +1,6 @@
 import { Routes } from '@angular/router';
 import { authGuard } from './guards/auth.guard';
+import { lobbySetupGuard } from './guards/lobby-setup.guard';
 
 export const routes: Routes = [
   { path: '', redirectTo: 'login', pathMatch: 'full' },
@@ -21,7 +22,7 @@ export const routes: Routes = [
   },
   {
     path: 'lobby',
-    canActivate: [authGuard],
+    canActivate: [authGuard, lobbySetupGuard],
     loadComponent: () =>
       import('./components/lobby/lobby').then((m) => m.Lobby),
   },
