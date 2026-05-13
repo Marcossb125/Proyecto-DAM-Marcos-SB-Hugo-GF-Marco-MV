@@ -90,6 +90,7 @@ public class GeneralController {
         Map<String, Object> response = new HashMap<>();
         response.put("nickname", nickname);
         response.put("generalId", generalId);
+        response.put("faccion", user.getFaccion());
 
         return ResponseEntity.ok(response);
     }

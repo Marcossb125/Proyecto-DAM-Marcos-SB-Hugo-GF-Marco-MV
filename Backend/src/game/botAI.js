@@ -1,5 +1,6 @@
 import * as gameEngine from './gameEngine.js';
 import { getMatch, refreshWinnerState, saveSnapshot } from './matchStore.js';
+import { reachableTerritoryIds, getMovementMaxSteps } from './movementReach.js';
 
 function delay(ms) {
   return new Promise(resolve => setTimeout(resolve, ms));
@@ -128,9 +129,12 @@ function botActionMovimiento(state, bot) {
   if (army) {
     const currentTerritory = state.territories.find(t => t.id === army.territoryId);
     if (currentTerritory) {
-      // Find adjacent enemy or neutral territories
-      const adjacentEnemies = state.territories.filter(t => currentTerritory.adjacentIds.includes(t.id) && t.ownerId !== bot.id);
-      
+      const maxSteps = getMovementMaxSteps(state, bot.id);
+      const reachIds = new Set(reachableTerritoryIds(state, currentTerritory.id, maxSteps));
+      const adjacentEnemies = state.territories.filter(
+        (t) => reachIds.has(t.id) && t.ownerId !== bot.id
+      );
+
       if (adjacentEnemies.length > 0) {
         const target = adjacentEnemies[Math.floor(Math.random() * adjacentEnemies.length)];
         const res = gameEngine.applyQueueMove(state, bot.id, army.id, target.id);

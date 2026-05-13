@@ -1,3 +1,5 @@
+import { isTerritoryReachableForMove } from './movementReach.js';
+
 const BUILDING_COSTS = {
   CUARTEL: { credits: 200, manpower: 0 },
   FABRICA: { credits: 300, manpower: 0 },
@@ -15,6 +17,17 @@ const BUILDING_INCOME = {
 };
 
 const PHASES = ['RECAUDACION', 'CONSTRUCCION', 'RECLUTAMIENTO', 'MOVIMIENTO'];
+
+function territoryDefenseBonusFromGeneral2(state, territoryOwnerId) {
+  if (!territoryOwnerId) return 0;
+  const owner = state.players.find((p) => p.id === territoryOwnerId);
+  return owner && owner.matchGeneralId === 2 ? 10 : 0;
+}
+
+function attackBonusFromGeneral3(state, attackerOwnerId) {
+  const atk = state.players.find((p) => p.id === attackerOwnerId);
+  return atk && atk.matchGeneralId === 3 ? 10 : 0;
+}
 
 function createLog(matchId, type, actorName, message) {
   return {
@@ -61,6 +74,15 @@ function applyRecaudacion(state) {
       }
     });
 
+    let bonusCredits = 0;
+    let bonusManpower = 0;
+    if (player.matchGeneralId === 4) {
+      bonusCredits = Math.floor(incomeCredits * 0.05);
+      bonusManpower = Math.floor(incomeManpower * 0.05);
+      incomeCredits += bonusCredits;
+      incomeManpower += bonusManpower;
+    }
+
     player.credits += incomeCredits;
     player.manpower += incomeManpower;
 
@@ -69,6 +91,8 @@ function applyRecaudacion(state) {
       playerName: player.name,
       creditsGained: incomeCredits,
       manpowerGained: incomeManpower,
+      bonusCredits,
+      bonusManpower,
       totalCredits: player.credits,
       totalManpower: player.manpower,
       territories,
@@ -177,7 +201,9 @@ function applyQueueMove(state, playerId, armyId, toTerritoryId) {
   if (army.hasActedThisTurn) return { state, logs: [], error: 'El ejército ya actuó en este turno' };
 
   const fromTerritory = state.territories.find(t => t.id === army.territoryId);
-  if (!fromTerritory.adjacentIds.includes(toTerritoryId)) return { state, logs: [], error: 'El territorio destino no es adyacente' };
+  if (!fromTerritory || !isTerritoryReachableForMove(state, fromTerritory.id, toTerritoryId, army.ownerId)) {
+    return { state, logs: [], error: 'El territorio destino no está al alcance' };
+  }
 
   // Instead of pendingMoves (which was in plan), let's just resolve immediately for simplicity, 
   // or use pendingMoves if we want simultaneous resolution. The plan says applyQueueMove and resolveMovementPhase.
@@ -264,12 +290,13 @@ function resolveMovementPhase(state) {
 
     if (defenderArmy && defenderArmy.ownerId !== army.ownerId) {
       // Combat!
-      let attackerTroops = army.troopSize;
+      let attackerTroops = army.troopSize + attackBonusFromGeneral3(state, army.ownerId);
       let defenderTroops = defenderArmy.troopSize;
 
       // Defense bonus from buildings
-      if (toTerritory.buildingType === 'MURO') defenderTroops += 5;
-      if (toTerritory.buildingType === 'TORRE') defenderTroops += 3;
+      if (toTerritory.buildingType === 'MURO') defenderTroops += 10;
+      if (toTerritory.buildingType === 'TORRE') defenderTroops += 15;
+      defenderTroops += territoryDefenseBonusFromGeneral2(state, toTerritory.ownerId);
 
       // Random losses
       const attackerLosses = Math.floor(Math.random() * Math.min(defenderTroops, attackerTroops + 1));
@@ -340,12 +367,14 @@ function resolveMovementPhase(state) {
         // Calculate defenses
         let defenseStrength = 30; // Base defense
         if (toTerritory.buildingType === 'MURO') defenseStrength += 10;
-        if (toTerritory.buildingType === 'TORRE') defenseStrength += 20;
+        if (toTerritory.buildingType === 'TORRE') defenseStrength += 15;
         if (toTerritory.hasSupremeBase) defenseStrength += 10;
+        defenseStrength += territoryDefenseBonusFromGeneral2(state, toTerritory.ownerId);
         defenseStrength = Math.min(defenseStrength, 95);
 
-        // Success chance
-        const baseChance = (army.troopSize * 5) - (defenseStrength * 0.5);
+        // Success chance (+10 ataque plano si general 3)
+        const atkGen = attackBonusFromGeneral3(state, army.ownerId);
+        const baseChance = (army.troopSize * 5) - (defenseStrength * 0.5) + atkGen;
         const successChance = Math.max(5, Math.min(95, Math.round(baseChance)));
 
         const roll = Math.random() * 100;

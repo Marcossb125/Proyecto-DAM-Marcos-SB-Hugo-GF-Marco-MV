@@ -2,20 +2,23 @@
    MATCH MODULE — State Interfaces & Initial State
    ═══════════════════════════════════════════════════════════════ */
 
-// ── Phase & Faction Types ──
+// ── Phase Types ──
 export type GamePhase = 'RECAUDACION' | 'CONSTRUCCION' | 'RECLUTAMIENTO' | 'MOVIMIENTO';
-export type Faction = 'Warlord' | 'Trader' | 'Chief' | 'Scout';
 export type BuildingType = 'CUARTEL' | 'FABRICA' | 'TORRE' | 'MURO' | null;
 
 // ── Player Interface ──
 export interface Player {
   id: string;
   name: string;
-  faction: Faction;
+  /** Nombre de facción del usuario (MySQL Facción), fijado al unirse a la partida */
+  faction: string;
+  matchGeneralId?: number | null;
   color: string;
   credits: number;
   manpower: number;
   isLocal: boolean;
+  isReady?: boolean;
+  isBot?: boolean;
 }
 
 // ── Territory Interface ──
@@ -77,10 +80,10 @@ export const REFINERY_BONUS = { credits: 100 };
 
 // ── Initial Players ──
 const INITIAL_PLAYERS: Player[] = [
-  { id: 'p1', name: 'Commander Alpha', faction: 'Warlord', color: '#00ff41', credits: 500, manpower: 200, isLocal: true },
-  { id: 'p2', name: 'Baron Delta', faction: 'Trader', color: '#ff4444', credits: 500, manpower: 200, isLocal: false },
-  { id: 'p3', name: 'Chief Omega', faction: 'Chief', color: '#4488ff', credits: 500, manpower: 200, isLocal: false },
-  { id: 'p4', name: 'Scout Sigma', faction: 'Scout', color: '#ffaa00', credits: 500, manpower: 200, isLocal: false },
+  { id: 'p1', name: 'Commander Alpha', faction: 'Warlord', matchGeneralId: null, color: '#00ff41', credits: 500, manpower: 200, isLocal: true },
+  { id: 'p2', name: 'Baron Delta', faction: 'Trader', matchGeneralId: null, color: '#ff4444', credits: 500, manpower: 200, isLocal: false },
+  { id: 'p3', name: 'Chief Omega', faction: 'Chief', matchGeneralId: null, color: '#4488ff', credits: 500, manpower: 200, isLocal: false },
+  { id: 'p4', name: 'Scout Sigma', faction: 'Scout', matchGeneralId: null, color: '#ffaa00', credits: 500, manpower: 200, isLocal: false },
 ];
 
 /* ═══════════════════════════════════════════════════════════════

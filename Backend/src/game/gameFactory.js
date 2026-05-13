@@ -1,11 +1,12 @@
 import { buildTerritoriesForPlayerCount } from './mapDefinition.js';
 
 
+// faction es placeholder para bots; al unirse un humano se sustituye por usuario.Faccion (API).
 const ALL_PLAYERS = [
-  { id: 'p1', name: 'Bot Alpha', faction: 'Warlord', color: '#00ff41', credits: 500, manpower: 200, isReady: false, isBot: true, isConnected: false, socketId: null },
-  { id: 'p2', name: 'Bot Delta', faction: 'Trader', color: '#ff4444', credits: 500, manpower: 200, isReady: false, isBot: true, isConnected: false, socketId: null },
-  { id: 'p3', name: 'Bot Omega', faction: 'Chief', color: '#4488ff', credits: 500, manpower: 200, isReady: false, isBot: true, isConnected: false, socketId: null },
-  { id: 'p4', name: 'Bot Sigma', faction: 'Scout', color: '#ffaa00', credits: 500, manpower: 200, isReady: false, isBot: true, isConnected: false, socketId: null },
+  { id: 'p1', name: 'Bot Alpha', faction: 'Warlord', matchGeneralId: null, color: '#00ff41', credits: 500, manpower: 200, isReady: false, isBot: true, isConnected: false, socketId: null },
+  { id: 'p2', name: 'Bot Delta', faction: 'Trader', matchGeneralId: null, color: '#ff4444', credits: 500, manpower: 200, isReady: false, isBot: true, isConnected: false, socketId: null },
+  { id: 'p3', name: 'Bot Omega', faction: 'Chief', matchGeneralId: null, color: '#4488ff', credits: 500, manpower: 200, isReady: false, isBot: true, isConnected: false, socketId: null },
+  { id: 'p4', name: 'Bot Sigma', faction: 'Scout', matchGeneralId: null, color: '#ffaa00', credits: 500, manpower: 200, isReady: false, isBot: true, isConnected: false, socketId: null },
 ];
 
 const ALL_ARMIES = [

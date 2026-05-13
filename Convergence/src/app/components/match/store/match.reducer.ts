@@ -10,6 +10,7 @@ import {
   TERRITORY_BONUS,
   REFINERY_BONUS,
 } from './match.state';
+import { movementHighlightIds } from '../utils/movementReach';
 import {
   ResourceActions,
   BuildingActions,
@@ -42,6 +43,7 @@ export const matchFeature = createFeature({
         id: p.id,
         name: p.name,
         faction: p.faction,
+        matchGeneralId: p.matchGeneralId ?? null,
         color: p.color,
         credits: p.credits,
         manpower: p.manpower,
@@ -196,15 +198,16 @@ export const matchFeature = createFeature({
         };
       }
 
-      // Highlight adjacent territories for movement
       const territory = state.territories.find(t => t.id === army.territoryId);
-      const adjacentIds = territory ? territory.adjacentIds : [];
+      const highlightIds = territory
+        ? movementHighlightIds(state.territories, state.players, army.territoryId, army.ownerId)
+        : [];
 
       return {
         ...state,
         selectedArmyId: armyId,
         selectedTerritoryId: army.territoryId,
-        highlightedTerritoryIds: adjacentIds,
+        highlightedTerritoryIds: highlightIds,
       };
     }),
 

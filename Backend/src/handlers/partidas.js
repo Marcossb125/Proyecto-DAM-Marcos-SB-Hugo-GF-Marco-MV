@@ -176,9 +176,11 @@ export default (io, socket) => {
 
       // Find an available bot slot to replace with human
       let player = state.players.find(p => p.id === playerId);
+      let replacedBotSlot = false;
       if (!player) {
         player = state.players.find(p => p.isBot);
         if (player) {
+          replacedBotSlot = true;
           const oldId = player.id;
           player.id = playerId; 
           player.name = playerId;
@@ -202,6 +204,23 @@ export default (io, socket) => {
       } else {
         player.isConnected = true;
         player.socketId = socket.id;
+      }
+
+      // Snapshot general + facción solo al ocupar hueco de bot (no en reconexión)
+      if (replacedBotSlot && player && !player.isBot) {
+        player.matchGeneralId = null;
+        try {
+          const profileRes = await apiClient.get(`/general/${encodeURIComponent(playerId)}`);
+          const gid = profileRes.data?.generalId;
+          const faccion = profileRes.data?.faccion;
+          const n = gid != null ? Number(gid) : NaN;
+          player.matchGeneralId = Number.isInteger(n) && n >= 1 && n <= 4 ? n : null;
+          if (typeof faccion === 'string' && faccion.trim()) {
+            player.faction = faccion.trim();
+          }
+        } catch (e) {
+          console.warn(`[joinMatch] No se pudo cargar perfil de partida para ${playerId}:`, e.response?.data || e.message);
+        }
       }
 
       const log = {

@@ -7,7 +7,8 @@ import { Actions, createEffect, ofType } from '@ngrx/effects';
 import { Store } from '@ngrx/store';
 import { tap, withLatestFrom } from 'rxjs/operators';
 import { MapActions, PhaseActions, MatchSocketActions } from './match.actions';
-import { selectPhase, selectArmies, selectTerritories, selectLocalPlayer } from './match.selectors';
+import { selectPhase, selectArmies, selectTerritories, selectLocalPlayer, selectPlayers } from './match.selectors';
+import { movementHighlightIds } from '../utils/movementReach';
 import { SocketService } from '../../../servicios/socket.service';
 
 @Injectable()
@@ -69,9 +70,10 @@ export class MatchEffects {
         this.store.select(selectPhase),
         this.store.select(selectArmies),
         this.store.select(selectTerritories),
+        this.store.select(selectPlayers),
         this.store.select(selectLocalPlayer),
       ),
-      tap(([action, phase, armies, territories, localPlayer]) => {
+      tap(([action, phase, armies, territories, players, localPlayer]) => {
         if (phase !== 'MOVIMIENTO') return;
         if (!localPlayer) return;
 
@@ -81,9 +83,8 @@ export class MatchEffects {
         const territory = territories.find(t => t.id === army.territoryId);
         if (!territory) return;
 
-        this.store.dispatch(MapActions.highlightTerritories({
-          territoryIds: territory.adjacentIds,
-        }));
+        const territoryIds = movementHighlightIds(territories, players, army.territoryId, army.ownerId);
+        this.store.dispatch(MapActions.highlightTerritories({ territoryIds }));
       }),
     ),
     { dispatch: false }
