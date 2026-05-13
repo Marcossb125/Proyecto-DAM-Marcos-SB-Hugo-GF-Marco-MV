@@ -3,6 +3,10 @@ package com.convergence.convergence.controller;
 import com.convergence.convergence.model.User;
 import com.convergence.convergence.repository.UserRepository;
 import com.convergence.convergence.service.MongoSyncService;
+import com.convergence.convergence.model.mongodb.UsuarioMongo;
+import com.convergence.convergence.repository.mongodb.UsuarioMongoRepository;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import io.jsonwebtoken.Jwts;
 import javax.crypto.SecretKey;
@@ -30,6 +34,9 @@ public class AuthController {
 
     @Autowired
     private UserRepository userRepository;
+
+    @Autowired
+    private UsuarioMongoRepository usuarioMongoRepository;
 
     @Autowired
     private MongoSyncService mongoSyncService;
