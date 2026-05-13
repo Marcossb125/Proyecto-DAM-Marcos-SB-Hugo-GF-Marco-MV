@@ -81,7 +81,7 @@ export class UserService {
   /**
    * Obtiene el ranking global de usuarios desde MongoDB.
    */
-  obtenerRanking(): Observable<any> {
+  getRanking(): Observable<any[]> {
     return new Observable((subscriber) => {
       this.socketService.emitWithCallback('getRanking', null, (response: any) => {
         if (response.success) {

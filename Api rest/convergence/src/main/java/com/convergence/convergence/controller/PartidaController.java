@@ -6,6 +6,7 @@ import com.convergence.convergence.model.Participante;
 import com.convergence.convergence.repository.PartidaRepository;
 import com.convergence.convergence.repository.UserRepository;
 import com.convergence.convergence.repository.ParticipanteRepository;
+import com.convergence.convergence.service.MongoSyncService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -27,6 +28,9 @@ public class PartidaController {
 
     @Autowired
     private ParticipanteRepository participanteRepository;
+
+    @Autowired
+    private MongoSyncService mongoSyncService;
 
     public static class PartidaRequest {
         public String nombre;
@@ -70,6 +74,13 @@ public class PartidaController {
         // Añadir al host como participante
         Participante participante = new Participante(guardada.getId(), user.getId());
         participanteRepository.save(participante);
+
+        // Sync partida a MongoDB
+        try {
+            mongoSyncService.syncPartida(guardada);
+        } catch (Exception e) {
+            System.err.println("[WARN] MongoDB sync omitido en crearPartida: " + e.getMessage());
+        }
 
         return ResponseEntity.ok(guardada);
     }
