@@ -280,9 +280,13 @@ export class Match implements OnInit, OnDestroy {
 
       // Check if enemy owns the territory (city) but no army present
       if (territory.ownerId && territory.ownerId !== currentPlayerId && territory.buildingType) {
-        // ── CITY CONQUEST ──
-        const defenseStrength = this.calculateCityDefense(territory);
-        const successChance = this.calculateSuccessChance(movingArmy.troopSize, defenseStrength);
+        // ── CITY CONQUEST ── (misma lógica que Backend gameEngine: MURO +10, TORRE +15, base +10, gen 2/3)
+        const defenseStrength = this.calculateSiegeDefenseStrength(territory, players);
+        const successChance = this.calculateSiegeSuccessChance(
+          movingArmy.troopSize,
+          defenseStrength,
+          currentPlayer,
+        );
 
         const dialogRef = this.dialog.open(CityDialog, {
           data: {
@@ -341,17 +345,25 @@ export class Match implements OnInit, OnDestroy {
     }
   }
 
-  private calculateCityDefense(territory: Territory): number {
-    let defense = 30; // Base defense
-    if (territory.buildingType === 'MURO') defense += 30;
-    if (territory.buildingType === 'TORRE') defense += 20;
-    if (territory.hasSupremeBase) defense += 20;
+  /** Alineado con `gameEngine.js` asalto a ciudad (defenseStrength, tope 95). */
+  private calculateSiegeDefenseStrength(territory: Territory, players: Player[]): number {
+    let defense = 30;
+    if (territory.buildingType === 'MURO') defense += 10;
+    if (territory.buildingType === 'TORRE') defense += 15;
+    if (territory.hasSupremeBase) defense += 10;
+    const owner = territory.ownerId ? players.find((p) => p.id === territory.ownerId) : undefined;
+    if (owner?.matchGeneralId === 2) defense += 10;
     return Math.min(defense, 95);
   }
 
-  private calculateSuccessChance(troopSize: number, defenseStrength: number): number {
-    // More troops = higher chance, stronger defense = lower chance
-    const baseChance = (troopSize * 5) - (defenseStrength * 0.5);
+  /** Alineado con `gameEngine.js`: baseChance = tropas*5 - defensa*0.5 + (general 3 ? 10 : 0). */
+  private calculateSiegeSuccessChance(
+    troopSize: number,
+    defenseStrength: number,
+    attacker: Player | undefined,
+  ): number {
+    const atkGen = attacker?.matchGeneralId === 3 ? 10 : 0;
+    const baseChance = troopSize * 5 - defenseStrength * 0.5 + atkGen;
     return Math.max(5, Math.min(95, Math.round(baseChance)));
   }
 
