@@ -1,7 +1,11 @@
 package com.convergence.convergence.controller;
 
 import com.convergence.convergence.model.MatchSnapshot;
+import com.convergence.convergence.model.Partida;
+import com.convergence.convergence.model.User;
 import com.convergence.convergence.repository.MatchSnapshotRepository;
+import com.convergence.convergence.repository.PartidaRepository;
+import com.convergence.convergence.repository.UserRepository;
 import com.convergence.convergence.model.mongodb.PartidaMongo;
 import com.convergence.convergence.model.mongodb.UsuarioMongo;
 import com.convergence.convergence.repository.mongodb.PartidaMongoRepository;
@@ -25,6 +29,12 @@ public class SnapshotController {
 
     @Autowired
     private UsuarioMongoRepository usuarioMongoRepository;
+
+    @Autowired
+    private PartidaRepository partidaRepository;
+
+    @Autowired
+    private UserRepository userRepository;
 
     private final ObjectMapper objectMapper = new ObjectMapper();
 
@@ -54,6 +64,18 @@ public class SnapshotController {
         }
 
         snapshotRepository.save(snapshot);
+        if (req.idGanador != null && !req.idGanador.isBlank()) {
+            Optional<Partida> partidaOpt = partidaRepository.findById(req.matchId);
+            if (partidaOpt.isPresent()) {
+                Partida partida = partidaOpt.get();
+                Optional<User> winnerOpt = userRepository.findByNickname(req.idGanador);
+                if (winnerOpt.isPresent()) {
+                    partida.setIdGanador(winnerOpt.get().getId());
+                }
+                partida.setEstado("Finalizada");
+                partidaRepository.save(partida);
+            }
+        }
 
         return ResponseEntity.ok("Snapshot guardado con éxito");
     }

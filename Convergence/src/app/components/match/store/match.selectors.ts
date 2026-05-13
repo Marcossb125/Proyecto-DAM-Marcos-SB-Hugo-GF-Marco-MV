@@ -13,6 +13,8 @@ import {
   selectSelectedTerritoryId,
   selectSelectedArmyId,
   selectHighlightedTerritoryIds,
+  selectIsFinished,
+  selectWinnerId,
 } from './match.reducer';
 
 // Re-export basic selectors from the feature
@@ -25,6 +27,8 @@ export {
   selectSelectedTerritoryId,
   selectSelectedArmyId,
   selectHighlightedTerritoryIds,
+  selectIsFinished,
+  selectWinnerId,
 } from './match.reducer';
 
 export { selectMatchState } from './match.reducer';
@@ -103,6 +107,12 @@ export const selectHasSupremeBase = createSelector(
 export const selectCurrentTurn = createSelector(
   selectMatchState,
   (state) => state.currentTurn
+);
+
+export const selectWinnerPlayer = createSelector(
+  selectPlayers,
+  selectWinnerId,
+  (players, winnerId) => players.find(p => p.id === winnerId) ?? null
 );
 
 /** Full map render data: territories with army info merged */

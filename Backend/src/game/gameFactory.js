@@ -37,6 +37,8 @@ function createInitialGameState(matchId, limiteJugadores = 4) {
     matchId,
     currentPhase: 'CONSTRUCCION',
     currentTurn: 1,
+    isFinished: false,
+    winnerId: null,
     limiteJugadores: count,
     players,
     territories,

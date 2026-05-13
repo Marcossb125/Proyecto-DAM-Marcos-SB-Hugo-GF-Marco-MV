@@ -8,7 +8,7 @@ import { Router, ActivatedRoute } from '@angular/router';
 import { Store } from '@ngrx/store';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { Subscription } from 'rxjs';
-import { filter, withLatestFrom } from 'rxjs/operators';
+import { filter, withLatestFrom, pairwise, startWith } from 'rxjs/operators';
 
 import { MapComponent } from './map/map';
 import { HudComponent } from './hud/hud';
@@ -30,6 +30,8 @@ import {
   selectLocalPlayer,
   selectHighlightedTerritoryIds,
   selectPlayers,
+  selectIsFinished,
+  selectWinnerId,
 } from './store/match.selectors';
 import { Territory, Army, Player } from './store/match.state';
 
@@ -37,6 +39,7 @@ import { BuildDialog, BuildDialogResult } from './dialogs/build22/build-dialog.c
 import { RecruitDialog, RecruitDialogResult } from './dialogs/recruit/recruit-dialog.component';
 import { BattleDialog, BattleDialogResult } from './dialogs/battle/battle-dialog.component';
 import { CityDialog, CityDialogResult } from './dialogs/city/city-dialog.component';
+import { WinnerDialog } from './dialogs/winner/winner-dialog.component';
 
 @Component({
   selector: 'app-match',
@@ -53,6 +56,7 @@ export class Match implements OnInit, OnDestroy {
   private readonly authService = inject(AuthService);
   private readonly socketService = inject(SocketService);
   private subscriptions: Subscription[] = [];
+  private winnerModalShown = false;
 
   ngOnInit(): void {
     const matchId = this.route.snapshot.paramMap.get('id');
@@ -67,6 +71,7 @@ export class Match implements OnInit, OnDestroy {
 
     this.setupTerritoryClickHandler();
     this.setupCombatSummaryListener();
+    this.setupWinnerListener();
   }
 
   ngOnDestroy(): void {
@@ -402,6 +407,34 @@ export class Match implements OnInit, OnDestroy {
           });
         }
       }
+    });
+
+    this.subscriptions.push(sub);
+  }
+
+  private setupWinnerListener(): void {
+    const sub = this.store.select(selectIsFinished).pipe(
+      startWith(false),
+      pairwise(),
+      filter(([previous, current]) => !previous && current),
+      withLatestFrom(
+        this.store.select(selectWinnerId),
+        this.store.select(selectPlayers),
+        this.store.select(selectLocalPlayer)
+      )
+    ).subscribe(([_, winnerId, players, localPlayer]) => {
+      if (this.winnerModalShown || !winnerId || !localPlayer) return;
+      this.winnerModalShown = true;
+
+      const winnerPlayer = players.find(p => p.id === winnerId);
+      this.dialog.open(WinnerDialog, {
+        data: {
+          winnerName: winnerPlayer?.name ?? winnerId,
+          isLocalWinner: localPlayer.id === winnerId
+        },
+        panelClass: 'military-dialog',
+        disableClose: true
+      });
     });
 
     this.subscriptions.push(sub);

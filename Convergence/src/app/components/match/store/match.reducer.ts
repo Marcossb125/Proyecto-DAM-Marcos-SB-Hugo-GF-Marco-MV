@@ -36,6 +36,8 @@ export const matchFeature = createFeature({
       phase: newState.currentPhase,
       currentTurn: newState.currentTurn,
       currentPlayerId: newState.currentPlayerId ?? state.currentPlayerId,
+      isFinished: Boolean(newState.isFinished),
+      winnerId: newState.winnerId ?? null,
       players: newState.players.map((p: any) => ({
         id: p.id,
         name: p.name,
@@ -234,4 +236,6 @@ export const {
   selectSelectedTerritoryId,
   selectSelectedArmyId,
   selectHighlightedTerritoryIds,
+  selectIsFinished,
+  selectWinnerId,
 } = matchFeature;

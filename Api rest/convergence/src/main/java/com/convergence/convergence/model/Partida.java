@@ -38,6 +38,9 @@ public class Partida {
     @Column(name = "Host_id", nullable = false)
     private Long hostId;
 
+    @Column(name = "Id_ganador", nullable = true)
+    private Long idGanador;
+
     @Transient
     private String hostNombre;
 
@@ -125,6 +128,14 @@ public class Partida {
 
     public void setHostNombre(String hostNombre) {
         this.hostNombre = hostNombre;
+    }
+
+    public Long getIdGanador() {
+        return idGanador;
+    }
+
+    public void setIdGanador(Long idGanador) {
+        this.idGanador = idGanador;
     }
     
 }

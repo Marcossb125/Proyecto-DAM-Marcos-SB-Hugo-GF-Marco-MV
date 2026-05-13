@@ -1,0 +1,33 @@
+.dialog-container {
+  padding: 24px;
+  text-align: center;
+  min-width: 320px;
+  background: #111;
+  color: #fff;
+}
+
+.dialog-header {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.dialog-header mat-icon {
+  font-size: 28px;
+  width: 28px;
+  height: 28px;
+}
+
+.main-message {
+  margin: 0 0 20px 0;
+}
+
+.victory .dialog-header mat-icon {
+  color: #00ff41;
+}
+
+.defeat .dialog-header mat-icon {
+  color: #ff5252;
+}

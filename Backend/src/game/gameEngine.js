@@ -29,7 +29,7 @@ function createLog(matchId, type, actorName, message) {
 function applyRecaudacion(state) {
   const logs = [];
   const incomeSummary = [];
-  
+
   state.players.forEach(player => {
     let incomeCredits = BASE_INCOME.credits;
     let incomeManpower = BASE_INCOME.manpower;
@@ -39,7 +39,7 @@ function applyRecaudacion(state) {
     let refineries = 0;
     let fabricas = 0;
     let cuarteles = 0;
-    
+
     ownedTerritories.forEach(t => {
       incomeCredits += TERRITORY_BONUS.credits;
       incomeManpower += TERRITORY_BONUS.manpower;
@@ -79,7 +79,7 @@ function applyRecaudacion(state) {
   });
 
   logs.push(createLog(state.matchId, 'phase', 'Sistema', `⚡ Fase RECAUDACION — Ronda ${state.currentTurn}`));
-  
+
   return { state, logs, incomeSummary };
 }
 
@@ -132,7 +132,7 @@ function applyRecruit(state, playerId, territoryId, troopSize) {
   if (!player || !territory) return { state, logs: [], error: 'Jugador o territorio no encontrado' };
   if (state.currentPhase !== 'RECLUTAMIENTO') return { state, logs: [], error: 'Fase incorrecta' };
   if (territory.ownerId !== playerId) return { state, logs: [], error: 'No eres el dueño de este territorio' };
-  
+
   const canRecruit = territory.hasSupremeBase || territory.buildingType === 'CUARTEL';
   if (!canRecruit) return { state, logs: [], error: 'Necesitas un cuartel o base suprema para reclutar' };
 
@@ -185,10 +185,10 @@ function applyQueueMove(state, playerId, armyId, toTerritoryId) {
   // Let's look at the plan: "applyQueueMove ... resolveMovementPhase".
   // If we queue moves, the player doesn't see the move until resolveMovementPhase. 
   // Let's implement queue moves.
-  
+
   // Remove existing move for this army
   state.pendingMoves = state.pendingMoves.filter(m => m.armyId !== armyId);
-  
+
   state.pendingMoves.push({ armyId, fromTerritoryId: army.territoryId, toTerritoryId });
   army.hasActedThisTurn = true;
 
@@ -199,7 +199,7 @@ function applyQueueMove(state, playerId, armyId, toTerritoryId) {
 function applyCancelMove(state, playerId, armyId) {
   const player = state.players.find(p => p.id === playerId);
   const army = state.armies.find(a => a.id === armyId);
-  
+
   if (!player || !army) return { state, logs: [], error: 'Jugador o ejército no encontrado' };
   if (army.ownerId !== playerId) return { state, logs: [], error: 'No es tu ejército' };
 
@@ -228,11 +228,11 @@ function applyPlayerReady(state, playerId) {
   const total = state.players.length;
 
   const logs = [createLog(state.matchId, 'action', player.name, `está listo (${readyCount}/${total})`)];
-  
+
   let phaseAdvanced = false;
   let phaseLogs = [];
   let recaudacionSummary = null;
-  
+
   let combatResults = null;
 
   if (readyCount >= total) {
@@ -339,9 +339,9 @@ function resolveMovementPhase(state) {
       if (isCityConquest) {
         // Calculate defenses
         let defenseStrength = 30; // Base defense
-        if (toTerritory.buildingType === 'MURO') defenseStrength += 30;
+        if (toTerritory.buildingType === 'MURO') defenseStrength += 10;
         if (toTerritory.buildingType === 'TORRE') defenseStrength += 20;
-        if (toTerritory.hasSupremeBase) defenseStrength += 20;
+        if (toTerritory.hasSupremeBase) defenseStrength += 10;
         defenseStrength = Math.min(defenseStrength, 95);
 
         // Success chance
@@ -360,7 +360,7 @@ function resolveMovementPhase(state) {
           army.territoryId = toTerritory.id;
           toTerritory.occupiedByArmyId = army.id;
           toTerritory.ownerId = army.ownerId;
-          
+
           combatResults.push({
             type: 'conquest',
             matchId: state.matchId,
@@ -415,7 +415,7 @@ function resolveMovementPhase(state) {
   });
 
   state.pendingMoves = [];
-  
+
   return { state, combatResults, logs };
 }
 
@@ -431,18 +431,18 @@ function advancePhase(state) {
     state.currentTurn++;
     // Reset army actions
     state.armies.forEach(a => a.hasActedThisTurn = false);
-    
+
     // Resolve movement if we just ended movement phase
     // Actually, movement resolution should happen AT the end of the movement phase, before transitioning to Recaudacion.
   }
 
   let combatResults = null;
   if (state.currentPhase === 'MOVIMIENTO') {
-      const res = resolveMovementPhase(state);
-      state = res.state;
-      logs.push(...res.logs);
-      combatResults = res.combatResults;
-      logs.push(createLog(state.matchId, 'system', 'Sistema', `💾 Ronda ${state.currentTurn - 1} finalizada`));
+    const res = resolveMovementPhase(state);
+    state = res.state;
+    logs.push(...res.logs);
+    combatResults = res.combatResults;
+    logs.push(createLog(state.matchId, 'system', 'Sistema', `💾 Ronda ${state.currentTurn - 1} finalizada`));
   }
 
   state.currentPhase = nextPhase;
@@ -458,7 +458,7 @@ function advancePhase(state) {
       round: state.currentTurn,
       incomeSummary: recRes.incomeSummary,
     };
-    
+
     // Transición automática a CONSTRUCCION tras recibir los recursos
     state.currentPhase = 'CONSTRUCCION';
     logs.push(createLog(state.matchId, 'phase', 'Sistema', `⚡ Nueva fase: CONSTRUCCION`));

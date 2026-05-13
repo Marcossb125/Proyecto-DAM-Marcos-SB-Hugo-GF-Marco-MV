@@ -1,0 +1,16 @@
+<div class="dialog-container" [class.victory]="data.isLocalWinner" [class.defeat]="!data.isLocalWinner">
+  <div class="dialog-header">
+    <mat-icon>{{ data.isLocalWinner ? 'emoji_events' : 'gpp_bad' }}</mat-icon>
+    <h2>{{ data.isLocalWinner ? 'Victoria' : 'Partida finalizada' }}</h2>
+  </div>
+
+  <p class="main-message">
+    @if (data.isLocalWinner) {
+      Has conquistado todas las bases supremas.
+    } @else {
+      {{ data.winnerName }} ha conquistado todas las bases supremas.
+    }
+  </p>
+
+  <button mat-raised-button color="primary" (click)="onClose()">Continuar</button>
+</div>

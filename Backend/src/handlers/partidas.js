@@ -12,7 +12,7 @@ import {
   retreatPayload
 } from '../schemas/index.js';
 
-import { initMatch, getMatch, removeMatch, loadLatestSnapshot, saveSnapshot } from '../game/matchStore.js';
+import { initMatch, getMatch, removeMatch, loadLatestSnapshot, saveSnapshot, refreshWinnerState } from '../game/matchStore.js';
 import * as gameEngine from '../game/gameEngine.js';
 import { runBotsForCurrentPhase } from '../game/botAI.js';
 
@@ -109,6 +109,23 @@ export default (io, socket) => {
     if (logEntry) io.to(matchId).emit('GAME_LOG_ENTRY', logEntry);
   };
 
+  const handleMatchFinalization = async (matchId, state) => {
+    const winnerId = refreshWinnerState(state);
+    if (!winnerId) return false;
+
+    emitGameUpdate(matchId, state, {
+      matchId,
+      timestamp: new Date().toISOString(),
+      type: 'system',
+      actorName: 'Sistema',
+      message: `Partida finalizada. Ganador: ${winnerId}`
+    });
+
+    await saveSnapshot(matchId);
+
+    return true;
+  };
+
   const checkBotsAndPhase = (matchId) => {
     const emitSummary = (summary, combatResults) => {
       if (summary) io.to(matchId).emit('RECAUDACION_SUMMARY', summary);
@@ -147,7 +164,13 @@ export default (io, socket) => {
       try {
         await apiClient.post(`/partidas/${matchId}/unirse?nickname=${playerId}`);
       } catch (error) {
-        // Si la API falla (ej. jugador ya registrado), lo registramos pero continuamos
+        // Si la partida está llena, bloqueamos el acceso
+        if (error.response?.data === "La partida está llena") {
+          console.warn(`[joinMatch] Bloqueado: Partida ${matchId} está llena.`);
+          if (callback) callback({ success: false, error: "La partida está llena" });
+          return;
+        }
+        // Si la API falla por otra razón (ej. jugador ya registrado), lo registramos pero continuamos
         console.warn(`[joinMatch] API warn para ${playerId}:`, error.response?.data || error.message);
       }
 
@@ -223,6 +246,10 @@ export default (io, socket) => {
         if (callback) callback({ success: false, error: "Partida no encontrada" });
         return;
       }
+      if (state.isFinished) {
+        if (callback) callback({ success: false, error: "La partida ya ha finalizado" });
+        return;
+      }
 
 
       const res = gameEngine.applyPlayerReady(state, playerId);
@@ -243,12 +270,17 @@ export default (io, socket) => {
         }
         emitGameUpdate(matchId, res.state, null);
         socket.emit('GAME_STATE_UPDATE', res.state); 
-        saveSnapshot(matchId);
-        checkBotsAndPhase(matchId);
+        const isFinished = await handleMatchFinalization(matchId, res.state);
+        if (!isFinished) {
+          saveSnapshot(matchId);
+          checkBotsAndPhase(matchId);
+        }
       } else {
         emitGameUpdate(matchId, res.state, null);
         socket.emit('GAME_STATE_UPDATE', res.state); 
-        checkBotsAndPhase(matchId);
+        if (!res.state.isFinished) {
+          checkBotsAndPhase(matchId);
+        }
       }
 
       if (callback) callback({ success: true });
@@ -272,6 +304,10 @@ export default (io, socket) => {
       if (!state) {
         console.log('Match not found for build:', matchId);
         if (callback) callback({ success: false, error: "Partida no encontrada" });
+        return;
+      }
+      if (state.isFinished) {
+        if (callback) callback({ success: false, error: "La partida ya ha finalizado" });
         return;
       }
 
@@ -309,6 +345,10 @@ export default (io, socket) => {
         if (callback) callback({ success: false, error: "Partida no encontrada" });
         return;
       }
+      if (state.isFinished) {
+        if (callback) callback({ success: false, error: "La partida ya ha finalizado" });
+        return;
+      }
 
       const res = gameEngine.applyDestroyBuilding(state, playerId, territoryId);
       if (res.error) {
@@ -337,6 +377,10 @@ export default (io, socket) => {
       const state = getMatch(matchId);
       if (!state) {
         if (callback) callback({ success: false, error: "Partida no encontrada" });
+        return;
+      }
+      if (state.isFinished) {
+        if (callback) callback({ success: false, error: "La partida ya ha finalizado" });
         return;
       }
 
@@ -369,6 +413,10 @@ export default (io, socket) => {
         if (callback) callback({ success: false, error: "Partida no encontrada" });
         return;
       }
+      if (state.isFinished) {
+        if (callback) callback({ success: false, error: "La partida ya ha finalizado" });
+        return;
+      }
 
       const res = gameEngine.applyQueueMove(state, playerId, armyId, toTerritoryId);
       if (res.error) {
@@ -399,6 +447,10 @@ export default (io, socket) => {
         if (callback) callback({ success: false, error: "Partida no encontrada" });
         return;
       }
+      if (state.isFinished) {
+        if (callback) callback({ success: false, error: "La partida ya ha finalizado" });
+        return;
+      }
 
       const res = gameEngine.applyCancelMove(state, playerId, armyId);
       if (res.error) {
@@ -427,6 +479,10 @@ export default (io, socket) => {
       const state = getMatch(matchId);
       if (!state) {
         if (callback) callback({ success: false, error: "Partida no encontrada" });
+        return;
+      }
+      if (state.isFinished) {
+        if (callback) callback({ success: false, error: "La partida ya ha finalizado" });
         return;
       }
 

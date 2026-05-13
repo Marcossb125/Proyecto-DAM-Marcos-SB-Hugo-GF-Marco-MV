@@ -47,7 +47,8 @@ CREATE TABLE `partidas` (
   `Rondas` int(11) NOT NULL DEFAULT 0,
   `Estado` varchar(100) NOT NULL DEFAULT '"En curso"',
   `Fase` int(11) NOT NULL DEFAULT 0,
-  `Host_id` int(11) NOT NULL
+  `Host_id` int(11) NOT NULL,
+  `Id_ganador` int(11) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- --------------------------------------------------------
@@ -130,6 +131,9 @@ ALTER TABLE `participantes`
 --
 ALTER TABLE `partidas`
   MODIFY `Id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=9;
+
+ALTER TABLE `partidas`
+  ADD COLUMN IF NOT EXISTS `Id_ganador` int(11) DEFAULT NULL;
 
 --
 -- AUTO_INCREMENT de la tabla `match_snapshots`

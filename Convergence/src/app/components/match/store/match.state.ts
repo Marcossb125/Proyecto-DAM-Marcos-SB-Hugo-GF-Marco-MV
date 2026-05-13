@@ -53,6 +53,8 @@ export interface MatchState {
   selectedArmyId: string | null;
   highlightedTerritoryIds: string[];
   localPlayerId: string | null;
+  isFinished: boolean;
+  winnerId: string | null;
 }
 
 // ── Building Costs ──
@@ -195,5 +197,7 @@ export const initialMatchState: MatchState = {
   selectedArmyId: null,
   highlightedTerritoryIds: [],
   localPlayerId: null,
+  isFinished: false,
+  winnerId: null,
 };
 

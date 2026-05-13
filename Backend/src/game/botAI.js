@@ -1,5 +1,5 @@
 import * as gameEngine from './gameEngine.js';
-import { getMatch } from './matchStore.js';
+import { getMatch, refreshWinnerState, saveSnapshot } from './matchStore.js';
 
 function delay(ms) {
   return new Promise(resolve => setTimeout(resolve, ms));
@@ -9,7 +9,7 @@ function delay(ms) {
 // after a phase change to trigger bot actions
 async function runBotsForCurrentPhase(matchId, emitUpdateAndLog, emitSummary) {
   const state = getMatch(matchId);
-  if (!state) return;
+  if (!state || state.isFinished) return;
 
   const bots = state.players.filter(p => p.isBot);
   if (bots.length === 0) return;
@@ -62,7 +62,21 @@ async function runBotsForCurrentPhase(matchId, emitUpdateAndLog, emitSummary) {
           emitSummary(null, readyRes.combatResults);
         }
         // Emit state update as phase advanced
-        emitUpdateAndLog(getMatch(matchId), null);
+        const updatedState = getMatch(matchId);
+        if (!updatedState) break;
+        const winnerId = refreshWinnerState(updatedState);
+        emitUpdateAndLog(updatedState, null);
+        await saveSnapshot(matchId);
+        if (winnerId) {
+          emitUpdateAndLog(null, {
+            matchId,
+            timestamp: new Date().toISOString(),
+            type: 'system',
+            actorName: 'Sistema',
+            message: `Partida finalizada. Ganador: ${winnerId}`
+          });
+          break;
+        }
         // Trigger bots for the new phase
         setTimeout(() => runBotsForCurrentPhase(matchId, emitUpdateAndLog, emitSummary), 0);
         break;

@@ -67,12 +67,26 @@ async function loadLatestSnapshot(matchId) {
 }
 
 function checkWinner(state) {
-  // Simple logic: if only one player owns territories, they win.
-  const activePlayers = new Set(state.territories.map(t => t.ownerId).filter(id => id !== null));
-  if (activePlayers.size === 1) {
-    return Array.from(activePlayers)[0];
+  const supremeTerritories = state.territories.filter(t => t.hasSupremeBase);
+  if (supremeTerritories.length === 0) return null;
+
+  const hasUnownedSupremeBase = supremeTerritories.some(t => t.ownerId === null);
+  if (hasUnownedSupremeBase) return null;
+
+  const owners = new Set(supremeTerritories.map(t => t.ownerId));
+  if (owners.size === 1) {
+    return Array.from(owners)[0];
   }
   return null;
+}
+
+function refreshWinnerState(state) {
+  const winnerId = checkWinner(state);
+  if (winnerId) {
+    state.isFinished = true;
+    state.winnerId = winnerId;
+  }
+  return winnerId;
 }
 
 export {
@@ -82,5 +96,7 @@ export {
   removeMatch,
   saveSnapshot,
   loadSnapshot,
-  loadLatestSnapshot
+  loadLatestSnapshot,
+  checkWinner,
+  refreshWinnerState
 };
