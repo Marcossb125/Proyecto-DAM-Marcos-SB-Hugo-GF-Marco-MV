@@ -8,9 +8,10 @@ import { PartidaService } from '../../servicios/partida.service';
 import { TopActions } from '../top-actions/top-actions';
 import { BottomNavbar } from '../bottom-navbar/bottom-navbar';
 import { Banner } from '../banner/banner';
+import { UserService } from '../../servicios/user.service';
 
 interface PlayerRanking {
-  id: number;
+  id: string; // Nickname
   name: string;
   victories: number;
   status: 'online' | 'offline';
@@ -27,20 +28,12 @@ interface PlayerRanking {
 export class Ranking {
   private router = inject(Router);
   private partidaService = inject(PartidaService);
+  private userService = inject(UserService);
 
   searchQuery = signal('');
   
-  // Mock data for ranking
-  players = signal<PlayerRanking[]>([
-    { id: 1, name: 'Sir Lancelot', victories: 150, status: 'online', rank: 1 },
-    { id: 2, name: 'General Kenobi', victories: 132, status: 'online', rank: 2 },
-    { id: 3, name: 'Dark Overlord', victories: 120, status: 'offline', rank: 3 },
-    { id: 4, name: 'Tactical Mind', victories: 98, status: 'online', rank: 4 },
-    { id: 5, name: 'Shadow Walker', victories: 85, status: 'offline', rank: 5 },
-    { id: 6, name: 'Iron Wall', victories: 72, status: 'online', rank: 6 },
-    { id: 7, name: 'Eagle Eye', victories: 65, status: 'offline', rank: 7 },
-    { id: 8, name: 'Storm Bringer', victories: 54, status: 'online', rank: 8 },
-  ]);
+  // Players data
+  players = signal<PlayerRanking[]>([]);
 
   filteredPlayers = computed(() => {
     const query = this.searchQuery().toLowerCase();
@@ -48,5 +41,25 @@ export class Ranking {
     return this.players().filter(p => p.name.toLowerCase().includes(query));
   });
 
-  constructor() { }
+  constructor() { 
+    this.cargarRanking();
+  }
+
+  cargarRanking() {
+    this.userService.obtenerRanking().subscribe({
+      next: (data) => {
+        const mappedPlayers = data.map((p: any, index: number) => ({
+          id: p.id,
+          name: p.id, // Using nickname as name
+          victories: p.victories || 0,
+          status: 'offline', // Default for now
+          rank: index + 1
+        }));
+        this.players.set(mappedPlayers);
+      },
+      error: (err) => {
+        console.error('Error al cargar el ranking:', err);
+      }
+    });
+  }
 }

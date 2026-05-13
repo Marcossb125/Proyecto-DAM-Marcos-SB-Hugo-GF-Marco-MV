@@ -77,45 +77,39 @@ public class SnapshotController {
             }
         }
 
+        // --- Sincronización con MongoDB ---
+        try {
+            PartidaMongo mongoPartida = new PartidaMongo();
+            mongoPartida.setId(req.matchId.toString());
+            mongoPartida.setIdHost(req.idHost);
+            mongoPartida.setIdGanador(req.idGanador);
+
+            // Parsear el estado JSON a objeto para MongoDB
+            if (req.stateJson != null) {
+                Object stateObj = objectMapper.readValue(req.stateJson, Object.class);
+                mongoPartida.setSnapshot(stateObj);
+            }
+
+            partidaMongoRepository.save(mongoPartida);
+
+            // Actualizar victorias si hay un ganador
+            if (req.idGanador != null && !req.idGanador.isEmpty()) {
+                UsuarioMongo mongoUser = usuarioMongoRepository.findById(req.idGanador).orElseGet(() -> {
+                    UsuarioMongo u = new UsuarioMongo();
+                    u.setId(req.idGanador);
+                    u.setIdGeneral(0);
+                    u.setVictorias(0);
+                    return u;
+                });
+                mongoUser.setVictorias((mongoUser.getVictorias() != null ? mongoUser.getVictorias() : 0) + 1);
+                usuarioMongoRepository.save(mongoUser);
+            }
+        } catch (Exception e) {
+            System.err.println("[WARN] Fallo al sincronizar con MongoDB en SnapshotController: " + e.getMessage());
+        }
+
         return ResponseEntity.ok("Snapshot guardado con éxito");
     }
-
-    /*
-     * --- Sync with MongoDB ---
-     * try {
-     * PartidaMongo mongoPartida = new PartidaMongo();
-     * mongoPartida.setId(req.matchId.toString());
-     * mongoPartida.setIdHost(req.idHost);
-     * mongoPartida.setIdGanador(req.idGanador);
-     * 
-     * // Parse JSON state to Object for MongoDB
-     * Object stateObj = objectMapper.readValue(req.stateJson, Object.class);
-     * mongoPartida.setSnapshot(stateObj);
-     * 
-     * partidaMongoRepository.save(mongoPartida);
-     * 
-     * // Update victory if winner is reported
-     * if (req.idGanador != null && !req.idGanador.isEmpty()) {
-     * UsuarioMongo mongoUser =
-     * usuarioMongoRepository.findById(req.idGanador).orElseGet(() -> {
-     * UsuarioMongo u = new UsuarioMongo();
-     * u.setId(req.idGanador);
-     * u.setIdGeneral(0);
-     * u.setVictorias(0);
-     * return u;
-     * });
-     * mongoUser.setVictorias((mongoUser.getVictorias() != null ?
-     * mongoUser.getVictorias() : 0) + 1);
-     * usuarioMongoRepository.save(mongoUser);
-     * }
-     * } catch (Exception e) {
-     * System.err.println("Fallo al sincronizar con MongoDB: " + e.getMessage());
-     * }
-     * 
-     * return ResponseEntity.ok("Snapshot guardado con éxito");
-     * }
-     * 
-     */
 
     @GetMapping("/match/{matchId}/ronda/{ronda}")
     public ResponseEntity<?> obtenerSnapshot(@PathVariable Long matchId, @PathVariable int ronda) {

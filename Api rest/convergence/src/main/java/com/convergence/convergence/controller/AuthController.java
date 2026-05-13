@@ -22,10 +22,14 @@ import java.util.Map;
 import java.util.Optional;
 import com.convergence.convergence.model.mongodb.UsuarioMongo;
 import com.convergence.convergence.repository.mongodb.UsuarioMongoRepository;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 @RestController
 @RequestMapping("/auth")
 public class AuthController {
+
+    private static final Logger logger = LoggerFactory.getLogger(AuthController.class);
 
     @Autowired
     private UserRepository userRepository;
@@ -55,6 +59,25 @@ public class AuthController {
         public String email;
     }
 
+    /**
+     * Sincroniza un usuario con MongoDB.
+     * Si no existe, lo crea con valores iniciales.
+     */
+    private void syncUserWithMongo(String nickname, Long generalId) {
+        try {
+            if (!usuarioMongoRepository.existsById(nickname)) {
+                UsuarioMongo mongoUser = new UsuarioMongo();
+                mongoUser.setId(nickname);
+                mongoUser.setIdGeneral(generalId != null ? generalId.intValue() : 0);
+                mongoUser.setVictorias(0);
+                usuarioMongoRepository.save(mongoUser);
+                logger.info("Usuario {} sincronizado con MongoDB", nickname);
+            }
+        } catch (Exception e) {
+            logger.warn("No se pudo sincronizar el usuario {} con MongoDB: {}", nickname, e.getMessage());
+        }
+    }
+
     @PostMapping("/register")
     public ResponseEntity<?> register(@RequestBody AuthRequest req) {
         if (req.nickname == null || req.password == null || req.email == null) {
@@ -68,6 +91,10 @@ public class AuthController {
         String hashed = passwordEncoder.encode(req.password);
         User u = new User(req.nickname, hashed, req.email);
         userRepository.save(u);
+        
+        // Sincronizar con MongoDB al registrarse
+        syncUserWithMongo(u.getNickname(), u.getGeneralId());
+
         // Do not return the password to the client
         u.setPassword(null);
         return ResponseEntity.ok(u);
@@ -87,28 +114,11 @@ public class AuthController {
             return ResponseEntity.status(401).body("invalid credentials");
         }
 
+        // Sincronizar con MongoDB al hacer login
+        syncUserWithMongo(user.get().getNickname(), user.get().getGeneralId());
+
         return ResponseEntity.ok(req.nickname);
     }
-
-    /*
-     * Sync with MongoDB
-     * try {
-     * if (!usuarioMongoRepository.existsById(req.nickname)) {
-     * UsuarioMongo mongoUser = new UsuarioMongo();
-     * mongoUser.setId(req.nickname);
-     * mongoUser.setIdGeneral(0);
-     * mongoUser.setVictorias(0);
-     * usuarioMongoRepository.save(mongoUser);
-     * }
-     * } catch (Exception e) {
-     * System.err.
-     * println("[WARN] MongoDB no disponible, se omite la sincronización: " +
-     * e.getMessage());
-     * }
-     * 
-     * return ResponseEntity.ok(req.nickname);
-     * }
-     */
 
     @PostMapping("/backend-login")
     public ResponseEntity<?> backendLogin(@RequestBody AuthRequest req) {
