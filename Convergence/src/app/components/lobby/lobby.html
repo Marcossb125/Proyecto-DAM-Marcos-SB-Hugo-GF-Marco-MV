@@ -215,6 +215,30 @@
     </div>
   </div>
   }
+  
+  <!-- ═══════════════════════════════════════════════════
+       MODAL — ERROR TÁCTICO
+       ═══════════════════════════════════════════════════ -->
+  @if (errorModalMessage()) {
+  <div class="modal-backdrop" (click)="closeErrorModal()">
+    <div class="modal-panel error-panel">
+      <div class="modal-header error-header">
+        <div class="modal-header-accent"></div>
+        <h2 class="modal-title">ALERTA DE SISTEMA</h2>
+        <button class="modal-close" (click)="closeErrorModal()">✕</button>
+      </div>
+      <div class="modal-body">
+        <div class="error-content">
+          <div class="error-icon-large">⚠</div>
+          <p class="error-text">{{ errorModalMessage() }}</p>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn-confirm" (click)="closeErrorModal()">ENTENDIDO</button>
+      </div>
+    </div>
+  </div>
+  }
 
   <!-- ═══ NAVBAR INFERIOR ═══ -->
   <app-bottom-navbar activePage="/lobby"></app-bottom-navbar>

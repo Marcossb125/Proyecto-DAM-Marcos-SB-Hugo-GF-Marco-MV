@@ -43,11 +43,5 @@ export const routes: Routes = [
     loadComponent: () =>
       import('./components/ranking/ranking').then((m) => m.Ranking),
   },
-  {
-    path: 'chat',
-    canActivate: [authGuard],
-    loadComponent: () =>
-      import('./components/chat/chat').then((m) => m.Chat),
-  },
   { path: '**', redirectTo: 'login' },
 ];

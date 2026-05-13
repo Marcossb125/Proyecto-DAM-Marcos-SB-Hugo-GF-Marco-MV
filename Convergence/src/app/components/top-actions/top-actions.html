@@ -1,30 +1,5 @@
 <div class="top-right-actions">
-  <button mat-icon-button class="nav-button" (click)="toggleNotifications()">
-    <mat-icon [matBadge]="notifications().length" matBadgeColor="warn">notifications</mat-icon>
-  </button>
-
   <button mat-icon-button class="nav-button" (click)="logout()">
     <mat-icon>logout</mat-icon>
   </button>
-
-  <!-- ═══ NOTIFICATIONS PANEL ═══ -->
-  @if (showNotifications()) {
-    <div class="notifications-panel">
-      <div class="panel-header">
-        <span class="panel-title">INFORMES DEL FRENTE</span>
-      </div>
-      <div class="notifications-list">
-        @for (notif of notifications(); track notif.id) {
-          <div class="notification-item" [class]="notif.type">
-            <div class="notif-indicator"></div>
-            <div class="notif-content">
-              <span class="notif-title">{{ notif.title }}</span>
-              <p class="notif-message">{{ notif.message }}</p>
-              <span class="notif-time">{{ notif.time }}</span>
-            </div>
-          </div>
-        }
-      </div>
-    </div>
-  }
 </div>

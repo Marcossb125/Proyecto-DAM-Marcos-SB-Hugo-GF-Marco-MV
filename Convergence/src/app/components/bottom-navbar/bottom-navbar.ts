@@ -20,7 +20,6 @@ export class BottomNavbar {
     { label: 'Partidas', route: '/lobby', icon: 'play' },
     { label: 'Personajes', route: '/personajes', icon: 'user' },
     { label: 'Ranking', route: '/ranking', icon: 'list' },
-    { label: 'Chat', route: '/chat', icon: 'chat' },
   ];
 
   constructor(private router: Router) {}
