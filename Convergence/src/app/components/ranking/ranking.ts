@@ -4,14 +4,14 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
-import { PartidaService } from '../../servicios/partida.service';
+import { UserService } from '../../servicios/user.service';
 import { TopActions } from '../top-actions/top-actions';
 import { BottomNavbar } from '../bottom-navbar/bottom-navbar';
 import { Banner } from '../banner/banner';
 import { UserService } from '../../servicios/user.service';
 
 interface PlayerRanking {
-  id: string; // Nickname
+  id: string;
   name: string;
   victories: number;
   status: 'online' | 'offline';
@@ -27,12 +27,11 @@ interface PlayerRanking {
 })
 export class Ranking {
   private router = inject(Router);
-  private partidaService = inject(PartidaService);
   private userService = inject(UserService);
 
   searchQuery = signal('');
   
-  // Players data
+  // Real data for ranking
   players = signal<PlayerRanking[]>([]);
 
   filteredPlayers = computed(() => {
@@ -41,25 +40,23 @@ export class Ranking {
     return this.players().filter(p => p.name.toLowerCase().includes(query));
   });
 
-  constructor() { 
+  constructor() {
     this.cargarRanking();
   }
 
   cargarRanking() {
-    this.userService.obtenerRanking().subscribe({
+    this.userService.getRanking().subscribe({
       next: (data) => {
-        const mappedPlayers = data.map((p: any, index: number) => ({
-          id: p.id,
-          name: p.id, // Using nickname as name
-          victories: p.victories || 0,
-          status: 'offline', // Default for now
+        const mappedPlayers: PlayerRanking[] = data.map((u, index) => ({
+          id: u.id,
+          name: u.id, // En UsuarioMongo, id es el nickname
+          victories: u.victorias || 0,
+          status: 'online', // Por defecto, o podrías omitirlo
           rank: index + 1
         }));
         this.players.set(mappedPlayers);
       },
-      error: (err) => {
-        console.error('Error al cargar el ranking:', err);
-      }
+      error: (err) => console.error('Error al cargar ranking:', err)
     });
   }
 }
