@@ -77,4 +77,20 @@ export class UserService {
       });
     });
   }
+
+  /**
+   * Obtiene el ranking global de usuarios desde MongoDB.
+   */
+  getRanking(): Observable<any[]> {
+    return new Observable((subscriber) => {
+      this.socketService.emitWithCallback('getRanking', null, (response: any) => {
+        if (response.success) {
+          subscriber.next(response.data);
+        } else {
+          subscriber.error(response.error);
+        }
+        subscriber.complete();
+      });
+    });
+  }
 }

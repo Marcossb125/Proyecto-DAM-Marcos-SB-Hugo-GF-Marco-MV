@@ -2,6 +2,7 @@ package com.convergence.convergence.controller;
 
 import com.convergence.convergence.model.User;
 import com.convergence.convergence.repository.UserRepository;
+import com.convergence.convergence.service.MongoSyncService;
 
 import io.jsonwebtoken.Jwts;
 import javax.crypto.SecretKey;
@@ -20,8 +21,6 @@ import java.nio.charset.StandardCharsets;
 import java.util.Map;
 
 import java.util.Optional;
-import com.convergence.convergence.model.mongodb.UsuarioMongo;
-import com.convergence.convergence.repository.mongodb.UsuarioMongoRepository;
 
 @RestController
 @RequestMapping("/auth")
@@ -31,7 +30,7 @@ public class AuthController {
     private UserRepository userRepository;
 
     @Autowired
-    private UsuarioMongoRepository usuarioMongoRepository;
+    private MongoSyncService mongoSyncService;
 
     @Autowired
     private PasswordEncoder passwordEncoder;
@@ -68,6 +67,14 @@ public class AuthController {
         String hashed = passwordEncoder.encode(req.password);
         User u = new User(req.nickname, hashed, req.email);
         userRepository.save(u);
+
+        // Sync nuevo usuario a MongoDB
+        try {
+            mongoSyncService.syncUsuario(u);
+        } catch (Exception e) {
+            System.err.println("[WARN] MongoDB sync omitido en register: " + e.getMessage());
+        }
+
         // Do not return the password to the client
         u.setPassword(null);
         return ResponseEntity.ok(u);
@@ -76,7 +83,6 @@ public class AuthController {
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody AuthRequest req) {
         if (req.nickname == null || req.password == null) {
-
             return ResponseEntity.badRequest().body("nickname and password required");
         }
         Optional<User> user = userRepository.findByNickname(req.nickname);
@@ -87,28 +93,15 @@ public class AuthController {
             return ResponseEntity.status(401).body("invalid credentials");
         }
 
+        // Sync usuario a MongoDB en cada login
+        try {
+            mongoSyncService.syncUsuario(user.get());
+        } catch (Exception e) {
+            System.err.println("[WARN] MongoDB sync omitido en login: " + e.getMessage());
+        }
+
         return ResponseEntity.ok(req.nickname);
     }
-
-    /*
-     * Sync with MongoDB
-     * try {
-     * if (!usuarioMongoRepository.existsById(req.nickname)) {
-     * UsuarioMongo mongoUser = new UsuarioMongo();
-     * mongoUser.setId(req.nickname);
-     * mongoUser.setIdGeneral(0);
-     * mongoUser.setVictorias(0);
-     * usuarioMongoRepository.save(mongoUser);
-     * }
-     * } catch (Exception e) {
-     * System.err.
-     * println("[WARN] MongoDB no disponible, se omite la sincronización: " +
-     * e.getMessage());
-     * }
-     * 
-     * return ResponseEntity.ok(req.nickname);
-     * }
-     */
 
     @PostMapping("/backend-login")
     public ResponseEntity<?> backendLogin(@RequestBody AuthRequest req) {

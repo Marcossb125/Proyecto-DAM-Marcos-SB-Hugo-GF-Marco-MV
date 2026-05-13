@@ -6,11 +6,7 @@ import com.convergence.convergence.model.User;
 import com.convergence.convergence.repository.MatchSnapshotRepository;
 import com.convergence.convergence.repository.PartidaRepository;
 import com.convergence.convergence.repository.UserRepository;
-import com.convergence.convergence.model.mongodb.PartidaMongo;
-import com.convergence.convergence.model.mongodb.UsuarioMongo;
-import com.convergence.convergence.repository.mongodb.PartidaMongoRepository;
-import com.convergence.convergence.repository.mongodb.UsuarioMongoRepository;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import com.convergence.convergence.service.MongoSyncService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -25,18 +21,13 @@ public class SnapshotController {
     private MatchSnapshotRepository snapshotRepository;
 
     @Autowired
-    private PartidaMongoRepository partidaMongoRepository;
-
-    @Autowired
-    private UsuarioMongoRepository usuarioMongoRepository;
-
-    @Autowired
     private PartidaRepository partidaRepository;
 
     @Autowired
     private UserRepository userRepository;
 
-    private final ObjectMapper objectMapper = new ObjectMapper();
+    @Autowired
+    private MongoSyncService mongoSyncService;
 
     public static class SaveSnapshotRequest {
         public Long matchId;
@@ -64,6 +55,8 @@ public class SnapshotController {
         }
 
         snapshotRepository.save(snapshot);
+
+        // Si hay ganador, actualizar la partida en SQL
         if (req.idGanador != null && !req.idGanador.isBlank()) {
             Optional<Partida> partidaOpt = partidaRepository.findById(req.matchId);
             if (partidaOpt.isPresent()) {
@@ -74,48 +67,25 @@ public class SnapshotController {
                 }
                 partida.setEstado("Finalizada");
                 partidaRepository.save(partida);
+
+                // Sync partida actualizada a MongoDB
+                try {
+                    mongoSyncService.syncPartida(partida);
+                } catch (Exception e) {
+                    System.err.println("[WARN] MongoDB sync partida omitido: " + e.getMessage());
+                }
             }
+        }
+
+        // Sync snapshot a MongoDB
+        try {
+            mongoSyncService.syncMatchSnapshot(snapshot);
+        } catch (Exception e) {
+            System.err.println("[WARN] MongoDB sync snapshot omitido: " + e.getMessage());
         }
 
         return ResponseEntity.ok("Snapshot guardado con éxito");
     }
-
-    /*
-     * --- Sync with MongoDB ---
-     * try {
-     * PartidaMongo mongoPartida = new PartidaMongo();
-     * mongoPartida.setId(req.matchId.toString());
-     * mongoPartida.setIdHost(req.idHost);
-     * mongoPartida.setIdGanador(req.idGanador);
-     * 
-     * // Parse JSON state to Object for MongoDB
-     * Object stateObj = objectMapper.readValue(req.stateJson, Object.class);
-     * mongoPartida.setSnapshot(stateObj);
-     * 
-     * partidaMongoRepository.save(mongoPartida);
-     * 
-     * // Update victory if winner is reported
-     * if (req.idGanador != null && !req.idGanador.isEmpty()) {
-     * UsuarioMongo mongoUser =
-     * usuarioMongoRepository.findById(req.idGanador).orElseGet(() -> {
-     * UsuarioMongo u = new UsuarioMongo();
-     * u.setId(req.idGanador);
-     * u.setIdGeneral(0);
-     * u.setVictorias(0);
-     * return u;
-     * });
-     * mongoUser.setVictorias((mongoUser.getVictorias() != null ?
-     * mongoUser.getVictorias() : 0) + 1);
-     * usuarioMongoRepository.save(mongoUser);
-     * }
-     * } catch (Exception e) {
-     * System.err.println("Fallo al sincronizar con MongoDB: " + e.getMessage());
-     * }
-     * 
-     * return ResponseEntity.ok("Snapshot guardado con éxito");
-     * }
-     * 
-     */
 
     @GetMapping("/match/{matchId}/ronda/{ronda}")
     public ResponseEntity<?> obtenerSnapshot(@PathVariable Long matchId, @PathVariable int ronda) {

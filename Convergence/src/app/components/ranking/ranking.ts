@@ -4,13 +4,13 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
-import { PartidaService } from '../../servicios/partida.service';
+import { UserService } from '../../servicios/user.service';
 import { TopActions } from '../top-actions/top-actions';
 import { BottomNavbar } from '../bottom-navbar/bottom-navbar';
 import { Banner } from '../banner/banner';
 
 interface PlayerRanking {
-  id: number;
+  id: string;
   name: string;
   victories: number;
   status: 'online' | 'offline';
@@ -26,21 +26,12 @@ interface PlayerRanking {
 })
 export class Ranking {
   private router = inject(Router);
-  private partidaService = inject(PartidaService);
+  private userService = inject(UserService);
 
   searchQuery = signal('');
   
-  // Mock data for ranking
-  players = signal<PlayerRanking[]>([
-    { id: 1, name: 'Sir Lancelot', victories: 150, status: 'online', rank: 1 },
-    { id: 2, name: 'General Kenobi', victories: 132, status: 'online', rank: 2 },
-    { id: 3, name: 'Dark Overlord', victories: 120, status: 'offline', rank: 3 },
-    { id: 4, name: 'Tactical Mind', victories: 98, status: 'online', rank: 4 },
-    { id: 5, name: 'Shadow Walker', victories: 85, status: 'offline', rank: 5 },
-    { id: 6, name: 'Iron Wall', victories: 72, status: 'online', rank: 6 },
-    { id: 7, name: 'Eagle Eye', victories: 65, status: 'offline', rank: 7 },
-    { id: 8, name: 'Storm Bringer', victories: 54, status: 'online', rank: 8 },
-  ]);
+  // Real data for ranking
+  players = signal<PlayerRanking[]>([]);
 
   filteredPlayers = computed(() => {
     const query = this.searchQuery().toLowerCase();
@@ -48,5 +39,23 @@ export class Ranking {
     return this.players().filter(p => p.name.toLowerCase().includes(query));
   });
 
-  constructor() { }
+  constructor() {
+    this.cargarRanking();
+  }
+
+  cargarRanking() {
+    this.userService.getRanking().subscribe({
+      next: (data) => {
+        const mappedPlayers: PlayerRanking[] = data.map((u, index) => ({
+          id: u.id,
+          name: u.id, // En UsuarioMongo, id es el nickname
+          victories: u.victorias || 0,
+          status: 'online', // Por defecto, o podrías omitirlo
+          rank: index + 1
+        }));
+        this.players.set(mappedPlayers);
+      },
+      error: (err) => console.error('Error al cargar ranking:', err)
+    });
+  }
 }
