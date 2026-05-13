@@ -51,28 +51,27 @@ public class GeneralController {
         user.setGeneralId(req.generalId);
         userRepository.save(user);
 
-        return ResponseEntity.ok("General guardado con éxito");
-    }
+        // --- Sincronización con MongoDB ---
+        try {
+            UsuarioMongo mongoUser = usuarioMongoRepository.findById(req.nickname).orElseGet(() -> {
+                UsuarioMongo u = new UsuarioMongo();
+                u.setId(req.nickname);
+                u.setVictorias(0);
+                return u;
+            });
+            mongoUser.setIdGeneral(req.generalId.intValue());
+            usuarioMongoRepository.save(mongoUser);
+        } catch (Exception e) {
+            System.err.println("[WARN] No se pudo sincronizar el general con MongoDB: " + e.getMessage());
+        }
 
-    /*
-     * Sync with MongoDB
-     * UsuarioMongo mongoUser =
-     * usuarioMongoRepository.findById(req.nickname).orElseGet(() -> {
-     * UsuarioMongo u = new UsuarioMongo();
-     * u.setId(req.nickname);
-     * u.setVictorias(0);
-     * return u;
-     * });
-     * mongoUser.setIdGeneral(req.generalId.intValue());
-     * usuarioMongoRepository.save(mongoUser);
-     * 
-     * Map<String, Object> response = new HashMap<>();
-     * response.put("nickname", req.nickname);
-     * response.put("generalId", req.generalId);
-     * 
-     * return ResponseEntity.ok(response);
-     * }
-     */
+        Map<String, Object> response = new HashMap<>();
+        response.put("nickname", req.nickname);
+        response.put("generalId", req.generalId);
+        response.put("message", "General guardado con éxito");
+
+        return ResponseEntity.ok(response);
+    }
 
     /**
      * Obtiene el general de un usuario por su nickname.
