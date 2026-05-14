@@ -1,0 +1,44 @@
+
+services:
+  backend-java:
+    build: 
+      context: "./Api rest"
+      dockerfile: dockerFile
+    ports:
+      - "8080:8080"
+    env_file:
+      - ./Backend/.env
+    environment:
+      - SPRING_PROFILES_ACTIVE=prod
+      - SPRING_DATASOURCE_URL=jdbc:mysql://mysql-db:3306/convergence?serverTimezone=UTC&useSSL=false
+      - DB_USER=root
+      - DB_PASS=
+      - BACKEND_USER=${DB_USER}
+      - BACKEND_PASSWORD=${DB_PASSWORD}
+      - JWT_SECRET=${JWT}
+
+  backend-js:
+    build: 
+      context: ./Backend
+      dockerfile: dockerFile
+    ports:
+      - "3000:3000"
+    env_file:
+      - ./Backend/.env
+    environment:
+      - API_BASE_URL=http://backend-java:8080
+      - DB_HOST=mysql-db
+    depends_on:
+      - backend-java
+
+  frontend-angular:
+    build: 
+      context: ./Convergence
+      dockerfile: dockerFile
+    ports:
+      - "80:80"
+    depends_on:
+      - backend-java
+      - backend-js
+
+
