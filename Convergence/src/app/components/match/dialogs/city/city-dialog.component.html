@@ -6,55 +6,44 @@
   </div>
 
   @if (data.mode === 'confirm') {
-    <div class="city-info">
-      <div class="city-name">{{ data.territory.label }}</div>
-      <div class="city-stats">
-        <div class="stat-row">
-          <span class="stat-label">Defensa</span>
-          <div class="defense-bar">
-            <div class="defense-fill" [style.width.%]="data.defenseStrength"></div>
-          </div>
-          <span class="stat-value">{{ data.defenseStrength }}%</span>
+  <div class="city-info">
+    <div class="city-name">{{ data.territory.label }}</div>
+    <div class="city-stats">
+      <div class="stat-row">
+        <span class="stat-label">Defensa</span>
+        <div class="defense-bar">
+          <div class="defense-fill" [style.width.%]="data.defenseStrength"></div>
         </div>
-        <div class="stat-row">
-          <span class="stat-label">Éxito</span>
-          <div class="success-bar">
-            <div class="success-fill" [style.width.%]="data.successChance"
-                 [class.high]="data.successChance >= 70"
-                 [class.medium]="data.successChance >= 40 && data.successChance < 70"
-                 [class.low]="data.successChance < 40"></div>
-          </div>
-          <span class="stat-value" [class.high]="data.successChance >= 70"
-                 [class.medium]="data.successChance >= 40 && data.successChance < 70"
-                 [class.low]="data.successChance < 40">
-            {{ data.successChance }}%
-          </span>
-        </div>
+        <span class="stat-value">{{ data.defenseStrength }}%</span>
       </div>
-
-      <div class="troop-info">
-        <mat-icon>groups</mat-icon>
-        <span>Tus tropas: {{ data.army.troopSize }}</span>
+      <div class="stat-row">
+        <span class="stat-label">Éxito</span>
+        <div class="success-bar">
+          <div class="success-fill" [style.width.%]="data.successChance" [class.high]="data.successChance >= 70"
+            [class.medium]="data.successChance >= 40 && data.successChance < 70" [class.low]="data.successChance < 40">
+          </div>
+        </div>
+        <span class="stat-value" [class.high]="data.successChance >= 70"
+          [class.medium]="data.successChance >= 40 && data.successChance < 70" [class.low]="data.successChance < 40">
+          {{ data.successChance }}%
+        </span>
       </div>
     </div>
 
-    <div class="dialog-actions">
-      <button class="btn-conquest" (click)="onConfirmConquest()">
-        <mat-icon>send</mat-icon>
-        ORDENAR CONQUISTA
-      </button>
-      <button class="btn-ignore" (click)="onCancel()">
-        CANCELAR
-      </button>
+    <div class="troop-info">
+      <mat-icon>groups</mat-icon>
+      <span>Tus tropas: {{ data.army.troopSize }}</span>
     </div>
-  } @else {
-    <div class="conquest-result" [class.success]="conquestSuccess()" [class.failure]="!conquestSuccess()">
-      <mat-icon class="result-icon">{{ conquestSuccess() ? 'flag' : 'close' }}</mat-icon>
-      <div class="result-text">{{ conquestSuccess() ? '¡CONQUISTADA!' : 'FALLIDA' }}</div>
-      <div class="result-details">
-        {{ data.result?.resultMessage }}
-      </div>
-      <button class="btn-continue-result" (click)="onClose()">CONTINUAR</button>
-    </div>
+  </div>
+
+  <div class="dialog-actions">
+    <button class="btn-conquest" (click)="onConfirmConquest()">
+      <mat-icon>send</mat-icon>
+      ORDENAR CONQUISTA
+    </button>
+    <button class="btn-ignore" (click)="onCancel()">
+      CANCELAR
+    </button>
+  </div>
   }
 </div>

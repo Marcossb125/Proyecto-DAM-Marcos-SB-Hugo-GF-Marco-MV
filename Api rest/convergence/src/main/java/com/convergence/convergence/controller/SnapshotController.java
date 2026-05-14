@@ -43,13 +43,14 @@ public class SnapshotController {
             return ResponseEntity.badRequest().body("matchId y stateJson son obligatorios");
         }
 
-        // Check if snapshot for this round already exists
-        Optional<MatchSnapshot> existing = snapshotRepository.findByMatchIdAndRonda(req.matchId, req.ronda);
+        // Check if snapshot for this match already exists
+        Optional<MatchSnapshot> existing = snapshotRepository.findByMatchId(req.matchId);
         MatchSnapshot snapshot;
 
         if (existing.isPresent()) {
             snapshot = existing.get();
             snapshot.setStateJson(req.stateJson);
+            snapshot.setRonda(req.ronda);
         } else {
             snapshot = new MatchSnapshot(req.matchId, req.ronda, req.stateJson);
         }

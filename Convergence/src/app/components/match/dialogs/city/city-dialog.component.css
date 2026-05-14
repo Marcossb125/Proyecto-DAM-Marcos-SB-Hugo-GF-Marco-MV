@@ -70,7 +70,8 @@
   text-transform: uppercase;
 }
 
-.defense-bar, .success-bar {
+.defense-bar,
+.success-bar {
   flex: 1;
   height: 8px;
   background: #141614;
@@ -92,9 +93,17 @@
   transition: width 0.5s ease;
 }
 
-.success-fill.high { background: linear-gradient(90deg, #2ecc71, #00ff41); }
-.success-fill.medium { background: linear-gradient(90deg, #f39c12, #ffaa00); }
-.success-fill.low { background: linear-gradient(90deg, #c0392b, #ff4444); }
+.success-fill.high {
+  background: linear-gradient(90deg, #2ecc71, #00ff41);
+}
+
+.success-fill.medium {
+  background: linear-gradient(90deg, #f39c12, #ffaa00);
+}
+
+.success-fill.low {
+  background: linear-gradient(90deg, #c0392b, #ff4444);
+}
 
 .stat-value {
   width: 40px;
@@ -103,9 +112,17 @@
   font-size: 0.45rem;
 }
 
-.stat-value.high { color: #00ff41; }
-.stat-value.medium { color: #ffaa00; }
-.stat-value.low { color: #ff4444; }
+.stat-value.high {
+  color: #00ff41;
+}
+
+.stat-value.medium {
+  color: #ffaa00;
+}
+
+.stat-value.low {
+  color: #ff4444;
+}
 
 .troop-info {
   display: flex;
@@ -154,7 +171,11 @@
   box-shadow: 0 0 15px rgba(0, 255, 65, 0.2);
 }
 
-.btn-conquest mat-icon { font-size: 16px; width: 16px; height: 16px; }
+.btn-conquest mat-icon {
+  font-size: 16px;
+  width: 16px;
+  height: 16px;
+}
 
 .btn-ignore {
   flex: 1;
@@ -172,68 +193,4 @@
 .btn-ignore:hover {
   border-color: #828a5e;
   color: #e0e0e0;
-}
-
-.conquest-result {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 0.75rem;
-  padding: 2rem;
-  border-radius: 3px;
-  animation: resultFlash 0.5s ease-out;
-}
-
-.conquest-result.success {
-  background: rgba(0, 255, 65, 0.05);
-  border: 1px solid #00ff41;
-}
-
-.conquest-result.failure {
-  background: rgba(255, 68, 68, 0.05);
-  border: 1px solid #ff4444;
-}
-
-.result-icon {
-  font-size: 48px;
-  width: 48px;
-  height: 48px;
-}
-
-.success .result-icon { color: #00ff41; filter: drop-shadow(0 0 15px rgba(0, 255, 65, 0.6)); }
-.failure .result-icon { color: #ff4444; filter: drop-shadow(0 0 15px rgba(255, 68, 68, 0.6)); }
-
-.result-text {
-  font-family: 'Press Start 2P', monospace;
-  font-size: 0.9rem;
-  letter-spacing: 3px;
-}
-
-.success .result-text { color: #00ff41; }
-.failure .result-text { color: #ff4444; }
-
-.result-details { font-size: 0.75rem; color: #828a5e; }
-
-.btn-continue-result {
-  margin-top: 0.5rem;
-  padding: 0.6rem 2rem;
-  background: #4b5320;
-  border: none;
-  border-bottom: 3px solid #2d3314;
-  border-radius: 3px;
-  color: #fff;
-  font-family: 'Press Start 2P', monospace;
-  font-size: 0.45rem;
-  cursor: pointer;
-  transition: all 0.2s;
-}
-
-.btn-continue-result:hover {
-  background: #5d6828;
-}
-
-@keyframes resultFlash {
-  0% { opacity: 0; transform: scale(0.9); }
-  50% { opacity: 1; transform: scale(1.02); }
-  100% { transform: scale(1); }
 }

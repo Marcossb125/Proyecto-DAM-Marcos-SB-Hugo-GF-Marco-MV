@@ -14,13 +14,7 @@ export interface CityDialogData {
   territory: Territory;
   defenseStrength: number;
   successChance: number;
-  mode: 'confirm' | 'result';
-  result?: {
-    winnerId: string;
-    finalAttackerSize: number;
-    conquered: boolean;
-    resultMessage: string;
-  };
+  mode: 'confirm';
 }
 
 export interface CityDialogResult {
@@ -39,22 +33,11 @@ export class CityDialog {
   readonly data: CityDialogData = inject(MAT_DIALOG_DATA);
   private readonly dialogRef = inject(MatDialogRef<CityDialog>);
 
-  conquestSuccess(): boolean {
-    if (this.data.mode === 'result') {
-      return this.data.result?.conquered ?? false;
-    }
-    return false;
-  }
-
   onConfirmConquest(): void {
     this.dialogRef.close({ action: 'conquest' } as CityDialogResult);
   }
 
   onCancel(): void {
     this.dialogRef.close({ action: 'ignore' } as CityDialogResult);
-  }
-
-  onClose(): void {
-    this.dialogRef.close();
   }
 }
