@@ -4,6 +4,7 @@ import lombok.Data;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.Field;
+import java.time.LocalDateTime;
 
 @Data
 @Document(collection = "match_snapshots")
@@ -16,4 +17,10 @@ public class MatchSnapshotMongo {
 
     @Field("ronda")
     private Integer ronda;
+
+    @Field("state_json")
+    private String stateJson;
+
+    @Field("timestamp")
+    private LocalDateTime timestamp;
 }

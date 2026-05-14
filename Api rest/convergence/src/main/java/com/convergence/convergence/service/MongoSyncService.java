@@ -123,13 +123,11 @@ public class MongoSyncService {
         return count;
     }
 
-    /**
-     * Sincroniza una partida individual de SQL a MongoDB.
-     * Usa el ID numérico (como String) para _id. Sincroniza Id_host e id_ganador.
-     */
     public void syncPartida(Partida partida) {
         String mongoId = partida.getId().toString();
         PartidaMongo existing = partidaMongoRepository.findById(mongoId).orElse(null);
+        String previousWinner = existing != null ? existing.getIdGanador() : null;
+
         final PartidaMongo mongo;
         if (existing == null) {
             mongo = new PartidaMongo();
@@ -141,9 +139,22 @@ public class MongoSyncService {
         userRepository.findById(partida.getHostId()).ifPresent(host -> mongo.setIdHost(host.getNickname()));
         // Sincronizar ganador si existe
         if (partida.getIdGanador() != null) {
-            userRepository.findById(partida.getIdGanador()).ifPresent(winner -> mongo.setIdGanador(winner.getNickname()));
+            userRepository.findById(partida.getIdGanador()).ifPresent(winner -> {
+                // "el Id_ganador sea el Id del jugador que ha ganado"
+                // In MongoDB, the player's ID is their nickname
+                mongo.setIdGanador(winner.getNickname());
+            });
         }
         partidaMongoRepository.save(mongo);
+
+        // Tras el volcado, si hay un nuevo ganador, sumar 1 a la columna de victorias en MongoDB
+        if (mongo.getIdGanador() != null && !mongo.getIdGanador().equals(previousWinner)) {
+            usuarioMongoRepository.findById(mongo.getIdGanador()).ifPresent(usuarioMongo -> {
+                int victoriasActuales = usuarioMongo.getVictorias() != null ? usuarioMongo.getVictorias() : 0;
+                usuarioMongo.setVictorias(victoriasActuales + 1);
+                usuarioMongoRepository.save(usuarioMongo);
+            });
+        }
     }
 
     // ─── Sincronización individual: MatchSnapshots ──────────────────────
@@ -165,7 +176,7 @@ public class MongoSyncService {
 
     /**
      * Sincroniza un snapshot individual de SQL a MongoDB.
-     * Usa el ID numérico (como String) para _id. Sincroniza match_id y ronda.
+     * Usa el ID numérico (como String) para _id. Sincroniza match_id, ronda, stateJson y timestamp.
      */
     public void syncMatchSnapshot(MatchSnapshot snapshot) {
         String mongoId = snapshot.getId().toString();
@@ -176,6 +187,8 @@ public class MongoSyncService {
         }
         mongo.setMatchId(snapshot.getMatchId());
         mongo.setRonda(snapshot.getRonda());
+        mongo.setStateJson(snapshot.getStateJson());
+        mongo.setTimestamp(snapshot.getTimestamp());
         matchSnapshotMongoRepository.save(mongo);
     }
 

@@ -16,6 +16,6 @@ public class PartidaMongo {
 
     private Object snapshot;
 
-    @Field("id_ganador")
+    @Field("Id_ganador")
     private String idGanador;
 }
