@@ -2,7 +2,7 @@ import jwt from 'jsonwebtoken';
 import apiClient from '../config/apiClient.js';
 import { loginPayload, registerPayload } from '../schemas/index.js';
 
-const JWT_SECRET = process.env.JWT;
+const JWT_SECRET = process.env.JWT_SECRET_NODE;
 
 export default (io, socket) => {
   // Handle registration
