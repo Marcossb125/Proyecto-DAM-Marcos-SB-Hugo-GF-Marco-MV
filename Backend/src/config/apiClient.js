@@ -1,5 +1,6 @@
 import axios from 'axios';
-import 'dotenv/config';
+import dotenv from 'dotenv';
+dotenv.config({ path: '../.env' });
 
 const API_BASE_URL = process.env.API_BASE_URL;
 let apiToken = null;
@@ -11,8 +12,8 @@ const apiClient = axios.create({
 export async function authenticateBackend() {
   try {
     const response = await axios.post(`${API_BASE_URL}/auth/backend-login`, {
-      nickname: process.env.DB_USER,
-      password: process.env.DB_PASSWORD,
+      nickname: process.env.BACKEND_USER,
+      password: process.env.BACKEND_PASSWORD,
     });
     apiToken = response.data.token;
     console.log('Successfully authenticated with API REST as middleware user');
