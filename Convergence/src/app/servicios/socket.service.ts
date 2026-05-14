@@ -2,13 +2,14 @@ import { Injectable, inject, PLATFORM_ID } from '@angular/core';
 import { isPlatformBrowser } from '@angular/common';
 import { io, Socket } from 'socket.io-client';
 import { Observable, Subject } from 'rxjs';
+import { environment } from '../../environments/environment';
 
 @Injectable({
   providedIn: 'root',
 })
 export class SocketService {
   /** Socket sin autenticación, sólo para register y login */
-  public readonly authSocket: Socket = io('http://localhost:3000', { transports: ['websocket'] });
+  public readonly authSocket: Socket = io(environment.backendUrl, { transports: ['websocket'] });
 
   /** Socket autenticado, se crea tras el login con el token JWT */
   private socket!: Socket;
@@ -42,7 +43,7 @@ export class SocketService {
    * socket.io (opción auth). Debe llamarse tras un login exitoso.
    */
   public conectar(token: string): void {
-    this.socket = io('http://localhost:3000', {
+    this.socket = io(environment.backendUrl, {
       auth: { token },
       transports: ['websocket']
     });
