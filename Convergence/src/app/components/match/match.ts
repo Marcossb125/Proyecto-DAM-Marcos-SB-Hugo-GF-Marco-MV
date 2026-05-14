@@ -107,6 +107,8 @@ export class Match implements OnInit, OnDestroy {
       const territory = territories.find(t => t.id === territoryId);
       if (!territory) return;
 
+
+
       switch (phase) {
         case 'CONSTRUCCION':
           this.handleConstruccionClick(territory, localPlayer);
@@ -183,9 +185,6 @@ export class Match implements OnInit, OnDestroy {
       this.store.dispatch(MapActions.clearSelection());
       return;
     }
-
-    // Check if there's already an army — we'll reinforce it instead
-    const existingArmy = armies.find(a => a.territoryId === territory.id && a.ownerId === player.id);
 
     const dialogRef = this.dialog.open(RecruitDialog, {
       data: { player, territoryLabel: territory.label },

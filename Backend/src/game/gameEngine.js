@@ -368,7 +368,6 @@ function resolveMovementPhase(state) {
         let defenseStrength = 30; // Base defense
         if (toTerritory.buildingType === 'MURO') defenseStrength += 10;
         if (toTerritory.buildingType === 'TORRE') defenseStrength += 15;
-        if (toTerritory.hasSupremeBase) defenseStrength += 10;
         defenseStrength += territoryDefenseBonusFromGeneral2(state, toTerritory.ownerId);
         defenseStrength = Math.min(defenseStrength, 95);
 
@@ -383,8 +382,7 @@ function resolveMovementPhase(state) {
         const initialAttackerSize = army.troopSize;
 
         if (success) {
-          // Success: Occupy and conquer with 30% losses (simulating conquest effort)
-          army.troopSize = Math.max(1, Math.floor(army.troopSize * 0.7));
+          army.troopSize = Math.max(1, Math.floor(army.troopSize * 0.9));
           fromTerritory.occupiedByArmyId = null;
           army.territoryId = toTerritory.id;
           toTerritory.occupiedByArmyId = army.id;

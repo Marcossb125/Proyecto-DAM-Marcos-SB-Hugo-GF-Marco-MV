@@ -87,8 +87,8 @@ export class BuildDialog {
     switch (type) {
       case 'CUARTEL': return 'Permite el reclutamiento de tropas en este territorio.';
       case 'FABRICA': return 'Aumenta la generación de créditos durante la fase de recaudación.';
-      case 'TORRE': return 'Proporciona bonificación defensiva durante el combate.';
-      case 'MURO': return 'Bloquea el movimiento enemigo a través de este territorio.';
+      case 'TORRE': return 'Proporciona un aumento de 15 puntos en la defensa de tu territorio';
+      case 'MURO': return 'Proporciona un aumento de 10 puntos en la defensa de tu territorio';
       default: return '';
     }
   }

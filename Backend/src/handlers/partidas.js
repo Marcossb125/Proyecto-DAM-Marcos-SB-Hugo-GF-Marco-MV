@@ -519,4 +519,6 @@ export default (io, socket) => {
       if (callback) callback({ success: false, error: 'Error interno' });
     }
   });
+
+
 };
