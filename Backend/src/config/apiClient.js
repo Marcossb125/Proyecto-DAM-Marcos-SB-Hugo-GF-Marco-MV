@@ -1,6 +1,12 @@
 import axios from 'axios';
 import dotenv from 'dotenv';
-dotenv.config({ path: '../.env' });
+import path from 'path';
+import { fileURLToPath } from 'url';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+dotenv.config({ path: path.join(__dirname, '../../../.env') });
 
 const API_BASE_URL = process.env.API_BASE_URL;
 let apiToken = null;

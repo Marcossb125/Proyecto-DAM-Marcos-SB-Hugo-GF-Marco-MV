@@ -7,7 +7,7 @@ services:
     ports:
       - "8080:8080"
     env_file:
-      - ./Backend/.env
+      - ./.env
     environment:
       - SPRING_PROFILES_ACTIVE=prod
       - SPRING_DATASOURCE_URL=jdbc:mysql://mysql-db:3306/convergence?serverTimezone=UTC&useSSL=false
@@ -24,7 +24,7 @@ services:
     ports:
       - "3000:3000"
     env_file:
-      - ./Backend/.env
+      - ./.env
     environment:
       - API_BASE_URL=http://backend-java:8080
       - DB_HOST=mysql-db
