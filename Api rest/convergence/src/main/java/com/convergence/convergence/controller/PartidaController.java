@@ -58,9 +58,15 @@ public class PartidaController {
 
         User user = hostUser.get();
 
-        // Verificar el límite de 3 partidas
-        long count = participanteRepository.countByUsuarioId(user.getId());
-        if (count >= 3) {
+        // Verificar el límite de 3 partidas "En curso" usando el sistema existente
+        List<Participante> participaciones = participanteRepository.findByUsuarioId(user.getId());
+        List<Long> ids = participaciones.stream().map(Participante::getPartidaId).toList();
+        List<Partida> partidasUsuario = partidaRepository.findAllById(ids);
+        long activeCount = partidasUsuario.stream()
+                .filter(p -> "En curso".equals(p.getEstado()))
+                .count();
+
+        if (activeCount >= 3) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Ya has alcanzado el límite de 3 partidas activas");
         }
 
@@ -113,9 +119,15 @@ public class PartidaController {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("La partida está llena");
         }
 
-        // Verificar el límite de 3 partidas
-        long count = participanteRepository.countByUsuarioId(user.getId());
-        if (count >= 3) {
+        // Verificar el límite de 3 partidas "En curso" usando el sistema existente
+        List<Participante> participaciones = participanteRepository.findByUsuarioId(user.getId());
+        List<Long> ids = participaciones.stream().map(Participante::getPartidaId).toList();
+        List<Partida> partidasUsuario = partidaRepository.findAllById(ids);
+        long activeCount = partidasUsuario.stream()
+                .filter(p -> "En curso".equals(p.getEstado()))
+                .count();
+
+        if (activeCount >= 3) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Ya has alcanzado el límite de 3 partidas activas");
         }
 

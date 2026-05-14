@@ -86,8 +86,10 @@ export class Inicio {
   cargarMisPartidas(): void {
     this.partidaService.buscarMisPartidas().subscribe({
       next: (partidas) => {
-        // Limitar a 3 como pide el usuario, aunque el backend ya debería filtrarlas
-        this.activeGames.set(partidas.slice(0, 3));
+        // Filtrar solo las partidas "EN CURSO" (status === 'open')
+        const partidasEnCurso = partidas.filter(p => p.status === 'open');
+        // Limitar a 3 como pide el usuario
+        this.activeGames.set(partidasEnCurso.slice(0, 3));
       },
       error: (err) => {
         console.error('Error al cargar mis partidas:', err);
