@@ -145,7 +145,7 @@ function applyDestroyBuilding(state, playerId, territoryId) {
   const building = territory.buildingType;
   territory.buildingType = null;
 
-  const logs = [createLog(state.matchId, 'action', player.name, `destruyó ${building} en ${territory.label}`)];
+  const logs = [createLog(state.matchId, 'action', player.name, `${player.name} destruyó ${building} en ${territory.label}`)];
   return { state, logs };
 }
 
@@ -186,7 +186,7 @@ function applyRecruit(state, playerId, territoryId, troopSize) {
     territory.occupiedByArmyId = army.id;
   }
 
-  const logs = [createLog(state.matchId, 'action', player.name, `reclutó ${troopSize} tropas en ${territory.label}`)];
+  const logs = [createLog(state.matchId, 'action', player.name, `${player.name} reclutó ${troopSize} tropas en ${territory.label}`)];
   return { state, logs };
 }
 
@@ -218,7 +218,6 @@ function applyQueueMove(state, playerId, armyId, toTerritoryId) {
   state.pendingMoves.push({ armyId, fromTerritoryId: army.territoryId, toTerritoryId });
   army.hasActedThisTurn = true;
 
-  const logs = [createLog(state.matchId, 'action', player.name, `ordenó mover tropas a ${toTerritory.label}`)];
   return { state, logs };
 }
 
@@ -235,7 +234,6 @@ function applyCancelMove(state, playerId, armyId) {
   state.pendingMoves.splice(moveIndex, 1);
   army.hasActedThisTurn = false;
 
-  const logs = [createLog(state.matchId, 'action', player.name, `canceló el movimiento de un ejército`)];
   return { state, logs };
 }
 
@@ -253,7 +251,7 @@ function applyPlayerReady(state, playerId) {
   const readyCount = state.players.filter(p => p.isReady).length;
   const total = state.players.length;
 
-  const logs = [createLog(state.matchId, 'action', player.name, `está listo (${readyCount}/${total})`)];
+  const logs = [createLog(state.matchId, 'action', player.name, `${player.name} está listo (${readyCount}/${total})`)];
 
   let phaseAdvanced = false;
   let phaseLogs = [];

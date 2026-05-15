@@ -82,7 +82,7 @@ export class HudComponent implements OnInit {
     this.recaudacionSub = this.socketService.listen('RECAUDACION_SUMMARY').subscribe((data: any) => {
       const playerId = this.authService.obtenerNombreUsuario();
       const myEntry = data?.incomeSummary?.find((e: any) => e.playerId === playerId);
-      
+
       this.dialog.open(RecaudacionDialogComponent, {
         width: 'auto',
         maxWidth: '96vw',
@@ -93,7 +93,7 @@ export class HudComponent implements OnInit {
           myIncome: myEntry ?? null
         } as RecaudacionDialogData
       });
-      
+
       this.cdr.markForCheck();
     });
   }
@@ -147,9 +147,9 @@ export class HudComponent implements OnInit {
     if (!matchId || !playerId) return;
 
     // In the real engine, all phase advances are 'playerReady'
-    this.store.dispatch(MatchSocketActions.syncAction({ 
-      action: 'playerReady', 
-      data: { matchId, playerId } 
+    this.store.dispatch(MatchSocketActions.syncAction({
+      action: 'playerReady',
+      data: { matchId, playerId }
     }));
   }
 
