@@ -1,4 +1,3 @@
-// import { provideHttpClient } from '@angular/common/http';
 import { ApplicationConfig, provideBrowserGlobalErrorListeners, provideZonelessChangeDetection } from '@angular/core';
 import { provideRouter } from '@angular/router';
 import { provideAnimationsAsync } from '@angular/platform-browser/animations/async';
@@ -12,7 +11,6 @@ import { MatchEffects } from './components/match/store/match.effects';
 
 export const appConfig: ApplicationConfig = {
   providers: [
-    // provideHttpClient(),
     provideBrowserGlobalErrorListeners(),
     provideZonelessChangeDetection(),
     provideRouter(routes),
