@@ -1,6 +1,6 @@
 import { Injectable, inject, PLATFORM_ID } from '@angular/core';
 import { isPlatformBrowser } from '@angular/common';
-import { HttpClient, HttpHeaders } from '@angular/common/http';
+// import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { SocketService } from './socket.service';
 import { AuthService } from './auth.service';
@@ -27,10 +27,10 @@ export interface Partidaa {
 export class PartidaService {
   private socketService = inject(SocketService);
   private authService = inject(AuthService);
-  private http = inject(HttpClient);
+  // private http = inject(HttpClient);
   private readonly platformId = inject(PLATFORM_ID);
 
-  private apiUrl = 'http://localhost:8080/api';
+  // private apiUrl = 'http://localhost:8080/api';
   private readonly STORAGE_KEY = 'convergence_partidas';
 
   constructor() { }
@@ -38,6 +38,7 @@ export class PartidaService {
   /**
    * Realiza una petición GET a la API REST para obtener las partidas.
    */
+  /*
   obtenerPartidasAPI(): Observable<any[]> {
     const token = isPlatformBrowser(this.platformId) ? localStorage.getItem('convergence_token') : null;
     let headers = new HttpHeaders();
@@ -47,6 +48,7 @@ export class PartidaService {
     }
     return this.http.get<any[]>(`${this.apiUrl}/partidas`, { headers });
   }
+  */
 
   // ── WebSocket wrappers ──────────────────────────────────────────────────
 
