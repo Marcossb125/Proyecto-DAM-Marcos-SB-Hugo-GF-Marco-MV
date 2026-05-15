@@ -423,33 +423,7 @@
   text-shadow: 0 0 20px rgba(255,255,255,0.15);
 }
 
-.commander-status {
-  display: flex;
-  align-items: center;
-  gap: 0.4rem;
-}
 
-.status-dot {
-  width: 7px;
-  height: 7px;
-  background: var(--war-accent);
-  border-radius: 50%;
-  box-shadow: 0 0 6px var(--war-accent);
-  animation: statusPulse 2s ease-in-out infinite;
-  flex-shrink: 0;
-}
-
-@keyframes statusPulse {
-  0%, 100% { opacity: 1; }
-  50%       { opacity: 0.3; }
-}
-
-.status-text {
-  font-size: 0.68rem;
-  color: var(--war-accent);
-  font-weight: 600;
-  letter-spacing: 0.5px;
-}
 
 .commander-divider {
   height: 1px;

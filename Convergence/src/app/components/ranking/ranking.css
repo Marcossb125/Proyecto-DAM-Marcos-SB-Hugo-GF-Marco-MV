@@ -233,26 +233,7 @@
   text-transform: uppercase;
 }
 
-.player-status {
-  display: flex;
-  align-items: center;
-  gap: 0.4rem;
-  font-size: 0.65rem;
-  color: var(--war-green-light);
-}
 
-.status-dot {
-  width: 6px;
-  height: 6px;
-  background: #666;
-  border-radius: 50%;
-}
-
-.player-card.online .status-dot {
-  background: var(--war-accent);
-  box-shadow: 0 0 5px var(--war-accent);
-  animation: statusPulse 2s infinite;
-}
 
 .victories-badge {
   display: flex;
@@ -352,10 +333,7 @@
   to { opacity: 1; }
 }
 
-@keyframes statusPulse {
-  0%, 100% { opacity: 1; }
-  50% { opacity: 0.4; }
-}
+
 
 @media (max-width: 480px) {
   .ranking-title { font-size: 1rem; }

@@ -407,19 +407,7 @@
   color: var(--war-green-light);
 }
 
-.status-dot {
-  width: 7px;
-  height: 7px;
-  background: var(--war-accent);
-  border-radius: 50%;
-  box-shadow: 0 0 6px var(--war-accent);
-  animation: statusPulse 2s ease-in-out infinite;
-}
 
-@keyframes statusPulse {
-  0%, 100% { opacity: 1; }
-  50% { opacity: 0.4; }
-}
 
 /* Action Icons Row (identical to inicio) */
 .action-icons {

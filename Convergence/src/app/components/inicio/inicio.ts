@@ -33,7 +33,7 @@ interface ActiveGame {
 export class Inicio {
   // TODO: Replace with data from auth service / user API
   playerName = signal('Comandante');
-  playerStatus = signal('En línea');
+
 
   nationData = signal<NationData | null>(null);
   isEditingFlag = signal<boolean>(false);
