@@ -90,6 +90,7 @@ export class Lobby implements OnInit {
 
   searchText = signal('');
   errorModalMessage = signal('');
+  isCreatingGame = signal(false);
 
   filteredGames = computed(() => {
     const search = this.searchText().toLowerCase();
@@ -195,15 +196,7 @@ export class Lobby implements OnInit {
       return;
     }
 
-    const nuevaPartida: Partida = {
-      id: this.partidaService.generarId(),
-      name: name,
-      host: this.authService.obtenerNombreUsuario(),
-      currentPlayers: 1,
-      maxPlayers: this.newGameMaxPlayers,
-      status: 'open',
-      ping: Math.floor(Math.random() * 60) + 10,
-    };
+    this.isCreatingGame.set(true);
 
     const nuevaPartidaa: Partidaa = {
       nombre: name,
@@ -214,11 +207,13 @@ export class Lobby implements OnInit {
     this.partidaService.crearPartida(nuevaPartidaa).subscribe({
       next: (res) => {
         console.log('Partida creada con éxito:', res);
+        this.isCreatingGame.set(false);
         this.closeModal();
         // Redirigir directamente a la partida recién creada
         this.router.navigate(['/match', res.id]);
       },
       error: (err) => {
+        this.isCreatingGame.set(false);
         this.formError.set(err || 'Nombre en uso o límite de partidas alcanzado');
       }
     });

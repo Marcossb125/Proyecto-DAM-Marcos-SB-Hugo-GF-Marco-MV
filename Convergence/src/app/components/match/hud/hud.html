@@ -6,6 +6,7 @@
 <app-hud-top-bar
   [phase]="phase$ | async"
   [currentTurn]="currentTurn$ | async"
+  [isReady]="(localPlayer$ | async)?.isReady || false"
   (phaseAction)="onPhaseAction($event)">
 </app-hud-top-bar>
 

@@ -15,14 +15,14 @@ export class AuthService {
 
   constructor() {}
 
-  registerUser(data: { email: string; password: string; nickname: string }): Promise<boolean> {
+  registerUser(data: { email: string; password: string; nickname: string }): Promise<{ success: boolean; error?: string }> {
     return new Promise((resolve) => {
-      this.socketService.emitWithCallback('register', data, (response: { error?: string }) => {
+      this.socketService.emitWithCallback('register', data, (response: { success: boolean; error?: string }) => {
         if (response.error) {
           console.error('Error en el registro:', response.error);
-          resolve(false);
+          resolve({ success: false, error: response.error });
         } else {
-          resolve(true);
+          resolve({ success: true });
         }
       }, true); // useAuthSocket = true
     });

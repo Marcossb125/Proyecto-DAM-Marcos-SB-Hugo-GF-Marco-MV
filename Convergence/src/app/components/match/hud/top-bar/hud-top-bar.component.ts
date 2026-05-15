@@ -13,6 +13,7 @@ import { MatButtonModule } from '@angular/material/button';
 export class HudTopBarComponent {
   @Input() phase: string | null = null;
   @Input() currentTurn: number | null = null;
+  @Input() isReady: boolean = false;
   
   @Output() phaseAction = new EventEmitter<string>();
 

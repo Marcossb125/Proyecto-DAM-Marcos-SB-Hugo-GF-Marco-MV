@@ -46,10 +46,11 @@ export class Register {
       password: this.password(),
       nickname: this.username()
     }).then((response) => {
-      if (response) {
+      this.isLoading.set(false);
+      if (response.success) {
         this.router.navigate(['/login']);
       } else {
-        console.log("Registro fallido")
+        this.errorMessage.set(response.error || 'Registro fallido');
       }
     });
   }

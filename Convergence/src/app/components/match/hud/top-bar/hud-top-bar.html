@@ -26,9 +26,11 @@
       *ngIf="phase !== 'RECAUDACION'"
       class="btn-tactical terminal-text"
       (click)="onPhaseAction($event, phase)"
+      [disabled]="isReady"
+      [class.btn-ready]="isReady"
       id="hud-phase-btn">
-      <mat-icon>flash_on</mat-icon>
-      LISTO
+      <mat-icon>{{ isReady ? 'done_all' : 'flash_on' }}</mat-icon>
+      {{ isReady ? 'ESPERANDO...' : 'LISTO' }}
     </button>
   </div>
 </div>
