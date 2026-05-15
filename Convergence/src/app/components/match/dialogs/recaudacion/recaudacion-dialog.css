@@ -1,0 +1,237 @@
+/* ═══ RECAUDACIÓN DIALOG ═══ */
+
+/* Replaced overlay fade animation with standard Angular Material classes/options if needed, 
+   but keeping basic variables and specific component animations here */
+
+.glass-panel {
+  background: var(--war-bg-glass, rgba(10, 12, 10, 0.85));
+  backdrop-filter: blur(16px) saturate(180%);
+  border: 1px solid var(--war-border, rgba(0, 255, 65, 0.25));
+  box-shadow: var(--war-shadow, 0 8px 32px rgba(0, 0, 0, 0.8));
+}
+
+.terminal-text {
+  font-family: 'Press Start 2P', cursive;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.recaudacion-dialog {
+  width: min(520px, 92vw);
+  border-radius: 12px;
+  border: 1px solid rgba(0, 255, 65, 0.4);
+  overflow: hidden;
+  animation: dialogSlideIn 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes dialogSlideIn {
+  from { transform: translateY(-24px) scale(0.97); opacity: 0; }
+  to   { transform: translateY(0)     scale(1);    opacity: 1; }
+}
+
+/* Header */
+.rec-header {
+  background: linear-gradient(135deg, rgba(0, 255, 65, 0.12), rgba(0, 255, 65, 0.04));
+  padding: 1.25rem 1.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 1px solid rgba(0, 255, 65, 0.2);
+  position: relative;
+  overflow: hidden;
+}
+
+.rec-title-group {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.rec-icon {
+  font-size: 2rem;
+  filter: drop-shadow(0 0 12px rgba(0, 255, 65, 0.8));
+  animation: pulse-glow 2s ease-in-out infinite;
+}
+
+@keyframes pulse-glow {
+  0%, 100% { filter: drop-shadow(0 0 8px rgba(0, 255, 65, 0.6)); }
+  50%       { filter: drop-shadow(0 0 20px rgba(0, 255, 65, 1)); }
+}
+
+.rec-title {
+  font-size: 1rem;
+  color: var(--war-green, #00ff41);
+  text-shadow: 0 0 12px rgba(0, 255, 65, 0.6);
+  margin: 0;
+}
+
+.rec-subtitle {
+  font-size: 0.75rem;
+  color: #888;
+  margin-top: 2px;
+  display: block;
+}
+
+.rec-pulse-ring {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  border: 2px solid rgba(0, 255, 65, 0.3);
+  position: absolute;
+  right: -20px;
+  top: -20px;
+  animation: ringPulse 2s ease infinite;
+}
+
+@keyframes ringPulse {
+  0%   { transform: scale(1);   opacity: 0.5; }
+  100% { transform: scale(1.8); opacity: 0;   }
+}
+
+/* Body */
+.rec-body {
+  padding: 1.25rem 1.5rem;
+}
+
+.rec-totals {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+  margin-bottom: 1.25rem;
+}
+
+.rec-total-card {
+  display: flex;
+  align-items: center;
+  gap: 0.85rem;
+  padding: 1rem;
+  border-radius: 8px;
+  border: 1px solid transparent;
+  transition: transform 0.2s;
+}
+
+.rec-total-card:hover { transform: translateY(-2px); }
+
+.rec-total-card.credits {
+  background: rgba(0, 255, 65, 0.06);
+  border-color: rgba(0, 255, 65, 0.2);
+}
+
+.rec-total-card.manpower {
+  background: rgba(0, 140, 255, 0.06);
+  border-color: rgba(0, 140, 255, 0.2);
+}
+
+.rtc-icon {
+  font-size: 1.8rem;
+}
+
+.rtc-info {
+  display: flex;
+  flex-direction: column;
+}
+
+.rtc-label {
+  font-size: 0.5rem;
+  color: #888;
+}
+
+.rtc-total {
+  font-size: 1.5rem;
+  font-weight: 800;
+  color: #fff;
+  line-height: 1.1;
+}
+
+.rtc-gain {
+  font-size: 0.8rem;
+  color: var(--war-green, #00ff41);
+  font-weight: 700;
+}
+
+.rec-total-card.manpower .rtc-gain {
+  color: #4daaff;
+}
+
+/* Sources */
+.rec-sources {
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid var(--war-border-light, rgba(0, 255, 65, 0.1));
+  border-radius: 8px;
+  padding: 0.85rem 1rem;
+}
+
+.rec-source-title {
+  font-size: 0.5rem;
+  color: #666;
+  margin-bottom: 0.75rem;
+}
+
+.rec-source-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.4rem 0;
+  border-bottom: 1px solid rgba(255,255,255,0.04);
+  font-size: 0.82rem;
+}
+
+.rec-source-row:last-child { border-bottom: none; }
+
+.rec-source-row.highlight .src-label {
+  color: var(--war-green, #00ff41);
+}
+
+.rec-source-row.highlight .src-val {
+  color: var(--war-green, #00ff41);
+  font-weight: 700;
+}
+
+.src-label { color: #bbb; }
+.src-val   { color: #fff; font-weight: 600; }
+
+/* Fallback */
+.rec-no-data {
+  text-align: center;
+  color: #888;
+  font-size: 0.9rem;
+  padding: 2rem 1.5rem;
+}
+
+/* Footer */
+.rec-footer {
+  padding: 1.25rem 1.5rem;
+  background: rgba(0, 255, 65, 0.03);
+  border-top: 1px solid rgba(0, 255, 65, 0.15);
+  display: flex;
+  justify-content: center;
+}
+
+.btn-rec-continue {
+  background: var(--war-green, #00ff41);
+  color: #000;
+  border: none;
+  padding: 0.85rem 3rem;
+  border-radius: 6px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.85rem;
+  font-weight: 900;
+  transition: all 0.2s;
+  box-shadow: 0 0 20px rgba(0, 255, 65, 0.3);
+}
+
+.btn-rec-continue:hover {
+  background: #fff;
+  box-shadow: 0 0 30px rgba(0, 255, 65, 0.7);
+  transform: translateY(-2px);
+}
+
+@media (max-width: 480px) {
+  .recaudacion-dialog { width: 96vw; }
+  .rec-totals { grid-template-columns: 1fr; }
+  .rec-title { font-size: 0.8rem; }
+  .rtc-total { font-size: 1.2rem; }
+}

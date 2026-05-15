@@ -8,17 +8,17 @@ import { SocketService } from './socket.service';
 export class UserService {
   private socketService = inject(SocketService);
 
-  constructor() {}
+  constructor() { }
 
   /**
    * Guarda la bandera del usuario en la base de datos.
    */
   guardarBandera(nickname: string, bandera: { layout: string; nombre: string; colors: string[] }): Observable<any> {
     return new Observable((subscriber) => {
-      this.socketService.emitWithCallback('guardarBandera', { 
-        nickname, 
-        nombre: bandera.nombre, 
-        bandera: { layout: bandera.layout, colors: bandera.colors } 
+      this.socketService.emitWithCallback('guardarBandera', {
+        nickname,
+        nombre: bandera.nombre,
+        bandera: { layout: bandera.layout, colors: bandera.colors }
       }, (response: any) => {
         if (response.success) {
           subscriber.next(response.data);

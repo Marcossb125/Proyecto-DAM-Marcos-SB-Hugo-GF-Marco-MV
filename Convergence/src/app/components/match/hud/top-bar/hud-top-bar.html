@@ -1,0 +1,34 @@
+<div class="hud-top-bar">
+  <!-- Left: Phase info + Turn -->
+  <div class="phase-section" *ngIf="phase">
+    <div class="phase-card">
+      <div class="phase-number-box">{{ getPhaseNumber(phase) }}</div>
+      <div class="phase-info">
+        <span class="phase-name terminal-text">{{ getPhaseLabel(phase) }}</span>
+        <span class="phase-desc">{{ getPhaseDescription(phase) }}</span>
+      </div>
+      <!-- Integrated Turn for Mobile -->
+      <div class="mobile-turn-badge" *ngIf="currentTurn">
+        T{{ currentTurn }}
+      </div>
+    </div>
+  </div>
+
+  <!-- Center: Turn (Desktop Widget) -->
+  <div class="turn-widget glass-panel" *ngIf="currentTurn">
+    <span class="turn-label terminal-text">Sector Turn</span>
+    <span class="turn-val">{{ currentTurn }}</span>
+  </div>
+
+  <!-- Right: Action button -->
+  <div class="action-section" *ngIf="phase">
+    <button
+      *ngIf="phase !== 'RECAUDACION'"
+      class="btn-tactical terminal-text"
+      (click)="onPhaseAction($event, phase)"
+      id="hud-phase-btn">
+      <mat-icon>flash_on</mat-icon>
+      LISTO
+    </button>
+  </div>
+</div>

@@ -1,0 +1,197 @@
+.glass-panel {
+  background: var(--war-bg-glass, rgba(10, 12, 10, 0.85));
+  backdrop-filter: blur(16px) saturate(180%);
+  border: 1px solid var(--war-border, rgba(0, 255, 65, 0.25));
+  box-shadow: var(--war-shadow, 0 8px 32px rgba(0, 0, 0, 0.8));
+  pointer-events: auto;
+}
+
+.terminal-text {
+  font-family: 'Press Start 2P', cursive;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+/* ═══ TOP BAR — INTEGRATED & SLEEK ═══ */
+.hud-top-bar {
+  pointer-events: none; /* FIXED: Allow clicks through empty space */
+  position: absolute;
+  top: 1rem;
+  left: 1rem;
+  right: 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1.5rem;
+  height: 64px;
+  z-index: 200;
+}
+
+.phase-section {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  max-width: 400px;
+}
+
+.phase-card {
+  pointer-events: auto;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 0.5rem 1rem;
+  border-radius: var(--panel-radius, 8px);
+  background: linear-gradient(90deg, rgba(0, 255, 65, 0.08) 0%, transparent 100%);
+  flex: 1;
+  min-width: 0; /* Important for text truncation */
+}
+
+.mobile-turn-badge {
+  display: none; /* Desktop hidden */
+}
+
+.phase-number-box {
+  background: var(--war-green, #00ff41);
+  color: #000;
+  font-weight: 900;
+  padding: 0.4rem 0.6rem;
+  border-radius: 4px;
+  font-size: 0.9rem;
+  box-shadow: 0 0 15px rgba(0, 255, 65, 0.4);
+}
+
+.phase-info {
+  display: flex;
+  flex-direction: column;
+}
+
+.phase-name {
+  font-size: 0.75rem;
+  color: var(--war-green, #00ff41);
+  text-shadow: 0 0 8px rgba(0, 255, 65, 0.5);
+}
+
+.phase-desc {
+  font-size: 0.65rem;
+  color: #aaa;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Center Turn Widget */
+.turn-widget {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 0.4rem 1.5rem;
+  min-width: 120px;
+  border-radius: 0 0 12px 12px;
+  border-top: none;
+}
+
+.turn-label {
+  font-size: 0.5rem;
+  color: var(--war-green, #00ff41);
+  opacity: 0.7;
+}
+
+.turn-val {
+  font-size: 1.5rem;
+  font-weight: 800;
+  line-height: 1;
+  color: #fff;
+}
+
+/* Action Button */
+.action-section {
+  flex: 1;
+  display: flex;
+  justify-content: flex-end;
+}
+
+.btn-tactical {
+  pointer-events: auto; /* Ensure clickable */
+  background: var(--war-green, #00ff41);
+  color: #000;
+  border: none;
+  padding: 0.75rem 1.5rem;
+  border-radius: 4px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  transition: all 0.2s;
+  font-size: 0.8rem;
+  font-weight: 800;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.btn-tactical:hover {
+  background: #fff;
+  box-shadow: 0 0 20px rgba(0, 255, 65, 0.6);
+  transform: translateY(-2px);
+}
+
+/* ═══ RESPONSIVE OVERRIDES ═══ */
+@media (max-width: 1024px) {
+  .hud-top-bar { top: 0.5rem; }
+  .turn-widget { display: none; }
+}
+
+@media (max-width: 768px) {
+  .hud-top-bar {
+    height: auto;
+    flex-wrap: nowrap; /* Prevent wrapping */
+    align-items: center;
+    background: var(--war-bg-glass, rgba(10, 12, 10, 0.85));
+    padding: 0.5rem;
+    border-radius: 0 0 12px 12px;
+    top: 0; left: 0; right: 0;
+    pointer-events: none; /* FIXED: Allow clicks through to map */
+    border-bottom: 1px solid var(--war-border, rgba(0, 255, 65, 0.25));
+  }
+
+  .phase-card {
+    background: transparent;
+    pointer-events: auto;
+    gap: 0.5rem;
+    padding: 0.25rem 0.5rem;
+  }
+
+  .mobile-turn-badge {
+    display: flex;
+    background: var(--war-green, #00ff41);
+    color: #000;
+    font-size: 0.7rem;
+    font-weight: 900;
+    padding: 0.2rem 0.4rem;
+    border-radius: 3px;
+    margin-left: auto;
+  }
+
+  .phase-name { font-size: 0.6rem; }
+  .phase-desc { display: none; }
+  .phase-number-box { padding: 0.25rem 0.4rem; font-size: 0.75rem; }
+
+  /* Reduce top bar impact on map space */
+  .phase-section { 
+    order: 1; 
+    max-width: none;
+    margin-bottom: 0;
+  }
+  .action-section { 
+    order: 2; 
+    width: auto;
+    pointer-events: auto; /* FIXED */
+  }
+}
+
+@media (max-width: 480px) {
+  .phase-card { padding: 0.4rem; }
+  .btn-tactical { padding: 0.5rem 1rem; font-size: 0.7rem; }
+}

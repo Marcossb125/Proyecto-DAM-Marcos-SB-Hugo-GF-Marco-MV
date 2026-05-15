@@ -132,8 +132,6 @@ ALTER TABLE `participantes`
 ALTER TABLE `partidas`
   MODIFY `Id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=9;
 
-ALTER TABLE `partidas`
-  ADD COLUMN IF NOT EXISTS `Id_ganador` int(11) DEFAULT NULL;
 
 --
 -- AUTO_INCREMENT de la tabla `match_snapshots`

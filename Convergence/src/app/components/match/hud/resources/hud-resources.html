@@ -1,0 +1,35 @@
+<div class="hud-left-panel">
+  <div class="resources-card glass-panel" [class.collapsed]="isCollapsed">
+    <!-- Header/Toggle -->
+    <div class="card-header">
+      <span class="header-title terminal-text">Logistics</span>
+      <button class="toggle-btn" (click)="onToggle($event)">
+        <mat-icon>{{ isCollapsed ? 'unfold_more' : 'unfold_less' }}</mat-icon>
+      </button>
+    </div>
+
+    <!-- Full View -->
+    <div class="resources-list" *ngIf="!isCollapsed && player">
+      <div class="res-item">
+        <div class="res-icon">💰</div>
+        <div class="res-info">
+          <span class="res-name terminal-text">Credits</span>
+          <span class="res-val">{{ player.credits }}</span>
+        </div>
+      </div>
+      <div class="res-item">
+        <div class="res-icon">👥</div>
+        <div class="res-info">
+          <span class="res-name terminal-text">Manpower</span>
+          <span class="res-val">{{ player.manpower }}</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Compact View -->
+    <div class="res-compact" *ngIf="isCollapsed && player">
+      <span>💰 {{ player.credits }}</span>
+      <span>👥 {{ player.manpower }}</span>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,76 @@
+<div class="recaudacion-dialog glass-panel">
+
+  <!-- Header -->
+  <div class="rec-header">
+    <div class="rec-title-group">
+      <span class="rec-icon">⚡</span>
+      <div>
+        <h2 class="rec-title terminal-text">RECAUDACIÓN</h2>
+        <span class="rec-subtitle" *ngIf="data">Ronda {{ data.round }}</span>
+      </div>
+    </div>
+    <div class="rec-pulse-ring"></div>
+  </div>
+
+  <!-- Income breakdown -->
+  <div class="rec-body" *ngIf="data?.myIncome as income">
+
+    <!-- Resource totals -->
+    <div class="rec-totals">
+      <div class="rec-total-card credits">
+        <div class="rtc-icon">💰</div>
+        <div class="rtc-info">
+          <span class="rtc-label terminal-text">Créditos</span>
+          <span class="rtc-total">{{ income.totalCredits }}</span>
+          <span class="rtc-gain">+{{ income.creditsGained }}</span>
+        </div>
+      </div>
+      <div class="rec-total-card manpower">
+        <div class="rtc-icon">👥</div>
+        <div class="rtc-info">
+          <span class="rtc-label terminal-text">Manpower</span>
+          <span class="rtc-total">{{ income.totalManpower }}</span>
+          <span class="rtc-gain">+{{ income.manpowerGained }}</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Income sources breakdown -->
+    <div class="rec-sources">
+      <div class="rec-source-title terminal-text">Origen de ingresos</div>
+      <div class="rec-source-row">
+        <span class="src-label">🏛️ Ingreso base</span>
+        <span class="src-val">+100cr / +50mp</span>
+      </div>
+      <div class="rec-source-row" *ngIf="income.territories > 0">
+        <span class="src-label">🗺️ Territorios ({{ income.territories }})</span>
+        <span class="src-val">+{{ income.territories * 20 }}cr / +{{ income.territories * 5 }}mp</span>
+      </div>
+      <div class="rec-source-row highlight" *ngIf="income.refineries > 0">
+        <span class="src-label">⛽ Refinerías ({{ income.refineries }})</span>
+        <span class="src-val">+{{ income.refineries * 100 }}cr</span>
+      </div>
+      <div class="rec-source-row" *ngIf="income.fabricas > 0">
+        <span class="src-label">🏭 Fábricas ({{ income.fabricas }})</span>
+        <span class="src-val">+{{ income.fabricas * 50 }}cr</span>
+      </div>
+      <div class="rec-source-row" *ngIf="income.cuarteles > 0">
+        <span class="src-label">🪖 Cuarteles ({{ income.cuarteles }})</span>
+        <span class="src-val">+{{ income.cuarteles * 20 }}mp</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- No income data fallback -->
+  <div class="rec-body rec-no-data" *ngIf="!data?.myIncome">
+    <span>⚡ Recursos actualizados. ¡Siguiente fase: Construcción!</span>
+  </div>
+
+  <!-- Continue button -->
+  <div class="rec-footer">
+    <button class="btn-rec-continue terminal-text" (click)="onClose()" id="recaudacion-continue-btn">
+      <mat-icon>flash_on</mat-icon>
+      CONTINUAR
+    </button>
+  </div>
+</div>

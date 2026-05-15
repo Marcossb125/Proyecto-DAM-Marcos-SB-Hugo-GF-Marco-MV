@@ -8,6 +8,12 @@ import { Store } from '@ngrx/store';
 import { Router } from '@angular/router';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
+import { MatDialog } from '@angular/material/dialog';
+import { HudResourcesComponent } from './resources/hud-resources.component';
+import { HudLogComponent } from './log/hud-log.component';
+import { HudTopBarComponent } from './top-bar/hud-top-bar.component';
+import { HudBottomBarComponent } from './bottom-bar/hud-bottom-bar.component';
+import { RecaudacionDialogComponent, RecaudacionDialogData } from '../dialogs/recaudacion/recaudacion-dialog.component';
 import { PhaseActions, MapActions, MatchSocketActions } from '../store/match.actions';
 import {
   selectPhase,
@@ -25,7 +31,7 @@ import { Subscription, tap } from 'rxjs';
 @Component({
   selector: 'app-hud',
   standalone: true,
-  imports: [CommonModule, MatButtonModule, MatIconModule],
+  imports: [CommonModule, MatButtonModule, MatIconModule, HudResourcesComponent, HudLogComponent, HudTopBarComponent, HudBottomBarComponent],
   templateUrl: './hud.html',
   styleUrl: './hud.css',
 })
@@ -35,6 +41,7 @@ export class HudComponent implements OnInit {
   private readonly socketService = inject(SocketService);
   private readonly authService = inject(AuthService);
   private readonly cdr = inject(ChangeDetectorRef);
+  private readonly dialog = inject(MatDialog);
   private socketSub?: Subscription;
 
   phase$ = this.store.select(selectPhase).pipe(tap(() => this.cdr.markForCheck()));
@@ -57,20 +64,6 @@ export class HudComponent implements OnInit {
   gameLogs: Array<{ time: string; message: string; type: string }> = [];
 
   // ── Recaudación Dialog ──
-  showRecaudacionDialog = false;
-  recaudacionData: {
-    round: number;
-    myIncome: {
-      creditsGained: number;
-      manpowerGained: number;
-      totalCredits: number;
-      totalManpower: number;
-      territories: number;
-      refineries: number;
-      fabricas: number;
-      cuarteles: number;
-    } | null;
-  } | null = null;
   private recaudacionSub?: import('rxjs').Subscription;
 
   ngOnInit(): void {
@@ -89,11 +82,18 @@ export class HudComponent implements OnInit {
     this.recaudacionSub = this.socketService.listen('RECAUDACION_SUMMARY').subscribe((data: any) => {
       const playerId = this.authService.obtenerNombreUsuario();
       const myEntry = data?.incomeSummary?.find((e: any) => e.playerId === playerId);
-      this.recaudacionData = {
-        round: data.round,
-        myIncome: myEntry ?? null,
-      };
-      this.showRecaudacionDialog = true;
+      
+      this.dialog.open(RecaudacionDialogComponent, {
+        width: 'auto',
+        maxWidth: '96vw',
+        panelClass: 'transparent-panel',
+        disableClose: true,
+        data: {
+          round: data.round,
+          myIncome: myEntry ?? null
+        } as RecaudacionDialogData
+      });
+      
       this.cdr.markForCheck();
     });
   }
@@ -138,49 +138,7 @@ export class HudComponent implements OnInit {
     this.isPlayersCollapsed = !this.isPlayersCollapsed;
   }
 
-  getPhaseLabel(phase: string): string {
-    const labels: Record<string, string> = {
-      RECAUDACION: 'RECAUDACIÓN',
-      CONSTRUCCION: 'CONSTRUCCIÓN',
-      RECLUTAMIENTO: 'RECLUTAMIENTO',
-      MOVIMIENTO: 'MOVIMIENTO',
-    };
-    return labels[phase] ?? phase;
-  }
 
-  getPhaseDescription(phase: string): string {
-    const descs: Record<string, string> = {
-      RECAUDACION: 'Recaudando recursos...',
-      CONSTRUCCION: 'Haz clic en un territorio propio para construir',
-      RECLUTAMIENTO: 'Haz clic en tu base suprema para reclutar',
-      MOVIMIENTO: 'Selecciona un ejército para moverlo',
-    };
-    return descs[phase] ?? '';
-  }
-
-  getPhaseIcon(phase: string): string {
-    const icons: Record<string, string> = {
-      RECAUDACION: 'payments',
-      CONSTRUCCION: 'construction',
-      RECLUTAMIENTO: 'military_tech',
-      MOVIMIENTO: 'moving',
-    };
-    return icons[phase] ?? 'help';
-  }
-
-  getPhaseNumber(phase: string): number {
-    const nums: Record<string, number> = {
-      RECAUDACION: 1,
-      CONSTRUCCION: 2,
-      RECLUTAMIENTO: 3,
-      MOVIMIENTO: 4,
-    };
-    return nums[phase] ?? 0;
-  }
-
-  getButtonLabel(phase: string): string {
-    return phase === 'RECAUDACION' ? 'CONTINUAR' : 'LISTO';
-  }
 
   onPhaseAction(phase: string): void {
     const matchId = this.router.url.split('/').pop(); // Get ID from URL
@@ -195,10 +153,7 @@ export class HudComponent implements OnInit {
     }));
   }
 
-  closeRecaudacionDialog(): void {
-    this.showRecaudacionDialog = false;
-    this.recaudacionData = null;
-  }
+  // (Removed closeRecaudacionDialog, since MatDialog handles it now)
 
   onBackToInicio(): void {
     this.router.navigate(['/inicio']);

@@ -6,6 +6,8 @@ import java.util.Optional;
 
 public interface MatchSnapshotRepository extends JpaRepository<MatchSnapshot, Long> {
     Optional<MatchSnapshot> findByMatchIdAndRonda(Long matchId, int ronda);
+
     Optional<MatchSnapshot> findTopByMatchIdOrderByRondaDesc(Long matchId);
-    Optional<MatchSnapshot> findByMatchId(Long matchId);
+
+    Optional<MatchSnapshot> findByMatchId(Long mathId);
 }

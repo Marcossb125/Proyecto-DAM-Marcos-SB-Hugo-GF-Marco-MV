@@ -194,3 +194,72 @@
   border-color: #828a5e;
   color: #e0e0e0;
 }
+
+/* Result View Styles */
+.result-info {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.5rem;
+  margin-bottom: 2rem;
+  padding: 1.5rem;
+  background: rgba(20, 22, 20, 0.6);
+  border: 1px solid #3a3d2e;
+  border-radius: 4px;
+}
+
+.result-icon mat-icon {
+  font-size: 64px;
+  width: 64px;
+  height: 64px;
+}
+
+.result-info.success .result-icon mat-icon {
+  color: #00ff41;
+  text-shadow: 0 0 20px rgba(0, 255, 65, 0.4);
+}
+
+.result-info.defeat .result-icon mat-icon {
+  color: #ff4444;
+  text-shadow: 0 0 20px rgba(255, 68, 68, 0.4);
+}
+
+.result-message {
+  text-align: center;
+  font-weight: 700;
+  font-size: 1.1rem;
+  line-height: 1.4;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.result-info.success .result-message {
+  color: #00ff41;
+}
+
+.result-info.defeat .result-message {
+  color: #ff4444;
+}
+
+.dialog-actions.single-action {
+  justify-content: center;
+}
+
+.btn-close {
+  padding: 0.65rem 2rem;
+  background: #3a3d2e;
+  border: none;
+  border-bottom: 3px solid #1a1b14;
+  border-radius: 3px;
+  color: #fff;
+  font-family: 'Press Start 2P', monospace;
+  font-size: 0.45rem;
+  cursor: pointer;
+  transition: all 0.2s;
+  min-width: 150px;
+}
+
+.btn-close:hover {
+  background: #4b5320;
+  box-shadow: 0 0 15px rgba(255, 255, 255, 0.1);
+}

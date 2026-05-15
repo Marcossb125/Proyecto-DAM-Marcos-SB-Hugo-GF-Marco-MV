@@ -16,7 +16,7 @@ public class RankingController {
 
     @GetMapping
     public List<UsuarioMongo> getRanking() {
-        return usuarioMongoRepository.findTop10ByOrderByVictoriasDesc();
+        return usuarioMongoRepository.findByOrderByVictoriasDesc();
     }
 
     @GetMapping("/general/{id}")

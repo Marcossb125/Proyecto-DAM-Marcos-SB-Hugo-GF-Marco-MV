@@ -390,7 +390,18 @@ export class Match implements OnInit, OnDestroy {
         // We'll use dummy army objects for the display if needed, or rely on sizes from result.
 
         if (myResult.type === 'conquest') {
-          // No longer showing modal for city conquest result
+          this.dialog.open(CityDialog, {
+            data: {
+              army: { troopSize: myResult.initialAttackerSize } as Army,
+              territory: territory!,
+              defenseStrength: 0, // Not needed for result
+              successChance: 0,
+              mode: 'result',
+              result: myResult
+            },
+            panelClass: 'military-dialog',
+            disableClose: false
+          });
         } else {
           this.dialog.open(BattleDialog, {
             data: {

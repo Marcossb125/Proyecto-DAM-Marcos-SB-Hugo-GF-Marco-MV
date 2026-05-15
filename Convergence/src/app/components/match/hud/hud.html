@@ -3,185 +3,29 @@
      ═══════════════════════════════════════════════════════════════ -->
 
 <!-- ═══ TOP BAR ═══ -->
-<div class="hud-top-bar">
-  <!-- Left: Phase info + Turn -->
-  <div class="phase-section" *ngIf="phase$ | async as phase">
-    <div class="phase-card">
-      <div class="phase-number-box">{{ getPhaseNumber(phase) }}</div>
-      <div class="phase-info">
-        <span class="phase-name terminal-text">{{ getPhaseLabel(phase) }}</span>
-        <span class="phase-desc">{{ getPhaseDescription(phase) }}</span>
-      </div>
-      <!-- Integrated Turn for Mobile -->
-      <div class="mobile-turn-badge" *ngIf="currentTurn$ | async as turn">
-        T{{ turn }}
-      </div>
-    </div>
-  </div>
-
-  <!-- Center: Turn (Desktop Widget) -->
-  <div class="turn-widget glass-panel" *ngIf="currentTurn$ | async as turn">
-    <span class="turn-label terminal-text">Sector Turn</span>
-    <span class="turn-val">{{ turn }}</span>
-  </div>
-
-  <!-- Right: Action button -->
-  <div class="action-section" *ngIf="phase$ | async as phase">
-    <button
-      *ngIf="phase !== 'RECAUDACION'"
-      class="btn-tactical terminal-text"
-      (click)="$event.stopPropagation(); onPhaseAction(phase)"
-      id="hud-phase-btn">
-      <mat-icon>flash_on</mat-icon>
-      LISTO
-    </button>
-  </div>
-</div>
+<app-hud-top-bar
+  [phase]="phase$ | async"
+  [currentTurn]="currentTurn$ | async"
+  (phaseAction)="onPhaseAction($event)">
+</app-hud-top-bar>
 
 <!-- ═══ LEFT PANEL (Resources) ═══ -->
-<div class="hud-left-panel">
-  <div class="resources-card glass-panel" [class.collapsed]="isResourcesCollapsed">
-    <!-- Header/Toggle -->
-    <div class="card-header">
-      <span class="header-title terminal-text">Logistics</span>
-      <button class="toggle-btn" (click)="$event.stopPropagation(); toggleResources()">
-        <mat-icon>{{ isResourcesCollapsed ? 'unfold_more' : 'unfold_less' }}</mat-icon>
-      </button>
-    </div>
-
-    <!-- Full View -->
-    <div class="resources-list" *ngIf="!isResourcesCollapsed && (localPlayer$ | async) as player">
-      <div class="res-item">
-        <div class="res-icon">💰</div>
-        <div class="res-info">
-          <span class="res-name terminal-text">Credits</span>
-          <span class="res-val">{{ player.credits }}</span>
-        </div>
-      </div>
-      <div class="res-item">
-        <div class="res-icon">👥</div>
-        <div class="res-info">
-          <span class="res-name terminal-text">Manpower</span>
-          <span class="res-val">{{ player.manpower }}</span>
-        </div>
-      </div>
-    </div>
-
-    <!-- Compact View -->
-    <div class="res-compact" *ngIf="isResourcesCollapsed && (localPlayer$ | async) as player">
-      <span>💰 {{ player.credits }}</span>
-      <span>👥 {{ player.manpower }}</span>
-    </div>
-  </div>
-</div>
+<app-hud-resources 
+  [player]="(localPlayer$ | async)!"
+  [isCollapsed]="isResourcesCollapsed"
+  (toggle)="toggleResources()">
+</app-hud-resources>
 
 <!-- ═══ RIGHT PANEL (Game Log) ═══ -->
-<div class="hud-right-panel glass-panel" [class.open]="isLogOpen">
-  <div class="log-handle" (click)="$event.stopPropagation(); toggleLog()">
-    <mat-icon>{{ isLogOpen ? 'chevron_right' : 'history' }}</mat-icon>
-  </div>
-
-  <div class="log-content">
-    <div class="card-header">
-      <span class="header-title terminal-text">Intel Feed</span>
-    </div>
-    
-    <div class="log-entries">
-      <div *ngFor="let log of gameLogs" class="entry-row" [ngClass]="log.type">
-        <span class="e-time">{{ log.time }}</span>
-        <span class="e-msg">{{ log.message }}</span>
-      </div>
-    </div>
-  </div>
-</div>
+<app-hud-log
+  [gameLogs]="gameLogs"
+  [isOpen]="isLogOpen"
+  (toggle)="toggleLog()">
+</app-hud-log>
 
 <!-- ═══ BOTTOM BAR (Command & Abort) ═══ -->
-<div class="hud-bottom-bar">
+<app-hud-bottom-bar
+  (abortMission)="onBackToInicio()">
+</app-hud-bottom-bar>
 
 
-  <!-- Isolated Exit Button -->
-  <button class="btn-exit-tactical glass-panel terminal-text" (click)="$event.stopPropagation(); onBackToInicio()">
-    <mat-icon>power_settings_new</mat-icon>
-    <span>Abort Mission</span>
-  </button>
-</div>
-
-<!-- ═══ RECAUDACIÓN DIALOG ═══ -->
-<div class="recaudacion-overlay" *ngIf="showRecaudacionDialog" (click)="$event.stopPropagation()">
-  <div class="recaudacion-dialog glass-panel">
-
-    <!-- Header -->
-    <div class="rec-header">
-      <div class="rec-title-group">
-        <span class="rec-icon">⚡</span>
-        <div>
-          <h2 class="rec-title terminal-text">RECAUDACIÓN</h2>
-          <span class="rec-subtitle" *ngIf="recaudacionData">Ronda {{ recaudacionData.round }}</span>
-        </div>
-      </div>
-      <div class="rec-pulse-ring"></div>
-    </div>
-
-    <!-- Income breakdown -->
-    <div class="rec-body" *ngIf="recaudacionData?.myIncome as income">
-
-      <!-- Resource totals -->
-      <div class="rec-totals">
-        <div class="rec-total-card credits">
-          <div class="rtc-icon">💰</div>
-          <div class="rtc-info">
-            <span class="rtc-label terminal-text">Créditos</span>
-            <span class="rtc-total">{{ income.totalCredits }}</span>
-            <span class="rtc-gain">+{{ income.creditsGained }}</span>
-          </div>
-        </div>
-        <div class="rec-total-card manpower">
-          <div class="rtc-icon">👥</div>
-          <div class="rtc-info">
-            <span class="rtc-label terminal-text">Manpower</span>
-            <span class="rtc-total">{{ income.totalManpower }}</span>
-            <span class="rtc-gain">+{{ income.manpowerGained }}</span>
-          </div>
-        </div>
-      </div>
-
-      <!-- Income sources breakdown -->
-      <div class="rec-sources">
-        <div class="rec-source-title terminal-text">Origen de ingresos</div>
-        <div class="rec-source-row">
-          <span class="src-label">🏛️ Ingreso base</span>
-          <span class="src-val">+100cr / +50mp</span>
-        </div>
-        <div class="rec-source-row" *ngIf="income.territories > 0">
-          <span class="src-label">🗺️ Territorios ({{ income.territories }})</span>
-          <span class="src-val">+{{ income.territories * 20 }}cr / +{{ income.territories * 5 }}mp</span>
-        </div>
-        <div class="rec-source-row highlight" *ngIf="income.refineries > 0">
-          <span class="src-label">⛽ Refinerías ({{ income.refineries }})</span>
-          <span class="src-val">+{{ income.refineries * 100 }}cr</span>
-        </div>
-        <div class="rec-source-row" *ngIf="income.fabricas > 0">
-          <span class="src-label">🏭 Fábricas ({{ income.fabricas }})</span>
-          <span class="src-val">+{{ income.fabricas * 50 }}cr</span>
-        </div>
-        <div class="rec-source-row" *ngIf="income.cuarteles > 0">
-          <span class="src-label">🪖 Cuarteles ({{ income.cuarteles }})</span>
-          <span class="src-val">+{{ income.cuarteles * 20 }}mp</span>
-        </div>
-      </div>
-    </div>
-
-    <!-- No income data fallback -->
-    <div class="rec-body rec-no-data" *ngIf="!recaudacionData?.myIncome">
-      <span>⚡ Recursos actualizados. ¡Siguiente fase: Construcción!</span>
-    </div>
-
-    <!-- Continue button -->
-    <div class="rec-footer">
-      <button class="btn-rec-continue terminal-text" (click)="closeRecaudacionDialog()" id="recaudacion-continue-btn">
-        <mat-icon>flash_on</mat-icon>
-        CONTINUAR
-      </button>
-    </div>
-  </div>
-</div>

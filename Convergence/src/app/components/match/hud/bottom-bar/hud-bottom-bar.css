@@ -1,0 +1,52 @@
+.glass-panel {
+  background: var(--war-bg-glass, rgba(10, 12, 10, 0.85));
+  backdrop-filter: blur(16px) saturate(180%);
+  border: 1px solid var(--war-border, rgba(0, 255, 65, 0.25));
+  box-shadow: var(--war-shadow, 0 8px 32px rgba(0, 0, 0, 0.8));
+  pointer-events: auto;
+}
+
+.terminal-text {
+  font-family: 'Press Start 2P', cursive;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+/* ═══ BOTTOM BAR — COMMAND PANEL & EXIT ═══ */
+.hud-bottom-bar {
+  position: absolute;
+  bottom: 1.5rem;
+  left: 1.5rem;
+  right: 1.5rem;
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between; /* If more elements are added */
+  flex-direction: row-reverse; /* Since there's no left element, align right or keep as is. Currently it aligns left if just one item with space-between, wait, if justify-content is space-between and there's 1 item, it's left. Let's just follow the original. */
+  gap: 1.5rem;
+  pointer-events: none;
+}
+
+.btn-exit-tactical {
+  pointer-events: auto;
+  background: rgba(255, 68, 68, 0.08);
+  border: 1px solid rgba(255, 68, 68, 0.2);
+  color: #ff4444;
+  padding: 0.75rem 1.5rem;
+  border-radius: var(--panel-radius, 8px);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  transition: all 0.2s;
+  backdrop-filter: blur(10px);
+}
+
+.btn-exit-tactical:hover {
+  background: #ff4444;
+  color: #fff;
+  box-shadow: 0 0 20px rgba(255, 68, 68, 0.4);
+}
+
+@media (max-width: 480px) {
+  .btn-exit-tactical span { display: none; }
+}

@@ -1,5 +1,23 @@
-
 services:
+  mysql-db:
+    image: mysql:8.0
+    restart: always
+    env_file:
+      - ./.env
+    environment:
+      MYSQL_DATABASE: ${DB_NAME}
+      MYSQL_ROOT_PASSWORD: ${DB_PASS}
+      MYSQL_ALLOW_EMPTY_PASSWORD: "yes"
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql-data:/var/lib/mysql
+      - ./convergence.sql:/docker-entrypoint-initdb.d/convergence.sql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      timeout: 20s
+      retries: 10
+
   backend-java:
     build: 
       context: "./Api rest"
@@ -10,17 +28,16 @@ services:
       - ./.env
     environment:
       - SPRING_PROFILES_ACTIVE=prod
-      - SPRING_DATASOURCE_URL=jdbc:mysql://mysql-db:3306/convergence?serverTimezone=UTC&useSSL=false
-      - DB_USER=root
-      - DB_PASS=
-      - BACKEND_USER=${DB_USER}
-      - BACKEND_PASSWORD=${DB_PASSWORD}
-      - JWT_SECRET=${JWT}
+      - SPRING_DATASOURCE_URL=jdbc:mysql://mysql-db:3306/${DB_NAME}?serverTimezone=UTC&useSSL=false
+    depends_on:
+      mysql-db:
+        condition: service_healthy
 
   backend-js:
     build: 
       context: ./Backend
       dockerfile: dockerFile
+    restart: on-failure
     ports:
       - "3000:3000"
     env_file:
@@ -35,10 +52,12 @@ services:
     build: 
       context: ./Convergence
       dockerfile: dockerFile
+    restart: on-failure
     ports:
       - "80:80"
     depends_on:
       - backend-java
       - backend-js
 
-
+volumes:
+  mysql-data:

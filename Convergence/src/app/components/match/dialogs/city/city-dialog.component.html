@@ -45,5 +45,26 @@
       CANCELAR
     </button>
   </div>
+  } @else if (data.mode === 'result') {
+  <div class="result-info" [class.success]="conquestSuccess()" [class.defeat]="!conquestSuccess()">
+    <div class="result-icon">
+      <mat-icon>{{ conquestSuccess() ? 'emoji_events' : 'sentiment_very_dissatisfied' }}</mat-icon>
+    </div>
+    <div class="result-message">
+      {{ data.result?.resultMessage || (conquestSuccess() ? '¡Ciudad conquistada con éxito!' : 'La conquista ha fracasado...') }}
+    </div>
+    @if (data.result?.finalAttackerSize !== undefined) {
+    <div class="troop-info">
+      <mat-icon>groups</mat-icon>
+      <span>Tropas restantes: {{ data.result?.finalAttackerSize }}</span>
+    </div>
+    }
+  </div>
+
+  <div class="dialog-actions single-action">
+    <button class="btn-close" (click)="onClose()">
+      CERRAR
+    </button>
+  </div>
   }
 </div>

@@ -46,14 +46,14 @@ export class Personajes {
       codename: 'IRON WOLF',
       description: 'Veterano de mil batallas. Su presencia en el campo inspira a las tropas y refuerza las líneas defensivas con disciplina de acero.',
       avatar: '🐺',
-      bonuses: [
-        { name: 'Defensa', value: '+25%', icon: '🛡️', description: 'Reduce el daño recibido por tus unidades en combate directo.' },
-        { name: 'Moral Tropa', value: '+15%', icon: '⭐', description: 'Aumenta la efectividad de tus tropas cuando están en inferioridad numérica.' },
-        { name: 'Resistencia', value: '+20%', icon: '💪', description: 'Tus unidades aguantan más turnos antes de ser eliminadas.' },
+      bonuses: [{ name: 'Ataque Furtivo', value: '+1 casilla', icon: '🗡️', description: 'Aumenta el alcance de las tropas al desplazarse.' },
+
       ],
       specialty: 'DEFENSA ESTRATÉGICA',
       selected: false,
     },
+
+
     {
       id: 2,
       name: 'ELENA VOSTOK',
@@ -61,10 +61,8 @@ export class Personajes {
       codename: 'SHADOW HAWK',
       description: 'Maestra en operaciones encubiertas y ataques relámpago. Sus emboscadas son letales y sus movimientos imposibles de rastrear.',
       avatar: '🦅',
-      bonuses: [
-        { name: 'Ataque Furtivo', value: '+30%', icon: '🗡️', description: 'Incrementa el daño del primer ataque cuando no has sido detectado.' },
-        { name: 'Velocidad', value: '+20%', icon: '⚡', description: 'Permite mover tus unidades más casillas por turno en el campo.' },
-        { name: 'Evasión', value: '+15%', icon: '💨', description: 'Probabilidad de esquivar ataques enemigos por completo.' },
+      bonuses: [{ name: 'Defensa', value: '+10', icon: '🛡️', description: 'Aumenta la defensa de los territorios del jugador.' },
+
       ],
       specialty: 'OPERACIONES ENCUBIERTAS',
       selected: false,
@@ -77,9 +75,7 @@ export class Personajes {
       description: 'Experto en artillería pesada y asalto directo. Sus bombardeos devastadores arrasan posiciones enemigas sin piedad.',
       avatar: '💀',
       bonuses: [
-        { name: 'Daño Artillería', value: '+35%', icon: '💣', description: 'Aumenta el daño de todos los ataques de área y bombardeos.' },
-        { name: 'Alcance', value: '+20%', icon: '🎯', description: 'Extiende la distancia máxima de disparo de tus unidades de largo alcance.' },
-        { name: 'Destrucción', value: '+25%', icon: '🔥', description: 'Incrementa el daño a edificios y fortificaciones enemigas.' },
+        { name: 'Daño Artillería', value: '+10', icon: '💣', description: 'Aumenta el daño inflingido al atacar.' },
       ],
       specialty: 'ARTILLERÍA PESADA',
       selected: false,
@@ -92,9 +88,7 @@ export class Personajes {
       description: 'Estratega brillante especializada en guerra tecnológica. Hackea sistemas enemigos y despliega drones de combate autónomos.',
       avatar: '🐍',
       bonuses: [
-        { name: 'Tecnología', value: '+30%', icon: '🔬', description: 'Mejora la velocidad de investigación y desbloqueo de mejoras.' },
-        { name: 'Intel Enemigo', value: '+25%', icon: '📡', description: 'Revela posiciones y movimientos del enemigo en el mapa táctico.' },
-        { name: 'Drones', value: '+20%', icon: '🤖', description: 'Despliega drones autónomos que patrullan y atacan objetivos cercanos.' },
+        { name: 'Economia', value: '+5%', icon: '🔬', description: 'Aumenta la ganancia de recursos.' }
       ],
       specialty: 'GUERRA TECNOLÓGICA',
       selected: false,
@@ -111,7 +105,7 @@ export class Personajes {
     private authService: AuthService,
     private userService: UserService,
     private snackBar: MatSnackBar
-  ) {}
+  ) { }
 
   ngOnInit(): void {
     if (this.route.snapshot.queryParamMap.get('needLobbySetup') === 'general') {

@@ -1,0 +1,18 @@
+<div class="hud-right-panel glass-panel" [class.open]="isOpen">
+  <div class="log-handle" (click)="onToggle($event)">
+    <mat-icon>{{ isOpen ? 'chevron_right' : 'history' }}</mat-icon>
+  </div>
+
+  <div class="log-content">
+    <div class="card-header">
+      <span class="header-title terminal-text">Intel Feed</span>
+    </div>
+    
+    <div class="log-entries" #logContainer>
+      <div *ngFor="let log of gameLogs" class="entry-row" [ngClass]="log.type">
+        <span class="e-time">{{ log.time }}</span>
+        <span class="e-msg">{{ log.message }}</span>
+      </div>
+    </div>
+  </div>
+</div>
