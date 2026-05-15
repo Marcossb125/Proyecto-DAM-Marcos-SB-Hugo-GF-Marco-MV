@@ -60,7 +60,7 @@ export class Ranking {
 
           return {
             id: u.id,
-            name: u.id, // En UsuarioMongo, id es el nickname
+            name: u.nickname, // En MySQL, usamos el nickname
             victories: u.victorias || 0,
             rank: index + 1,
             flagData,

@@ -64,6 +64,7 @@ CREATE TABLE `usuarios` (
   `Nickname` varchar(100) NOT NULL,
   `Faccion` varchar(100) DEFAULT NULL,
   `General_id` int(11) DEFAULT NULL,
+  `Victorias` int(11) DEFAULT 0,
   `Bandera` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_bin DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 

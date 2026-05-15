@@ -36,6 +36,9 @@ public class User {
     @Column(name = "General_id")
     private Long generalId;
 
+    @Column(name = "Victorias")
+    private Integer victorias = 0;
+
 
     public User() {}
 
@@ -98,5 +101,13 @@ public class User {
 
     public void setGeneralId(Long generalId) {
         this.generalId = generalId;
+    }
+
+    public Integer getVictorias() {
+        return victorias;
+    }
+
+    public void setVictorias(Integer victorias) {
+        this.victorias = victorias;
     }
 }

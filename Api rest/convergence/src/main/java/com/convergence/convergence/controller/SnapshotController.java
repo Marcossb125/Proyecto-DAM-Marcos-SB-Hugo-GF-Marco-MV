@@ -6,7 +6,6 @@ import com.convergence.convergence.model.User;
 import com.convergence.convergence.repository.MatchSnapshotRepository;
 import com.convergence.convergence.repository.PartidaRepository;
 import com.convergence.convergence.repository.UserRepository;
-import com.convergence.convergence.service.MongoSyncService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -26,8 +25,6 @@ public class SnapshotController {
     @Autowired
     private UserRepository userRepository;
 
-    @Autowired
-    private MongoSyncService mongoSyncService;
 
     public static class SaveSnapshotRequest {
         public Long matchId;
@@ -69,20 +66,13 @@ public class SnapshotController {
                 partida.setEstado("Finalizada");
                 partidaRepository.save(partida);
 
-                // Sync partida actualizada a MongoDB
-                try {
-                    mongoSyncService.syncPartida(partida);
-                } catch (Exception e) {
-                    System.err.println("[WARN] MongoDB sync partida omitido: " + e.getMessage());
-                }
+                // Incrementar victorias del ganador en MySQL
+                winnerOpt.ifPresent(u -> {
+                    int v = u.getVictorias() != null ? u.getVictorias() : 0;
+                    u.setVictorias(v + 1);
+                    userRepository.save(u);
+                });
             }
-        }
-
-        // Sync snapshot a MongoDB
-        try {
-            mongoSyncService.syncMatchSnapshot(snapshot);
-        } catch (Exception e) {
-            System.err.println("[WARN] MongoDB sync snapshot omitido: " + e.getMessage());
         }
 
         return ResponseEntity.ok("Snapshot guardado con éxito");

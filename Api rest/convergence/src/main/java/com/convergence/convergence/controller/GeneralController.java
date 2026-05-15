@@ -2,8 +2,6 @@ package com.convergence.convergence.controller;
 
 import com.convergence.convergence.model.User;
 import com.convergence.convergence.repository.UserRepository;
-import com.convergence.convergence.model.mongodb.UsuarioMongo;
-import com.convergence.convergence.repository.mongodb.UsuarioMongoRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -19,8 +17,6 @@ public class GeneralController {
     @Autowired
     private UserRepository userRepository;
 
-    @Autowired
-    private com.convergence.convergence.service.MongoSyncService mongoSyncService;
 
     /**
      * DTO para recibir la petición de guardado de general.
@@ -51,12 +47,6 @@ public class GeneralController {
         user.setGeneralId(req.generalId);
         userRepository.save(user);
 
-        // --- Sincronización con MongoDB ---
-        try {
-            mongoSyncService.syncUsuario(user);
-        } catch (Exception e) {
-            System.err.println("[WARN] No se pudo sincronizar el general con MongoDB: " + e.getMessage());
-        }
 
         Map<String, Object> response = new HashMap<>();
         response.put("nickname", req.nickname);

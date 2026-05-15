@@ -2,9 +2,6 @@ package com.convergence.convergence.controller;
 
 import com.convergence.convergence.model.User;
 import com.convergence.convergence.repository.UserRepository;
-import com.convergence.convergence.service.MongoSyncService;
-import com.convergence.convergence.model.mongodb.UsuarioMongo;
-import com.convergence.convergence.repository.mongodb.UsuarioMongoRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -35,11 +32,6 @@ public class AuthController {
     @Autowired
     private UserRepository userRepository;
 
-    @Autowired
-    private UsuarioMongoRepository usuarioMongoRepository;
-
-    @Autowired
-    private MongoSyncService mongoSyncService;
 
     @Autowired
     private PasswordEncoder passwordEncoder;
@@ -63,24 +55,6 @@ public class AuthController {
         public String email;
     }
 
-    /**
-     * Sincroniza un usuario con MongoDB.
-     * Si no existe, lo crea con valores iniciales.
-     */
-    private void syncUserWithMongo(String nickname, Long generalId) {
-        try {
-            if (!usuarioMongoRepository.existsById(nickname)) {
-                UsuarioMongo mongoUser = new UsuarioMongo();
-                mongoUser.setId(nickname);
-                mongoUser.setIdGeneral(generalId != null ? generalId.intValue() : 0);
-                mongoUser.setVictorias(0);
-                usuarioMongoRepository.save(mongoUser);
-                logger.info("Usuario {} sincronizado con MongoDB", nickname);
-            }
-        } catch (Exception e) {
-            logger.warn("No se pudo sincronizar el usuario {} con MongoDB: {}", nickname, e.getMessage());
-        }
-    }
 
     @PostMapping("/register")
     public ResponseEntity<?> register(@RequestBody AuthRequest req) {
@@ -96,12 +70,6 @@ public class AuthController {
         User u = new User(req.nickname, hashed, req.email);
         userRepository.save(u);
 
-        // Sync nuevo usuario a MongoDB
-        try {
-            mongoSyncService.syncUsuario(u);
-        } catch (Exception e) {
-            System.err.println("[WARN] MongoDB sync omitido en register: " + e.getMessage());
-        }
 
         // Do not return the password to the client
         u.setPassword(null);
@@ -121,12 +89,6 @@ public class AuthController {
             return ResponseEntity.status(401).body("invalid credentials");
         }
 
-        // Sync usuario a MongoDB en cada login
-        try {
-            mongoSyncService.syncUsuario(user.get());
-        } catch (Exception e) {
-            System.err.println("[WARN] MongoDB sync omitido en login: " + e.getMessage());
-        }
 
         return ResponseEntity.ok(req.nickname);
     }
