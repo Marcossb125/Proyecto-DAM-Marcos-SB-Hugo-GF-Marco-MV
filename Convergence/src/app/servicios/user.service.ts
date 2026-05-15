@@ -79,7 +79,7 @@ export class UserService {
   }
 
   /**
-   * Obtiene el ranking global de usuarios.
+   * Obtiene el ranking global de usuarios desde MongoDB.
    */
   getRanking(): Observable<any[]> {
     return new Observable((subscriber) => {
@@ -95,7 +95,7 @@ export class UserService {
   }
 
   /**
-   * Obtiene el perfil de un usuario en el ranking (con bandera y facción).
+   * Obtiene el perfil de un usuario en el ranking (con bandera y facción) desde MongoDB.
    */
   getRankingUserProfile(nickname: string): Observable<any> {
     return new Observable((subscriber) => {

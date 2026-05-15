@@ -33,7 +33,7 @@ async function saveSnapshot(matchId) {
       idHost: state.hostId || 'unknown',
       idGanador: winnerId
     });
-    console.log(`[Snapshot] Partida ${matchId} (Ronda ${state.currentTurn}) guardada en API (MySQL).`);
+    console.log(`[Snapshot] Partida ${matchId} (Ronda ${state.currentTurn}) guardada en API (Java + MongoDB).`);
     return true;
   } catch (error) {
     console.error(`[Snapshot Error] Fallo al guardar partida ${matchId}:`, error.message);

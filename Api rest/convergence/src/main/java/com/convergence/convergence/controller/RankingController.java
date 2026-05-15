@@ -1,7 +1,7 @@
 package com.convergence.convergence.controller;
 
-import com.convergence.convergence.model.User;
-import com.convergence.convergence.repository.UserRepository;
+import com.convergence.convergence.model.mongodb.UsuarioMongo;
+import com.convergence.convergence.repository.mongodb.UsuarioMongoRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -12,23 +12,23 @@ import java.util.List;
 public class RankingController {
 
     @Autowired
-    private UserRepository userRepository;
+    private UsuarioMongoRepository usuarioMongoRepository;
 
     @GetMapping
-    public List<User> getRanking() {
-        return userRepository.findByOrderByVictoriasDesc();
+    public List<UsuarioMongo> getRanking() {
+        return usuarioMongoRepository.findByOrderByVictoriasDesc();
     }
 
     @GetMapping("/general/{id}")
-    public Long getGeneralStats(@PathVariable Long id) {
-        List<User> usersWithGeneral = userRepository.findByGeneralId(id);
+    public Long getGeneralStats(@PathVariable Integer id) {
+        List<UsuarioMongo> usersWithGeneral = usuarioMongoRepository.findByIdGeneral(id);
         return usersWithGeneral.stream()
                 .mapToLong(u -> u.getVictorias() != null ? u.getVictorias() : 0)
                 .sum();
     }
 
     @GetMapping("/user/{nickname}")
-    public User getUserProfile(@PathVariable String nickname) {
-        return userRepository.findByNickname(nickname).orElse(null);
+    public UsuarioMongo getUserProfile(@PathVariable String nickname) {
+        return usuarioMongoRepository.findById(nickname).orElse(null);
     }
 }
