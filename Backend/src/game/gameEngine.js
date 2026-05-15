@@ -129,7 +129,7 @@ function applyBuild(state, playerId, territoryId, buildingType) {
   player.manpower -= cost.manpower;
   territory.buildingType = buildingType;
 
-  const logs = [createLog(state.matchId, 'action', player.name, `construyó ${buildingType} en ${territory.label}`)];
+  const logs = [createLog(state.matchId, 'action', player.name, `${player.name} construyó ${buildingType} en ${territory.label}`)];
   return { state, logs };
 }
 
@@ -205,19 +205,12 @@ function applyQueueMove(state, playerId, armyId, toTerritoryId) {
     return { state, logs: [], error: 'El territorio destino no está al alcance' };
   }
 
-  // Instead of pendingMoves (which was in plan), let's just resolve immediately for simplicity, 
-  // or use pendingMoves if we want simultaneous resolution. The plan says applyQueueMove and resolveMovementPhase.
-  // Actually, simultaneous resolution is usually for queuing, but the frontend might expect immediate result if it's turn-based.
-  // Let's look at the plan: "applyQueueMove ... resolveMovementPhase".
-  // If we queue moves, the player doesn't see the move until resolveMovementPhase. 
-  // Let's implement queue moves.
-
-  // Remove existing move for this army
   state.pendingMoves = state.pendingMoves.filter(m => m.armyId !== armyId);
 
   state.pendingMoves.push({ armyId, fromTerritoryId: army.territoryId, toTerritoryId });
   army.hasActedThisTurn = true;
 
+  const logs = [createLog(state.matchId, 'action', player.name, `${player.name} ordenó mover tropas a ${toTerritory.label}`)];
   return { state, logs };
 }
 
@@ -234,6 +227,7 @@ function applyCancelMove(state, playerId, armyId) {
   state.pendingMoves.splice(moveIndex, 1);
   army.hasActedThisTurn = false;
 
+  const logs = [createLog(state.matchId, 'action', player.name, `${player.name} canceló el movimiento de un ejército`)];
   return { state, logs };
 }
 
