@@ -26,4 +26,9 @@ public class RankingController {
                 .mapToLong(u -> u.getVictorias() != null ? u.getVictorias() : 0)
                 .sum();
     }
+
+    @GetMapping("/user/{nickname}")
+    public UsuarioMongo getUserProfile(@PathVariable String nickname) {
+        return usuarioMongoRepository.findById(nickname).orElse(null);
+    }
 }

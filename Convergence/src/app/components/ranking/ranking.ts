@@ -8,19 +8,21 @@ import { UserService } from '../../servicios/user.service';
 import { TopActions } from '../top-actions/top-actions';
 import { BottomNavbar } from '../bottom-navbar/bottom-navbar';
 import { Banner } from '../banner/banner';
+import { NationFlag, NationData } from '../nation-flag/nation-flag';
 
 interface PlayerRanking {
   id: string;
   name: string;
   victories: number;
-  status: 'online' | 'offline';
   rank: number;
+  flagData?: NationData;
+  faction?: string;
 }
 
 @Component({
   selector: 'app-ranking',
   standalone: true,
-  imports: [CommonModule, FormsModule, MatButtonModule, MatIconModule, BottomNavbar, Banner, TopActions],
+  imports: [CommonModule, FormsModule, MatButtonModule, MatIconModule, BottomNavbar, Banner, TopActions, NationFlag],
   templateUrl: './ranking.html',
   styleUrl: './ranking.css',
 })
@@ -46,13 +48,25 @@ export class Ranking {
   cargarRanking() {
     this.userService.getRanking().subscribe({
       next: (data) => {
-        const mappedPlayers: PlayerRanking[] = data.map((u, index) => ({
-          id: u.id,
-          name: u.id, // En UsuarioMongo, id es el nickname
-          victories: u.victorias || 0,
-          status: 'online', // Por defecto, o podrías omitirlo
-          rank: index + 1
-        }));
+        const mappedPlayers: PlayerRanking[] = data.map((u, index) => {
+          let flagData: NationData | undefined;
+          try {
+            if (u.bandera) {
+              flagData = JSON.parse(u.bandera);
+            }
+          } catch (e) {
+            console.error('Error parsing flag data for user', u.id, e);
+          }
+
+          return {
+            id: u.id,
+            name: u.id, // En UsuarioMongo, id es el nickname
+            victories: u.victorias || 0,
+            rank: index + 1,
+            flagData,
+            faction: u.faccion
+          };
+        });
         this.players.set(mappedPlayers);
       },
       error: (err) => console.error('Error al cargar ranking:', err)

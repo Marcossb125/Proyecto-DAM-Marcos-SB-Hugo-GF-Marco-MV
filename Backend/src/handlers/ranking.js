@@ -23,4 +23,14 @@ export default (io, socket) => {
       callback({ success: false, error: 'Error al obtener estadísticas del general' });
     }
   });
+
+  socket.on('getRankingUserProfile', async (nickname, callback) => {
+    try {
+      const response = await apiClient.get(`/ranking/user/${encodeURIComponent(nickname)}`);
+      callback({ success: true, data: response.data });
+    } catch (error) {
+      console.error('Error fetching ranking user profile:', error.message);
+      callback({ success: false, error: 'Error al obtener el perfil del usuario' });
+    }
+  });
 };

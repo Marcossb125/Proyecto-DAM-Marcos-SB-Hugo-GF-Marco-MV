@@ -103,6 +103,11 @@ public class MongoSyncService {
         }
         // Sincronizar el generalId de SQL
         mongo.setIdGeneral(user.getGeneralId() != null ? user.getGeneralId().intValue() : 0);
+        
+        // Sincronizar bandera y facción
+        mongo.setBandera(user.getBandera());
+        mongo.setFaccion(user.getFaccion());
+        
         usuarioMongoRepository.save(mongo);
     }
 

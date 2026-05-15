@@ -20,7 +20,7 @@ public class GeneralController {
     private UserRepository userRepository;
 
     @Autowired
-    private UsuarioMongoRepository usuarioMongoRepository;
+    private com.convergence.convergence.service.MongoSyncService mongoSyncService;
 
     /**
      * DTO para recibir la petición de guardado de general.
@@ -53,14 +53,7 @@ public class GeneralController {
 
         // --- Sincronización con MongoDB ---
         try {
-            UsuarioMongo mongoUser = usuarioMongoRepository.findById(req.nickname).orElseGet(() -> {
-                UsuarioMongo u = new UsuarioMongo();
-                u.setId(req.nickname);
-                u.setVictorias(0);
-                return u;
-            });
-            mongoUser.setIdGeneral(req.generalId.intValue());
-            usuarioMongoRepository.save(mongoUser);
+            mongoSyncService.syncUsuario(user);
         } catch (Exception e) {
             System.err.println("[WARN] No se pudo sincronizar el general con MongoDB: " + e.getMessage());
         }

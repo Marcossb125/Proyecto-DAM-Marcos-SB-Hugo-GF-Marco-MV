@@ -224,6 +224,15 @@
   letter-spacing: 1px;
 }
 
+.player-faction {
+  font-size: 0.75rem;
+  color: var(--war-accent);
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  opacity: 0.9;
+  text-transform: uppercase;
+}
+
 .player-status {
   display: flex;
   align-items: center;

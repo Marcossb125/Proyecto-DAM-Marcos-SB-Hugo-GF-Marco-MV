@@ -14,5 +14,12 @@ public class UsuarioMongo {
     @Field("Id_general")
     private Integer idGeneral;
 
+    @Field("Bandera")
+    private String bandera;
+
+    @Field("Faccion")
+    private String faccion;
+
+    @Field("Victorias")
     private Integer victorias;
 }

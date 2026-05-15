@@ -38,19 +38,22 @@
 
     <div class="player-list">
       @for (player of filteredPlayers(); track player.id) {
-        <div class="player-card" [class.online]="player.status === 'online'">
+        <div class="player-card">
           <div class="rank-badge">{{ player.rank }}</div>
           
           <div class="player-info">
             <div class="avatar-placeholder">
-              <div class="avatar-inner"></div>
+              <div class="avatar-inner" *ngIf="!player.flagData"></div>
+              <app-nation-flag 
+                *ngIf="player.flagData" 
+                [flagData]="player.flagData"
+                width="100%"
+                height="100%">
+              </app-nation-flag>
             </div>
             <div class="details">
               <span class="player-name">{{ player.name }}</span>
-              <span class="player-status">
-                <span class="status-dot"></span>
-                {{ player.status === 'online' ? 'EN LÍNEA' : 'DESCONECTADO' }}
-              </span>
+              <span class="player-faction" *ngIf="player.faction">{{ player.faction }}</span>
             </div>
           </div>
 

@@ -93,4 +93,20 @@ export class UserService {
       });
     });
   }
+
+  /**
+   * Obtiene el perfil de un usuario en el ranking (con bandera y facción) desde MongoDB.
+   */
+  getRankingUserProfile(nickname: string): Observable<any> {
+    return new Observable((subscriber) => {
+      this.socketService.emitWithCallback('getRankingUserProfile', nickname, (response: any) => {
+        if (response.success) {
+          subscriber.next(response.data);
+        } else {
+          subscriber.error(response.error);
+        }
+        subscriber.complete();
+      });
+    });
+  }
 }

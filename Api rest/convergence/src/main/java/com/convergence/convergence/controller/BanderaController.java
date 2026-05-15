@@ -20,6 +20,9 @@ public class BanderaController {
     @Autowired
     private UserRepository userRepository;
 
+    @Autowired
+    private com.convergence.convergence.service.MongoSyncService mongoSyncService;
+
     private final ObjectMapper objectMapper = new ObjectMapper();
 
     /**
@@ -60,6 +63,13 @@ public class BanderaController {
             user.setBandera(banderaJson);
             
             userRepository.save(user);
+            
+            // --- Sincronización con MongoDB ---
+            try {
+                mongoSyncService.syncUsuario(user);
+            } catch (Exception e) {
+                System.err.println("[WARN] No se pudo sincronizar la bandera con MongoDB: " + e.getMessage());
+            }
             
             // Devolvemos la estructura completa para confirmación
             Map<String, Object> response = new HashMap<>();
