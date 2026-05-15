@@ -1,0 +1,40 @@
+<div class="test-container">
+  <h3>Prueba de Comunicación Socket</h3>
+  <p class="description">Pulsa el botón para enviar un mensaje al Middleware y recibir una respuesta procesada.</p>
+  
+  <div class="actions">
+    <button mat-raised-button color="primary" (click)="enviarMensaje()">
+      Enviar "Hola" vía Socket
+    </button>
+  </div>
+
+  <div class="result-card" *ngIf="lastResponse()">
+    <div class="result-header">
+      <span class="status-badge">Respuesta Recibida</span>
+      <span class="time">{{ lastResponse().serverTime }}</span>
+    </div>
+    
+    <div class="result-body">
+      <div class="data-row">
+        <span class="label">Mensaje:</span>
+        <span class="value">{{ lastResponse().message }}</span>
+      </div>
+      <div class="data-row" *ngIf="lastResponse().topPlayer">
+        <span class="label">Top Player (Java):</span>
+        <span class="value">{{ lastResponse().topPlayer }}</span>
+      </div>
+      <div class="data-row highlight" *ngIf="lastResponse().dataCount !== undefined">
+        <span class="label">Total Usuarios:</span>
+        <span class="value">{{ lastResponse().dataCount }}</span>
+      </div>
+      <div class="error-msg" *ngIf="lastResponse().error">
+        Error API: {{ lastResponse().error }}
+      </div>
+    </div>
+
+    
+    <div class="result-footer">
+      Status: {{ lastResponse().status }}
+    </div>
+  </div>
+</div>

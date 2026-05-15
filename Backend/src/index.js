@@ -17,6 +17,8 @@ import registerPartidaHandlers from './handlers/partidas.js';
 import registerBanderaHandlers from './handlers/bandera.js';
 import registerGeneralHandlers from './handlers/general.js';
 import registerRankingHandlers from './handlers/ranking.js';
+import registerExampleHandlers from './handlers/example.js';
+
 
 const app = express();
 const httpServer = createServer(app);
@@ -40,6 +42,8 @@ io.on('connection', (socket) => {
   registerBanderaHandlers(io, socket);
   registerGeneralHandlers(io, socket);
   registerRankingHandlers(io, socket);
+  registerExampleHandlers(io, socket);
+
 
   socket.on('disconnect', () => {
     console.log(`Client disconnected: ${socket.id}`);
@@ -49,12 +53,17 @@ io.on('connection', (socket) => {
 // Startup
 authenticateBackend()
   .then(() => {
-    httpServer.listen(PORT, () => {
-      console.log(`Middleware Service running on port ${PORT}`);
-      console.log(`Forwarding requests to API at ${API_BASE_URL}`);
-    });
+    startServer();
   })
   .catch((err) => {
-    console.error('Critical error during startup:', err);
-    process.exit(1);
+    console.warn('⚠️ Warning: API REST authentication failed. Backend will run but some features may be disabled.');
+    startServer();
   });
+
+function startServer() {
+  httpServer.listen(PORT, () => {
+    console.log(`Middleware Service running on port ${PORT}`);
+    console.log(`Forwarding requests to API at ${API_BASE_URL}`);
+  });
+}
+
