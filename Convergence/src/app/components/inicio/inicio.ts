@@ -11,9 +11,7 @@ import { FlagBuilder } from '../flag-builder/flag-builder';
 import { TopActions } from '../top-actions/top-actions';
 import { BottomNavbar } from '../bottom-navbar/bottom-navbar';
 import { Banner } from '../banner/banner';
-import { TestSocket } from '../test-socket/test-socket.component';
 import { PartidaService, Partida } from '../../servicios/partida.service';
-
 import { CommonModule } from '@angular/common';
 
 interface ActiveGame {
@@ -28,8 +26,7 @@ interface ActiveGame {
 
 @Component({
   selector: 'app-inicio',
-  imports: [CommonModule, MatButtonModule, MatIconModule, MatBadgeModule, MatSnackBarModule, NationFlag, FlagBuilder, BottomNavbar, Banner, TopActions, TestSocket],
-
+  imports: [CommonModule, MatButtonModule, MatIconModule, MatBadgeModule, MatSnackBarModule, NationFlag, FlagBuilder, BottomNavbar, Banner, TopActions],
   templateUrl: './inicio.html',
   styleUrl: './inicio.css',
 })
