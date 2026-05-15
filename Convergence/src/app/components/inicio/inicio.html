@@ -110,12 +110,8 @@
     </button>
   </section>
 
-  <!-- ═══ PRUEBA SOCKET ═══ -->
-  <app-test-socket></app-test-socket>
-
   <!-- ═══ NAVBAR INFERIOR ═══ -->
   <app-bottom-navbar activePage="/inicio"></app-bottom-navbar>
-
 
   @if (isEditingFlag()) {
   <app-flag-builder [initialData]="nationData()" (saveFlag)="saveFlag($event)" (cancel)="cancelFlagEdit()">
