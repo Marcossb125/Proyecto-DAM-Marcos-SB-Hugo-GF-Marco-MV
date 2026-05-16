@@ -1,0 +1,20 @@
+$kind: http-request
+name: 'POST Backend Login Creds Incorrectas'
+method: POST
+url: '{{BASE_URL}}/auth/backend-login'
+order: 8000
+headers:
+  - key: Content-Type
+    value: application/json
+body:
+  type: json
+  content: |-
+    {
+      "nickname": "backend",
+      "password": "wrongpass"
+    }
+scripts:
+  - type: afterResponse
+    language: text/javascript
+    code: |-
+      pm.test("Status 401 - Credenciales incorrectas", () => pm.response.to.have.status(401));

@@ -1,0 +1,26 @@
+$kind: http-request
+name: 'POST Guardar Snapshot Con Ganador'
+method: POST
+url: '{{BASE_URL}}/snapshots/guardar'
+order: 6000
+headers:
+  - key: Authorization
+    value: 'Bearer {{TOKEN}}'
+    enabled: true
+  - key: Content-Type
+    value: application/json
+body:
+  type: json
+  content: |-
+    {
+      "matchId": "{{SNAP_ID}}",
+      "ronda": 3,
+      "stateJson": "{\"turno\":3,\"fin\":true}",
+      "idHost": "{{NICK1}}",
+      "idGanador": "{{NICK1}}"
+    }
+scripts:
+  - type: afterResponse
+    language: text/javascript
+    code: |-
+      pm.test("Status 200 - Partida finalizada con ganador", () => pm.response.to.have.status(200));

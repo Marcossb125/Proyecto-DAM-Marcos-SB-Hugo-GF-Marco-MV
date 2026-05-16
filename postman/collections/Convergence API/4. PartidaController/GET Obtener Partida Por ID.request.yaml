@@ -1,0 +1,14 @@
+$kind: http-request
+name: 'GET Obtener Partida Por ID'
+method: GET
+url: '{{BASE_URL}}/partidas/{{MATCH_ID}}'
+order: 4000
+headers:
+  - key: Authorization
+    value: 'Bearer {{TOKEN}}'
+    enabled: true
+scripts:
+  - type: afterResponse
+    language: text/javascript
+    code: |-
+      pm.test("Status 200 - Partida obtenida", () => pm.response.to.have.status(200));

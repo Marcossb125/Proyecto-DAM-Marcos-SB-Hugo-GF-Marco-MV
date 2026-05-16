@@ -1,0 +1,14 @@
+$kind: http-request
+name: 'GET Sync Usuarios'
+method: GET
+url: '{{BASE_URL}}/sync/usuarios'
+order: 2000
+headers:
+  - key: Authorization
+    value: 'Bearer {{TOKEN}}'
+    enabled: true
+scripts:
+  - type: afterResponse
+    language: text/javascript
+    code: |-
+      pm.test("Status 200 - Sync usuarios OK", () => pm.response.to.have.status(200));

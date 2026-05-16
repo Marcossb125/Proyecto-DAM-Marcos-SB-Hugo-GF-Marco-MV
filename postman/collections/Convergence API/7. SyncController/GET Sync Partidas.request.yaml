@@ -1,0 +1,14 @@
+$kind: http-request
+name: 'GET Sync Partidas'
+method: GET
+url: '{{BASE_URL}}/sync/partidas'
+order: 3000
+headers:
+  - key: Authorization
+    value: 'Bearer {{TOKEN}}'
+    enabled: true
+scripts:
+  - type: afterResponse
+    language: text/javascript
+    code: |-
+      pm.test("Status 200 - Sync partidas OK", () => pm.response.to.have.status(200));

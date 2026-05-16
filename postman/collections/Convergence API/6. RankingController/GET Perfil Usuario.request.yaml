@@ -1,0 +1,14 @@
+$kind: http-request
+name: 'GET Perfil Usuario'
+method: GET
+url: '{{BASE_URL}}/ranking/user/{{NICK1}}'
+order: 3000
+headers:
+  - key: Authorization
+    value: 'Bearer {{TOKEN}}'
+    enabled: true
+scripts:
+  - type: afterResponse
+    language: text/javascript
+    code: |-
+      pm.test("Status 200 - Perfil de usuario obtenido", () => pm.response.to.have.status(200));

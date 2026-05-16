@@ -1,0 +1,22 @@
+$kind: http-request
+name: 'POST Guardar Snapshot Sin Campos'
+method: POST
+url: '{{BASE_URL}}/snapshots/guardar'
+order: 8000
+headers:
+  - key: Authorization
+    value: 'Bearer {{TOKEN}}'
+    enabled: true
+  - key: Content-Type
+    value: application/json
+body:
+  type: json
+  content: |-
+    {
+      "ronda": 1
+    }
+scripts:
+  - type: afterResponse
+    language: text/javascript
+    code: |-
+      pm.test("Status 400 - Sin campos obligatorios", () => pm.response.to.have.status(400));

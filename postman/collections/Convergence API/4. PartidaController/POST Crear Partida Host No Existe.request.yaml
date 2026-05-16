@@ -1,0 +1,24 @@
+$kind: http-request
+name: 'POST Crear Partida Host No Existe'
+method: POST
+url: '{{BASE_URL}}/partidas/crear'
+order: 3000
+headers:
+  - key: Authorization
+    value: 'Bearer {{TOKEN}}'
+    enabled: true
+  - key: Content-Type
+    value: application/json
+body:
+  type: json
+  content: |-
+    {
+      "nombre": "otra_{{TS}}",
+      "jugadores_limite": 2,
+      "hostNombre": "noexiste_{{TS}}"
+    }
+scripts:
+  - type: afterResponse
+    language: text/javascript
+    code: |-
+      pm.test("Status 404 - Host no existe", () => pm.response.to.have.status(404));

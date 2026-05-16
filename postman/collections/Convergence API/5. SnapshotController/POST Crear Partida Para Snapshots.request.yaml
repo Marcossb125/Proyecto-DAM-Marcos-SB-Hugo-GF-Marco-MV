@@ -1,0 +1,28 @@
+$kind: http-request
+name: 'POST Crear Partida Para Snapshots'
+method: POST
+url: '{{BASE_URL}}/partidas/crear'
+order: 1000
+headers:
+  - key: Authorization
+    value: 'Bearer {{TOKEN}}'
+    enabled: true
+  - key: Content-Type
+    value: application/json
+body:
+  type: json
+  content: |-
+    {
+      "nombre": "{{SNAP_MATCH}}",
+      "jugadores_limite": 2,
+      "hostNombre": "{{NICK1}}"
+    }
+scripts:
+  - type: afterResponse
+    language: text/javascript
+    code: |-
+      pm.test("Status 200 - Partida para snapshots creada", () => pm.response.to.have.status(200));
+      if (pm.response.code === 200) {
+          const json = pm.response.json();
+          if (json.id) pm.collectionVariables.set("SNAP_ID", String(json.id));
+      }

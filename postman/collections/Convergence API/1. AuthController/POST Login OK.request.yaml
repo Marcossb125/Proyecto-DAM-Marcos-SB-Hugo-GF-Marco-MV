@@ -1,0 +1,20 @@
+$kind: http-request
+name: 'POST Login OK'
+method: POST
+url: '{{BASE_URL}}/auth/login'
+order: 4000
+headers:
+  - key: Content-Type
+    value: application/json
+body:
+  type: json
+  content: |-
+    {
+      "nickname": "{{NICK1}}",
+      "password": "password123"
+    }
+scripts:
+  - type: afterResponse
+    language: text/javascript
+    code: |-
+      pm.test("Status 200 - Login OK", () => pm.response.to.have.status(200));

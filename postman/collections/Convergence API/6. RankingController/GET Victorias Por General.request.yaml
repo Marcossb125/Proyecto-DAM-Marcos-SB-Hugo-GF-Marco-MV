@@ -1,0 +1,14 @@
+$kind: http-request
+name: 'GET Victorias Por General'
+method: GET
+url: '{{BASE_URL}}/ranking/general/3'
+order: 2000
+headers:
+  - key: Authorization
+    value: 'Bearer {{TOKEN}}'
+    enabled: true
+scripts:
+  - type: afterResponse
+    language: text/javascript
+    code: |-
+      pm.test("Status 200 - Victorias del general obtenidas", () => pm.response.to.have.status(200));

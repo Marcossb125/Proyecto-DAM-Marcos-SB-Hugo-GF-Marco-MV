@@ -1,0 +1,14 @@
+$kind: http-request
+name: 'GET Sync Snapshots'
+method: GET
+url: '{{BASE_URL}}/sync/snapshots'
+order: 4000
+headers:
+  - key: Authorization
+    value: 'Bearer {{TOKEN}}'
+    enabled: true
+scripts:
+  - type: afterResponse
+    language: text/javascript
+    code: |-
+      pm.test("Status 200 - Sync snapshots OK", () => pm.response.to.have.status(200));

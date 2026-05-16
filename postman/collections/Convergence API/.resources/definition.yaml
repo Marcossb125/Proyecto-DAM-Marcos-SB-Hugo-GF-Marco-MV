@@ -1,0 +1,30 @@
+$schema: 'https://schema.postman.com/collection/v3'
+$kind: collection
+name: 'Convergence API'
+scripts:
+  - type: http:beforeRequest
+    language: text/javascript
+    code: |-
+      const ts = Date.now().toString().slice(-6);
+      pm.collectionVariables.set("TS", ts);
+      pm.collectionVariables.set("NICK1", "testuser_" + ts);
+      pm.collectionVariables.set("NICK2", "testuser2_" + ts);
+      pm.collectionVariables.set("MATCH_NAME", "partida_test_" + ts);
+      pm.collectionVariables.set("SNAP_MATCH", "snap_" + ts);
+variables:
+  - key: TS
+    value: ''
+  - key: NICK1
+    value: ''
+  - key: NICK2
+    value: ''
+  - key: MATCH_NAME
+    value: ''
+  - key: SNAP_MATCH
+    value: ''
+  - key: MATCH_ID
+    value: ''
+  - key: SNAP_ID
+    value: ''
+  - key: TOKEN
+    value: ''

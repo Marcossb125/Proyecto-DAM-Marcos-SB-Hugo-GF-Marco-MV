@@ -1,0 +1,26 @@
+$kind: http-request
+name: 'POST Guardar Snapshot Ronda 2'
+method: POST
+url: '{{BASE_URL}}/snapshots/guardar'
+order: 3000
+headers:
+  - key: Authorization
+    value: 'Bearer {{TOKEN}}'
+    enabled: true
+  - key: Content-Type
+    value: application/json
+body:
+  type: json
+  content: |-
+    {
+      "matchId": "{{SNAP_ID}}",
+      "ronda": 2,
+      "stateJson": "{\"turno\":2,\"recursos\":{\"oro\":200,\"madera\":80}}",
+      "idHost": "{{NICK1}}",
+      "idGanador": ""
+    }
+scripts:
+  - type: afterResponse
+    language: text/javascript
+    code: |-
+      pm.test("Status 200 - Snapshot ronda 2 guardado", () => pm.response.to.have.status(200));

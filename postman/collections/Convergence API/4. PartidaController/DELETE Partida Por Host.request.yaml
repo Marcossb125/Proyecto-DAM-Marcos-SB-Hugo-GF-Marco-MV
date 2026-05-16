@@ -1,0 +1,17 @@
+$kind: http-request
+name: 'DELETE Partida Por Host'
+method: DELETE
+url: '{{BASE_URL}}/partidas/{{MATCH_ID}}'
+order: 11000
+queryParams:
+  - key: requester
+    value: '{{NICK1}}'
+headers:
+  - key: Authorization
+    value: 'Bearer {{TOKEN}}'
+    enabled: true
+scripts:
+  - type: afterResponse
+    language: text/javascript
+    code: |-
+      pm.test("Status 200 - Partida borrada por el host", () => pm.response.to.have.status(200));

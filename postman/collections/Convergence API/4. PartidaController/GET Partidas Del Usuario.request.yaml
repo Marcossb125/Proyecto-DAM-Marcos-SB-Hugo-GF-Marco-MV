@@ -1,0 +1,14 @@
+$kind: http-request
+name: 'GET Partidas Del Usuario'
+method: GET
+url: '{{BASE_URL}}/partidas/usuario/{{NICK1}}'
+order: 6000
+headers:
+  - key: Authorization
+    value: 'Bearer {{TOKEN}}'
+    enabled: true
+scripts:
+  - type: afterResponse
+    language: text/javascript
+    code: |-
+      pm.test("Status 200 - Lista de partidas del usuario", () => pm.response.to.have.status(200));

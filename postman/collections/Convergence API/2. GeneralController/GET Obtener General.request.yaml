@@ -1,0 +1,14 @@
+$kind: http-request
+name: 'GET Obtener General'
+method: GET
+url: '{{BASE_URL}}/general/{{NICK1}}'
+order: 2000
+headers:
+  - key: Authorization
+    value: 'Bearer {{TOKEN}}'
+    enabled: true
+scripts:
+  - type: afterResponse
+    language: text/javascript
+    code: |-
+      pm.test("Status 200 - General obtenido", () => pm.response.to.have.status(200));

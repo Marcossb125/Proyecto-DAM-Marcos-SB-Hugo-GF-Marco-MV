@@ -1,0 +1,312 @@
+{
+  "info": {
+    "name": "Convergence API REST",
+    "description": "Colección completa de endpoints de la API REST de Convergence (Spring Boot). Base URL: http://localhost:8080",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "🔐 Auth",
+      "item": [
+        {
+          "name": "Registrar usuario",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": { "raw": "{{baseUrl}}/auth/register" },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nickname\": \"jugador1\",\n  \"password\": \"password123\",\n  \"email\": \"jugador1@test.com\"\n}"
+            }
+          },
+          "response": [],
+          "_postman_previewlanguage": "json"
+        },
+        {
+          "name": "Login usuario",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": { "raw": "{{baseUrl}}/auth/login" },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nickname\": \"jugador1\",\n  \"password\": \"password123\"\n}"
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Backend login (obtener JWT)",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": { "raw": "{{baseUrl}}/auth/backend-login" },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nickname\": \"backend\",\n  \"password\": \"backend123\"\n}"
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "⚔️ General",
+      "item": [
+        {
+          "name": "Guardar general del usuario",
+          "request": {
+            "method": "PUT",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": { "raw": "{{baseUrl}}/general/guardar" },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nickname\": \"jugador1\",\n  \"generalId\": 3\n}"
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Obtener general del usuario",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": { "raw": "{{baseUrl}}/general/jugador1" }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "🚩 Bandera",
+      "item": [
+        {
+          "name": "Guardar bandera",
+          "request": {
+            "method": "PUT",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": { "raw": "{{baseUrl}}/bandera/guardar" },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nickname\": \"jugador1\",\n  \"nombre\": \"Imperio del Norte\",\n  \"bandera\": {\n    \"layout\": \"diagonal\",\n    \"colors\": [\"#FF0000\", \"#FFFFFF\", \"#0000FF\"]\n  }\n}"
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Obtener bandera",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": { "raw": "{{baseUrl}}/bandera/jugador1" }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "🎮 Partidas",
+      "item": [
+        {
+          "name": "Crear partida",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": { "raw": "{{baseUrl}}/partidas/crear" },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nombre\": \"Batalla de Convergencia\",\n  \"jugadores_limite\": 4,\n  \"hostNombre\": \"jugador1\"\n}"
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Unirse a partida",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/partidas/{{matchId}}/unirse?nickname=jugador2",
+              "query": [{ "key": "nickname", "value": "jugador2" }]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Obtener partida por ID",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": { "raw": "{{baseUrl}}/partidas/{{matchId}}" }
+          },
+          "response": []
+        },
+        {
+          "name": "Obtener partida por nombre",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": { "raw": "{{baseUrl}}/partidas/nombre/Batalla de Convergencia" }
+          },
+          "response": []
+        },
+        {
+          "name": "Partidas del usuario",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": { "raw": "{{baseUrl}}/partidas/usuario/jugador1" }
+          },
+          "response": []
+        },
+        {
+          "name": "Partidas activas (En curso)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": { "raw": "{{baseUrl}}/partidas/buscar/activas" }
+          },
+          "response": []
+        },
+        {
+          "name": "Borrar partida (solo host)",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/partidas/{{matchId}}?requester=jugador1",
+              "query": [{ "key": "requester", "value": "jugador1" }]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "📸 Snapshots",
+      "item": [
+        {
+          "name": "Guardar snapshot",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": { "raw": "{{baseUrl}}/snapshots/guardar" },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"matchId\": {{matchId}},\n  \"ronda\": 1,\n  \"stateJson\": \"{\\\"turno\\\":1,\\\"recursos\\\":{\\\"oro\\\":100,\\\"madera\\\":50}}\",\n  \"idHost\": \"jugador1\",\n  \"idGanador\": \"\"\n}"
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Guardar snapshot con ganador (finaliza partida)",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": { "raw": "{{baseUrl}}/snapshots/guardar" },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"matchId\": {{matchId}},\n  \"ronda\": 5,\n  \"stateJson\": \"{\\\"turno\\\":5,\\\"fin\\\":true}\",\n  \"idHost\": \"jugador1\",\n  \"idGanador\": \"jugador1\"\n}"
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Obtener snapshot por ronda",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": { "raw": "{{baseUrl}}/snapshots/match/{{matchId}}/ronda/1" }
+          },
+          "response": []
+        },
+        {
+          "name": "Obtener ultimo snapshot",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": { "raw": "{{baseUrl}}/snapshots/match/{{matchId}}/latest" }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "🏆 Ranking",
+      "item": [
+        {
+          "name": "Ranking global (por victorias)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": { "raw": "{{baseUrl}}/ranking" }
+          },
+          "response": []
+        },
+        {
+          "name": "Victorias totales de un general",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": { "raw": "{{baseUrl}}/ranking/general/3" }
+          },
+          "response": []
+        },
+        {
+          "name": "Perfil de usuario (MongoDB)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": { "raw": "{{baseUrl}}/ranking/user/jugador1" }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "🔄 Sync",
+      "item": [
+        {
+          "name": "Sincronizar todo (SQL → MongoDB)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": { "raw": "{{baseUrl}}/sync/all" }
+          },
+          "response": []
+        },
+        {
+          "name": "Sincronizar solo usuarios",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": { "raw": "{{baseUrl}}/sync/usuarios" }
+          },
+          "response": []
+        },
+        {
+          "name": "Sincronizar solo partidas",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": { "raw": "{{baseUrl}}/sync/partidas" }
+          },
+          "response": []
+        },
+        {
+          "name": "Sincronizar solo snapshots",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": { "raw": "{{baseUrl}}/sync/snapshots" }
+          },
+          "response": []
+        }
+      ]
+    }
+  ],
+  "variable": [
+    { "key": "baseUrl", "value": "http://localhost:8080" },
+    { "key": "matchId", "value": "1", "description": "ID de la partida creada. Actualiza este valor tras hacer POST /partidas/crear" }
+  ]
+}

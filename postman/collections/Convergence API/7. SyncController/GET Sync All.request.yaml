@@ -1,0 +1,14 @@
+$kind: http-request
+name: 'GET Sync All'
+method: GET
+url: '{{BASE_URL}}/sync/all'
+order: 1000
+headers:
+  - key: Authorization
+    value: 'Bearer {{TOKEN}}'
+    enabled: true
+scripts:
+  - type: afterResponse
+    language: text/javascript
+    code: |-
+      pm.test("Status 200 - Sync all OK", () => pm.response.to.have.status(200));

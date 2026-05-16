@@ -1,0 +1,22 @@
+$kind: http-request
+name: 'PUT Guardar General Sin Nickname'
+method: PUT
+url: '{{BASE_URL}}/general/guardar'
+order: 3000
+headers:
+  - key: Authorization
+    value: 'Bearer {{TOKEN}}'
+    enabled: true
+  - key: Content-Type
+    value: application/json
+body:
+  type: json
+  content: |-
+    {
+      "generalId": 1
+    }
+scripts:
+  - type: afterResponse
+    language: text/javascript
+    code: |-
+      pm.test("Status 400 - Sin nickname", () => pm.response.to.have.status(400));

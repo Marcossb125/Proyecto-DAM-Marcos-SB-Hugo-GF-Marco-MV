@@ -1,0 +1,20 @@
+$kind: http-request
+name: 'POST Login Pass Incorrecta'
+method: POST
+url: '{{BASE_URL}}/auth/login'
+order: 5000
+headers:
+  - key: Content-Type
+    value: application/json
+body:
+  type: json
+  content: |-
+    {
+      "nickname": "{{NICK1}}",
+      "password": "wrongpassword"
+    }
+scripts:
+  - type: afterResponse
+    language: text/javascript
+    code: |-
+      pm.test("Status 401 - Password incorrecta", () => pm.response.to.have.status(401));

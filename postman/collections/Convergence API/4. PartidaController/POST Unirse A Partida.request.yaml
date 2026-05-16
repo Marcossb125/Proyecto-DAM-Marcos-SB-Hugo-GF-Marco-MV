@@ -1,0 +1,17 @@
+$kind: http-request
+name: 'POST Unirse A Partida'
+method: POST
+url: '{{BASE_URL}}/partidas/{{MATCH_ID}}/unirse'
+order: 7000
+queryParams:
+  - key: nickname
+    value: '{{NICK2}}'
+headers:
+  - key: Authorization
+    value: 'Bearer {{TOKEN}}'
+    enabled: true
+scripts:
+  - type: afterResponse
+    language: text/javascript
+    code: |-
+      pm.test("Status 200 - NICK2 unido a la partida", () => pm.response.to.have.status(200));

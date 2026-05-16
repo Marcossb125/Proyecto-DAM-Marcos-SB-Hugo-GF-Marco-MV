@@ -1,0 +1,24 @@
+$kind: http-request
+name: 'POST Backend Login OK'
+method: POST
+url: '{{BASE_URL}}/auth/backend-login'
+order: 7000
+headers:
+  - key: Content-Type
+    value: application/json
+body:
+  type: json
+  content: |-
+    {
+      "nickname": "{{BACKEND_USER}}",
+      "password": "{{BACKEND_PASS}}"
+    }
+scripts:
+  - type: afterResponse
+    language: text/javascript
+    code: |-
+      pm.test("Status 200 - JWT obtenido", () => pm.response.to.have.status(200));
+      if (pm.response.code === 200) {
+          const json = pm.response.json();
+          if (json.token) pm.collectionVariables.set("TOKEN", json.token);
+      }

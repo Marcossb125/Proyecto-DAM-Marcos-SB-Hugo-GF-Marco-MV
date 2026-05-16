@@ -1,0 +1,23 @@
+$kind: http-request
+name: 'PUT Guardar Bandera Sin Objeto'
+method: PUT
+url: '{{BASE_URL}}/bandera/guardar'
+order: 4000
+headers:
+  - key: Authorization
+    value: 'Bearer {{TOKEN}}'
+    enabled: true
+  - key: Content-Type
+    value: application/json
+body:
+  type: json
+  content: |-
+    {
+      "nickname": "{{NICK1}}",
+      "nombre": "Sin bandera"
+    }
+scripts:
+  - type: afterResponse
+    language: text/javascript
+    code: |-
+      pm.test("Status 400 - Sin objeto bandera", () => pm.response.to.have.status(400));

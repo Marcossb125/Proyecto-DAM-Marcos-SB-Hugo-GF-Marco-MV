@@ -1,0 +1,28 @@
+$kind: http-request
+name: 'POST Crear Partida'
+method: POST
+url: '{{BASE_URL}}/partidas/crear'
+order: 1000
+headers:
+  - key: Authorization
+    value: 'Bearer {{TOKEN}}'
+    enabled: true
+  - key: Content-Type
+    value: application/json
+body:
+  type: json
+  content: |-
+    {
+      "nombre": "{{MATCH_NAME}}",
+      "jugadores_limite": 4,
+      "hostNombre": "{{NICK1}}"
+    }
+scripts:
+  - type: afterResponse
+    language: text/javascript
+    code: |-
+      pm.test("Status 200 - Partida creada", () => pm.response.to.have.status(200));
+      if (pm.response.code === 200) {
+          const json = pm.response.json();
+          if (json.id) pm.collectionVariables.set("MATCH_ID", String(json.id));
+      }

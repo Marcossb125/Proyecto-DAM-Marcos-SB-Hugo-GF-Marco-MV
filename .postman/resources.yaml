@@ -1,0 +1,7 @@
+# Use this workspace to collaborate
+workspace:
+  id: 04591de6-b95a-488d-8e57-9827e24bd22b
+
+localResources:
+  collections:
+    - ..\Api rest\convergence\convergence_api_collection.json

@@ -1,0 +1,14 @@
+$kind: http-request
+name: 'GET Ranking General'
+method: GET
+url: '{{BASE_URL}}/ranking'
+order: 1000
+headers:
+  - key: Authorization
+    value: 'Bearer {{TOKEN}}'
+    enabled: true
+scripts:
+  - type: afterResponse
+    language: text/javascript
+    code: |-
+      pm.test("Status 200 - Ranking obtenido", () => pm.response.to.have.status(200));

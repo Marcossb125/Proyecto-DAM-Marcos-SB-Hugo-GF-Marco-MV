@@ -1,0 +1,14 @@
+$kind: http-request
+name: 'GET Partida No Existe'
+method: GET
+url: '{{BASE_URL}}/partidas/999999'
+order: 9000
+headers:
+  - key: Authorization
+    value: 'Bearer {{TOKEN}}'
+    enabled: true
+scripts:
+  - type: afterResponse
+    language: text/javascript
+    code: |-
+      pm.test("Status 404 - Partida no existe", () => pm.response.to.have.status(404));

@@ -1,0 +1,14 @@
+$kind: http-request
+name: 'GET Snapshot No Existe'
+method: GET
+url: '{{BASE_URL}}/snapshots/match/999999/ronda/99'
+order: 7000
+headers:
+  - key: Authorization
+    value: 'Bearer {{TOKEN}}'
+    enabled: true
+scripts:
+  - type: afterResponse
+    language: text/javascript
+    code: |-
+      pm.test("Status 404 - Snapshot no existe", () => pm.response.to.have.status(404));

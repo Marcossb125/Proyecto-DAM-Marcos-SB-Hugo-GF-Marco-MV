@@ -1,0 +1,14 @@
+$kind: http-request
+name: 'GET Ultimo Snapshot'
+method: GET
+url: '{{BASE_URL}}/snapshots/match/{{SNAP_ID}}/latest'
+order: 5000
+headers:
+  - key: Authorization
+    value: 'Bearer {{TOKEN}}'
+    enabled: true
+scripts:
+  - type: afterResponse
+    language: text/javascript
+    code: |-
+      pm.test("Status 200 - Ultimo snapshot obtenido", () => pm.response.to.have.status(200));

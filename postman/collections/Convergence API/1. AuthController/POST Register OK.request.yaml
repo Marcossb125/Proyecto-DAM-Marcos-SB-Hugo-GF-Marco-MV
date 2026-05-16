@@ -1,0 +1,21 @@
+$kind: http-request
+name: 'POST Register OK'
+method: POST
+url: '{{BASE_URL}}/auth/register'
+order: 1000
+headers:
+  - key: Content-Type
+    value: application/json
+body:
+  type: json
+  content: |-
+    {
+      "nickname": "{{NICK1}}",
+      "password": "password123",
+      "email": "{{NICK1}}@test.com"
+    }
+scripts:
+  - type: afterResponse
+    language: text/javascript
+    code: |-
+      pm.test("Status 200 - Registro OK", () => pm.response.to.have.status(200));

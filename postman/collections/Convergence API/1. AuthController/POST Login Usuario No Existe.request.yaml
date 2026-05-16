@@ -1,0 +1,20 @@
+$kind: http-request
+name: 'POST Login Usuario No Existe'
+method: POST
+url: '{{BASE_URL}}/auth/login'
+order: 6000
+headers:
+  - key: Content-Type
+    value: application/json
+body:
+  type: json
+  content: |-
+    {
+      "nickname": "noexiste_{{TS}}",
+      "password": "password123"
+    }
+scripts:
+  - type: afterResponse
+    language: text/javascript
+    code: |-
+      pm.test("Status 404 - Usuario no existe", () => pm.response.to.have.status(404));

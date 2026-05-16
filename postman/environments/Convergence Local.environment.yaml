@@ -1,0 +1,26 @@
+name: 'Convergence Local'
+values:
+  - key: BASE_URL
+    value: 'http://localhost:8080'
+    enabled: true
+  - key: BACKEND_USER
+    value: 'middleware_service'
+    enabled: true
+  - key: BACKEND_PASS
+    value: 'Mid2024!'
+    enabled: true
+  - key: NICK1
+    value: ''
+    enabled: true
+  - key: NICK2
+    value: ''
+    enabled: true
+  - key: TOKEN
+    value: ''
+    enabled: true
+  - key: MATCH_ID
+    value: ''
+    enabled: true
+  - key: SNAP_ID
+    value: ''
+    enabled: true

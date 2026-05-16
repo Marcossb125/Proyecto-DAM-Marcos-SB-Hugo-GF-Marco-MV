@@ -1,0 +1,14 @@
+$kind: http-request
+name: 'GET Partidas Activas'
+method: GET
+url: '{{BASE_URL}}/partidas/buscar/activas'
+order: 8000
+headers:
+  - key: Authorization
+    value: 'Bearer {{TOKEN}}'
+    enabled: true
+scripts:
+  - type: afterResponse
+    language: text/javascript
+    code: |-
+      pm.test("Status 200 - Lista de partidas activas", () => pm.response.to.have.status(200));

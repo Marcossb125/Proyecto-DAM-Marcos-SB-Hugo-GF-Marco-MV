@@ -1,0 +1,19 @@
+$kind: http-request
+name: 'POST Register Sin Campos'
+method: POST
+url: '{{BASE_URL}}/auth/register'
+order: 3000
+headers:
+  - key: Content-Type
+    value: application/json
+body:
+  type: json
+  content: |-
+    {
+      "nickname": "solo_nick"
+    }
+scripts:
+  - type: afterResponse
+    language: text/javascript
+    code: |-
+      pm.test("Status 400 - Sin campos obligatorios", () => pm.response.to.have.status(400));

@@ -1,0 +1,23 @@
+$kind: http-request
+name: 'PUT Guardar General'
+method: PUT
+url: '{{BASE_URL}}/general/guardar'
+order: 1000
+headers:
+  - key: Authorization
+    value: 'Bearer {{TOKEN}}'
+    enabled: true
+  - key: Content-Type
+    value: application/json
+body:
+  type: json
+  content: |-
+    {
+      "nickname": "{{NICK1}}",
+      "generalId": 3
+    }
+scripts:
+  - type: afterResponse
+    language: text/javascript
+    code: |-
+      pm.test("Status 200 - General guardado", () => pm.response.to.have.status(200));

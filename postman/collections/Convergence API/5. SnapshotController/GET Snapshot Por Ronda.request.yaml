@@ -1,0 +1,14 @@
+$kind: http-request
+name: 'GET Snapshot Por Ronda'
+method: GET
+url: '{{BASE_URL}}/snapshots/match/{{SNAP_ID}}/ronda/1'
+order: 4000
+headers:
+  - key: Authorization
+    value: 'Bearer {{TOKEN}}'
+    enabled: true
+scripts:
+  - type: afterResponse
+    language: text/javascript
+    code: |-
+      pm.test("Status 200 - Snapshot obtenido por ronda", () => pm.response.to.have.status(200));
