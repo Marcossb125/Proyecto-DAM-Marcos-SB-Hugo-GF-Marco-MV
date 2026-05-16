@@ -140,7 +140,7 @@ export class Match implements OnInit, OnDestroy {
     const dialogRef = this.dialog.open(BuildDialog, {
       data: { territory, player },
       panelClass: 'military-dialog',
-      disableClose: false,
+      disableClose: true,
     });
 
     dialogRef.afterClosed().subscribe((result: BuildDialogResult | undefined) => {
@@ -189,7 +189,7 @@ export class Match implements OnInit, OnDestroy {
     const dialogRef = this.dialog.open(RecruitDialog, {
       data: { player, territoryLabel: territory.label },
       panelClass: 'military-dialog',
-      disableClose: false,
+      disableClose: true,
     });
 
     dialogRef.afterClosed().subscribe((result: RecruitDialogResult | undefined) => {
@@ -400,7 +400,7 @@ export class Match implements OnInit, OnDestroy {
               result: myResult
             },
             panelClass: 'military-dialog',
-            disableClose: false
+            disableClose: true
           });
         } else {
           this.dialog.open(BattleDialog, {
@@ -414,7 +414,7 @@ export class Match implements OnInit, OnDestroy {
               result: myResult
             },
             panelClass: 'military-dialog',
-            disableClose: false
+            disableClose: true
           });
         }
       }
