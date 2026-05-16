@@ -1,0 +1,498 @@
+### ============================================================
+### CONVERGENCE API - Tests HTTP
+### ============================================================
+### INSTRUCCIONES:
+###   - En VS Code: instala la extensión "REST Client" (Huachao Mao)
+###   - En Eclipse: usa el plugin "RESTClient" del Marketplace
+###   - O simplemente ábrelo en VS Code y pulsa "Send Request"
+###     sobre cualquier petición (aparece como enlace azul encima)
+###
+### ORDEN DE EJECUCIÓN RECOMENDADO:
+###   1. Registrar usuario (Register OK)
+###   2. Hacer login (Login OK) → copia el token
+###   3. Pegar el token en @TOKEN abajo
+###   4. Ejecutar el resto de endpoints
+### ============================================================
+
+### VARIABLES GLOBALES - CAMBIA ESTOS VALORES ANTES DE EMPEZAR
+@BASE_URL = http://localhost:8080
+@NICK1    = jugador1
+@NICK2    = jugador2
+@TOKEN    = eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJtaWRkbGV3YXJlX3NlcnZpY2UiLCJpYXQiOjE3Nzg5NTQyOTh9.D227-Wcy_K3P36U7wummG2IgCQE_tf5XV5Gm_mW65F6UN8kDThZX_jGtmJhWAouW3G23Kf0qKwG_gUg5CYeciQ
+@MATCH_ID = 26
+@SNAP_ID  = 1
+
+### ============================================================
+### 1. AUTH CONTROLLER
+### ============================================================
+
+
+### [1.1] POST Register OK - Registrar nuevo usuario
+# Espera: 200 OK
+POST {{BASE_URL}}/auth/register
+Authorization: Bearer {{TOKEN}}
+Content-Type: application/json
+
+{
+  "nickname": "{{NICK2}}",
+  "password": "password123",
+  "email": "{{NICK2}}@test.com"
+}
+
+###
+
+### [1.2] POST Register Duplicado - Registrar usuario que ya existe
+# Espera: 400 o 409 Conflict
+POST {{BASE_URL}}/auth/register
+Authorization: Bearer {{TOKEN}}
+Content-Type: application/json
+
+{
+  "nickname": "{{NICK1}}",
+  "password": "password123",
+  "email": "{{NICK1}}@test.com"
+}
+
+###
+
+### [1.3] POST Register Sin Campos - Registro sin todos los campos
+# Espera: 400 Bad Request
+POST {{BASE_URL}}/auth/register
+Authorization: Bearer {{TOKEN}}
+Content-Type: application/json
+
+{
+  "nickname": "solo_nick"
+}
+
+###
+
+### [1.4] POST Login OK - Login correcto
+# Espera: 200 OK + token JWT
+# --> Copia el "token" de la respuesta y pégalo en @TOKEN arriba
+POST {{BASE_URL}}/auth/login
+Authorization: Bearer {{TOKEN}}
+Content-Type: application/json
+
+{
+  "nickname": "{{NICK1}}",
+  "password": "password123"
+}
+
+###
+
+### [1.5] POST Login Pass Incorrecta - Login con contraseña errónea
+# Espera: 401 Unauthorized
+POST {{BASE_URL}}/auth/login
+Authorization: Bearer {{TOKEN}}
+Content-Type: application/json
+
+{
+  "nickname": "{{NICK1}}",
+  "password": "wrongpassword"
+}
+
+###
+
+### [1.6] POST Login Usuario No Existe - Login con usuario inexistente
+# Espera: 401 o 404
+POST {{BASE_URL}}/auth/login
+Authorization: Bearer {{TOKEN}}
+Content-Type: application/json
+
+{
+  "nickname": "usuarioInexistente",
+  "password": "password123"
+}
+
+###
+
+### [1.7] POST Backend Login OK - Login del servicio middleware
+# Espera: 200 OK + token JWT de backend
+POST {{BASE_URL}}/auth/backend-login
+Content-Type: application/json
+
+{
+  "nickname": "middleware_service",
+  "password": "Mid2024!"
+}
+
+###
+
+### [1.8] POST Backend Login Creds Incorrectas - Credenciales de backend erróneas
+# Espera: 401 Unauthorized
+POST {{BASE_URL}}/auth/backend-login
+Content-Type: application/json
+
+{
+  "nickname": "middleware_service",
+  "password": "contrasenaMal"
+}
+
+###
+
+
+### ============================================================
+### 2. GENERAL CONTROLLER
+### ============================================================
+
+
+### [2.1] PUT Guardar General - Asignar un general al usuario
+# Espera: 200 OK
+PUT {{BASE_URL}}/general/guardar
+Authorization: Bearer {{TOKEN}}
+Content-Type: application/json
+
+{
+  "nickname": "{{NICK1}}",
+  "generalId": 3
+}
+
+###
+
+### [2.2] GET Obtener General - Ver el general del usuario
+# Espera: 200 OK con datos del general
+GET {{BASE_URL}}/general/{{NICK1}}
+Authorization: Bearer {{TOKEN}}
+
+###
+
+### [2.3] PUT Guardar General Sin Nickname - Guardar general sin nickname
+# Espera: 400 Bad Request
+PUT {{BASE_URL}}/general/guardar
+Authorization: Bearer {{TOKEN}}
+Content-Type: application/json
+
+{
+  "generalId": 3
+}
+
+###
+
+### [2.4] GET General Usuario No Existe - Obtener general de usuario inexistente
+# Espera: 404 Not Found
+GET {{BASE_URL}}/general/usuarioQueNoExiste
+Authorization: Bearer {{TOKEN}}
+
+###
+
+
+### ============================================================
+### 3. BANDERA CONTROLLER
+### ============================================================
+
+
+### [3.1] PUT Guardar Bandera - Guardar la bandera/facción del usuario
+# Espera: 200 OK
+PUT {{BASE_URL}}/bandera/guardar
+Authorization: Bearer {{TOKEN}}
+Content-Type: application/json
+
+{
+  "nickname": "{{NICK1}}",
+  "nombre": "Faccion Test",
+  "bandera": {
+    "layout": "diagonal",
+    "colors": ["#FF0000", "#FFFFFF", "#0000FF"]
+  }
+}
+
+###
+
+### [3.2] GET Obtener Bandera - Ver la bandera del usuario
+# Espera: 200 OK con datos de la bandera
+GET {{BASE_URL}}/bandera/{{NICK1}}
+Authorization: Bearer {{TOKEN}}
+
+###
+
+### [3.3] PUT Guardar Bandera Sin Nickname - Guardar bandera sin nickname
+# Espera: 400 Bad Request
+PUT {{BASE_URL}}/bandera/guardar
+Authorization: Bearer {{TOKEN}}
+Content-Type: application/json
+
+{
+  "nombre": "Faccion Sin Nick",
+  "bandera": {
+    "layout": "diagonal",
+    "colors": ["#FF0000"]
+  }
+}
+
+###
+
+### [3.4] PUT Guardar Bandera Sin Objeto - Guardar bandera sin el objeto bandera
+# Espera: 400 Bad Request
+PUT {{BASE_URL}}/bandera/guardar
+Authorization: Bearer {{TOKEN}}
+Content-Type: application/json
+
+{
+  "nickname": "{{NICK1}}",
+  "nombre": "Solo Nombre"
+}
+
+###
+
+### [3.5] GET Bandera Usuario No Existe - Obtener bandera de usuario inexistente
+# Espera: 404 Not Found
+GET {{BASE_URL}}/bandera/usuarioQueNoExiste
+Authorization: Bearer {{TOKEN}}
+
+###
+
+
+### ============================================================
+### 4. PARTIDA CONTROLLER
+### ============================================================
+
+
+### [4.1] POST Crear Partida - Crear una nueva partida
+# Espera: 200 OK + id de la partida
+# --> Copia el "id" de la respuesta y pégalo en @MATCH_ID arriba
+POST {{BASE_URL}}/partidas/crear
+Authorization: Bearer {{TOKEN}}
+Content-Type: application/json
+
+{
+  "nombre": "PartidaTest001",
+  "jugadores_limite": 4,
+  "hostNombre": "{{NICK1}}"
+}
+
+###
+
+### [4.2] POST Crear Partida Duplicada - Crear partida con nombre ya existente
+# Espera: 400 o 409 Conflict
+POST {{BASE_URL}}/partidas/crear
+Authorization: Bearer {{TOKEN}}
+Content-Type: application/json
+
+{
+  "nombre": "PartidaTest001",
+  "jugadores_limite": 4,
+  "hostNombre": "{{NICK1}}"
+}
+
+###
+
+### [4.3] POST Crear Partida Host No Existe - Crear partida con host inexistente
+# Espera: 404 Not Found
+POST {{BASE_URL}}/partidas/crear
+Authorization: Bearer {{TOKEN}}
+Content-Type: application/json
+
+{
+  "nombre": "PartidaOrfana",
+  "jugadores_limite": 4,
+  "hostNombre": "hostInexistente"
+}
+
+###
+
+### [4.4] GET Obtener Partida Por ID - Buscar partida por su ID
+# Espera: 200 OK con datos de la partida
+GET {{BASE_URL}}/partidas/{{MATCH_ID}}
+Authorization: Bearer {{TOKEN}}
+
+###
+
+### [4.5] GET Obtener Partida Por Nombre - Buscar partida por nombre
+# Espera: 200 OK con datos de la partida
+GET {{BASE_URL}}/partidas/nombre/PartidaTest001
+Authorization: Bearer {{TOKEN}}
+
+###
+
+### [4.6] GET Partidas Del Usuario - Ver todas las partidas de un jugador
+# Espera: 200 OK con lista de partidas
+GET {{BASE_URL}}/partidas/usuario/{{NICK1}}
+Authorization: Bearer {{TOKEN}}
+
+###
+
+### [4.7] POST Unirse A Partida - Unir NICK2 a la partida creada
+# Espera: 200 OK
+# NOTA: primero registra/loguea {{NICK2}} y luego usa su TOKEN
+POST {{BASE_URL}}/partidas/{{MATCH_ID}}/unirse?nickname={{NICK2}}
+Authorization: Bearer {{TOKEN}}
+
+###
+
+### [4.8] GET Partidas Activas - Listar todas las partidas activas
+# Espera: 200 OK con lista
+GET {{BASE_URL}}/partidas/buscar/activas
+Authorization: Bearer {{TOKEN}}
+
+###
+
+### [4.9] GET Partida No Existe - Buscar partida con ID inexistente
+# Espera: 404 Not Found
+GET {{BASE_URL}}/partidas/999999
+Authorization: Bearer {{TOKEN}}
+
+###
+
+### [4.10] DELETE Partida Por Host - Borrar la partida (solo el host puede)
+# Espera: 200 OK
+DELETE {{BASE_URL}}/partidas/{{MATCH_ID}}?requester={{NICK1}}
+Authorization: Bearer {{TOKEN}}
+
+###
+
+### [4.11] DELETE Partida No Host - Intentar borrar sin ser el host
+# Espera: 403 Forbidden
+DELETE {{BASE_URL}}/partidas/{{MATCH_ID}}?requester={{NICK2}}
+Authorization: Bearer {{TOKEN}}
+
+###
+
+
+### ============================================================
+### 5. SNAPSHOT CONTROLLER
+### ============================================================
+### NOTA: Primero crea una partida (4.1) y copia su ID en @SNAP_ID
+
+
+### [5.1] POST Guardar Snapshot Ronda 1 - Guardar estado de ronda 1
+# Espera: 200 OK
+POST {{BASE_URL}}/snapshots/guardar
+Authorization: Bearer {{TOKEN}}
+Content-Type: application/json
+
+{
+  "matchId": "{{SNAP_ID}}",
+  "ronda": 1,
+  "stateJson": "{\"turno\":1,\"recursos\":{\"oro\":100,\"madera\":50}}",
+  "idHost": "{{NICK1}}",
+  "idGanador": ""
+}
+
+###
+
+### [5.2] POST Guardar Snapshot Ronda 2 - Guardar estado de ronda 2
+# Espera: 200 OK
+POST {{BASE_URL}}/snapshots/guardar
+Authorization: Bearer {{TOKEN}}
+Content-Type: application/json
+
+{
+  "matchId": "{{SNAP_ID}}",
+  "ronda": 2,
+  "stateJson": "{\"turno\":2,\"recursos\":{\"oro\":150,\"madera\":30}}",
+  "idHost": "{{NICK1}}",
+  "idGanador": ""
+}
+
+###
+
+### [5.3] POST Guardar Snapshot Con Ganador - Guardar estado final con ganador
+# Espera: 200 OK
+POST {{BASE_URL}}/snapshots/guardar
+Authorization: Bearer {{TOKEN}}
+Content-Type: application/json
+
+{
+  "matchId": "{{SNAP_ID}}",
+  "ronda": 3,
+  "stateJson": "{\"turno\":3,\"fin\":true}",
+  "idHost": "{{NICK1}}",
+  "idGanador": "{{NICK1}}"
+}
+
+###
+
+### [5.4] POST Guardar Snapshot Sin Campos - Snapshot con cuerpo incompleto
+# Espera: 400 Bad Request
+POST {{BASE_URL}}/snapshots/guardar
+Authorization: Bearer {{TOKEN}}
+Content-Type: application/json
+
+{
+  "ronda": 1
+}
+
+###
+
+### [5.5] GET Snapshot Por Ronda - Obtener snapshot de una ronda concreta
+# Espera: 200 OK con datos del snapshot
+GET {{BASE_URL}}/snapshots/match/{{SNAP_ID}}/ronda/1
+Authorization: Bearer {{TOKEN}}
+
+###
+
+### [5.6] GET Ultimo Snapshot - Obtener el snapshot más reciente de la partida
+# Espera: 200 OK con el último snapshot
+GET {{BASE_URL}}/snapshots/match/{{SNAP_ID}}/latest
+Authorization: Bearer {{TOKEN}}
+
+###
+
+### [5.7] GET Snapshot No Existe - Buscar snapshot de partida inexistente
+# Espera: 404 Not Found
+GET {{BASE_URL}}/snapshots/match/999999/latest
+Authorization: Bearer {{TOKEN}}
+
+###
+
+
+### ============================================================
+### 6. RANKING CONTROLLER
+### ============================================================
+
+
+### [6.1] GET Ranking General - Ver el ranking global de todos los jugadores
+# Espera: 200 OK con lista ordenada
+GET {{BASE_URL}}/ranking
+Authorization: Bearer {{TOKEN}}
+
+###
+
+### [6.2] GET Victorias Por General - Ver victorias con un general concreto (ID: 3)
+# Espera: 200 OK con estadísticas
+GET {{BASE_URL}}/ranking/general/1
+Authorization: Bearer {{TOKEN}}
+
+###
+
+### [6.3] GET Perfil Usuario - Ver el perfil y estadísticas de un jugador
+# Espera: 200 OK con datos del perfil
+GET {{BASE_URL}}/ranking/user/{{NICK1}}
+Authorization: Bearer {{TOKEN}}
+
+###
+
+
+### ============================================================
+### 7. SYNC CONTROLLER
+### ============================================================
+
+
+### [7.1] GET Sync All - Sincronizar todo (MySQL → MongoDB)
+# Espera: 200 OK
+GET {{BASE_URL}}/sync/all
+Authorization: Bearer {{TOKEN}}
+
+###
+
+### [7.2] GET Sync Usuarios - Sincronizar solo usuarios
+# Espera: 200 OK
+GET {{BASE_URL}}/sync/usuarios
+Authorization: Bearer {{TOKEN}}
+
+###
+
+### [7.3] GET Sync Partidas - Sincronizar solo partidas
+# Espera: 200 OK
+GET {{BASE_URL}}/sync/partidas
+Authorization: Bearer {{TOKEN}}
+
+###
+
+### [7.4] GET Sync Snapshots - Sincronizar solo snapshots
+# Espera: 200 OK
+GET {{BASE_URL}}/sync/snapshots
+Authorization: Bearer {{TOKEN}}
+
+###
