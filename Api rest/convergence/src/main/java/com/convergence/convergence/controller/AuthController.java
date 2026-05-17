@@ -63,10 +63,6 @@ public class AuthController {
         public String email;
     }
 
-    /**
-     * Sincroniza un usuario con MongoDB.
-     * Si no existe, lo crea con valores iniciales.
-     */
     private void syncUserWithMongo(String nickname, Long generalId) {
         try {
             if (!usuarioMongoRepository.existsById(nickname)) {
@@ -96,14 +92,12 @@ public class AuthController {
         User u = new User(req.nickname, hashed, req.email);
         userRepository.save(u);
 
-        // Sync nuevo usuario a MongoDB
         try {
             mongoSyncService.syncUsuario(u);
         } catch (Exception e) {
             System.err.println("[WARN] MongoDB sync omitido en register: " + e.getMessage());
         }
 
-        // Do not return the password to the client
         u.setPassword(null);
         return ResponseEntity.ok(u);
     }
@@ -121,7 +115,6 @@ public class AuthController {
             return ResponseEntity.status(401).body("invalid credentials");
         }
 
-        // Sync usuario a MongoDB en cada login
         try {
             mongoSyncService.syncUsuario(user.get());
         } catch (Exception e) {
@@ -137,16 +130,16 @@ public class AuthController {
             return ResponseEntity.badRequest().body("nickname and password required");
         }
 
-        // Autenticar contra las credenciales del usuario de la base de datos (usuario
-        // MySQL)
         if (!req.nickname.equals(backendUser) || !req.password.equals(backendPassword)) {
             return ResponseEntity.status(401).body("invalid backend credentials");
         }
 
         Date issuedAt = new Date();
+        Date expiration = new Date(issuedAt.getTime() + 60 * 60 * 1000L); // 1 hora
         String jwtGen = Jwts.builder()
                 .setSubject(req.nickname)
                 .setIssuedAt(issuedAt)
+                .setExpiration(expiration)
                 .signWith(getSecretKey())
                 .compact();
 

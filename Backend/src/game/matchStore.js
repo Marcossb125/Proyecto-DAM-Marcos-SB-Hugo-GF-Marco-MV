@@ -19,7 +19,6 @@ function removeMatch(matchId) {
   matchStates.delete(matchId);
 }
 
-// Persistencia en BD via API REST
 async function saveSnapshot(matchId) {
   const state = getMatch(matchId);
   if (!state) return false;

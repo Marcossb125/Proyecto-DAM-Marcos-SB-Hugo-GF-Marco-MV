@@ -33,7 +33,7 @@ function createLog(matchId, type, actorName, message) {
   return {
     matchId,
     timestamp: new Date().toISOString(),
-    type, // 'action' | 'phase' | 'combat' | 'system'
+    type,
     actorName,
     message
   };
@@ -232,7 +232,6 @@ function applyCancelMove(state, playerId, armyId) {
 }
 
 function applyRetreat(state, playerId, armyId) {
-  // Not fully specified, ignoring for now or just returning success
   return { state, logs: [createLog(state.matchId, 'action', 'Sistema', `Retirada ejecutada`)], error: null };
 }
 
@@ -269,8 +268,6 @@ function resolveMovementPhase(state) {
   const combatResults = [];
   const logs = [];
 
-  // Very basic resolution: execute moves one by one.
-  // In a real game, simultaneous movement might require complex logic.
   state.pendingMoves.forEach(move => {
     const army = state.armies.find(a => a.id === move.armyId);
     if (!army) return;
@@ -281,16 +278,13 @@ function resolveMovementPhase(state) {
     const defenderArmy = state.armies.find(a => a.territoryId === move.toTerritoryId);
 
     if (defenderArmy && defenderArmy.ownerId !== army.ownerId) {
-      // Combat!
       let attackerTroops = army.troopSize + attackBonusFromGeneral3(state, army.ownerId);
       let defenderTroops = defenderArmy.troopSize;
 
-      // Defense bonus from buildings
       if (toTerritory.buildingType === 'MURO') defenderTroops += 10;
       if (toTerritory.buildingType === 'TORRE') defenderTroops += 15;
       defenderTroops += territoryDefenseBonusFromGeneral2(state, toTerritory.ownerId);
 
-      // Random losses
       const attackerLosses = Math.floor(Math.random() * Math.min(defenderTroops, attackerTroops + 1));
       const defenderLosses = Math.floor(Math.random() * Math.min(attackerTroops, defenderTroops + 1));
 
@@ -326,7 +320,6 @@ function resolveMovementPhase(state) {
       } else {
         winner = 'Defensor (Atacante se retira)';
         winnerId = defenderArmy.ownerId;
-        // Attacker survives but doesn't move
       }
 
       combatResults.push({
@@ -346,24 +339,20 @@ function resolveMovementPhase(state) {
 
       logs.push(createLog(state.matchId, 'combat', 'Sistema', `⚔️ Combate en ${toTerritory.label} — Resultado: ${winner}`));
     } else if (defenderArmy && defenderArmy.ownerId === army.ownerId) {
-      // Merge armies
       defenderArmy.troopSize += army.troopSize;
       state.armies = state.armies.filter(a => a.id !== army.id);
       fromTerritory.occupiedByArmyId = null;
       logs.push(createLog(state.matchId, 'action', 'Sistema', `Ejércitos combinados en ${toTerritory.label}`));
     } else {
-      // Peaceful move or City Conquest
       const isCityConquest = toTerritory.ownerId && toTerritory.ownerId !== army.ownerId && toTerritory.buildingType;
 
       if (isCityConquest) {
-        // Calculate defenses
-        let defenseStrength = 30; // Base defense
+        let defenseStrength = 30;
         if (toTerritory.buildingType === 'MURO') defenseStrength += 10;
         if (toTerritory.buildingType === 'TORRE') defenseStrength += 15;
         defenseStrength += territoryDefenseBonusFromGeneral2(state, toTerritory.ownerId);
         defenseStrength = Math.min(defenseStrength, 95);
 
-        // Success chance (+10 ataque plano si general 3)
         const atkGen = attackBonusFromGeneral3(state, army.ownerId);
         const baseChance = (army.troopSize * 5) - (defenseStrength * 0.5) + atkGen;
         const successChance = Math.max(5, Math.min(95, Math.round(baseChance)));
@@ -397,7 +386,6 @@ function resolveMovementPhase(state) {
           });
           logs.push(createLog(state.matchId, 'action', 'Sistema', `Ciudad ${toTerritory.label} capturada por ${army.ownerId}`));
         } else {
-          // Failure: Army destroyed
           state.armies = state.armies.filter(a => a.id !== army.id);
           fromTerritory.occupiedByArmyId = null;
 
@@ -419,12 +407,11 @@ function resolveMovementPhase(state) {
           logs.push(createLog(state.matchId, 'action', 'Sistema', `Ataque fallido a ${toTerritory.label}`));
         }
       } else {
-        // Normal peaceful move
         fromTerritory.occupiedByArmyId = null;
         army.territoryId = toTerritory.id;
         toTerritory.occupiedByArmyId = army.id;
         if (toTerritory.ownerId !== army.ownerId) {
-          toTerritory.ownerId = army.ownerId; // Conquered empty undefended territory
+          toTerritory.ownerId = army.ownerId;
           logs.push(createLog(state.matchId, 'action', 'Sistema', `Territorio ${toTerritory.label} capturado`));
         } else {
           logs.push(createLog(state.matchId, 'action', 'Sistema', `Ejército movido a ${toTerritory.label}`));
@@ -438,10 +425,6 @@ function resolveMovementPhase(state) {
   return { state, combatResults, logs };
 }
 
-/**
- * Marca automáticamente como listos a los jugadores que no controlan ningún territorio.
- * Se aplica al inicio de cada fase para que no bloqueen el avance.
- */
 function autoReadyEliminatedPlayers(state) {
   state.players.forEach(player => {
     const hasTerritories = state.territories.some(t => t.ownerId === player.id);
@@ -458,14 +441,9 @@ function advancePhase(state) {
   let nextPhase = PHASES[currentIndex + 1];
 
   if (!nextPhase) {
-    // End of round
     nextPhase = PHASES[0];
     state.currentTurn++;
-    // Reset army actions
     state.armies.forEach(a => a.hasActedThisTurn = false);
-
-    // Resolve movement if we just ended movement phase
-    // Actually, movement resolution should happen AT the end of the movement phase, before transitioning to Recaudacion.
   }
 
   let combatResults = null;
@@ -480,7 +458,6 @@ function advancePhase(state) {
   state.currentPhase = nextPhase;
   state.players.forEach(p => p.isReady = false);
 
-  // Auto-ready jugadores sin territorios al inicio de la nueva fase
   autoReadyEliminatedPlayers(state);
 
   logs.push(createLog(state.matchId, 'phase', 'Sistema', `⚡ Nueva fase: ${nextPhase}`));
@@ -494,11 +471,9 @@ function advancePhase(state) {
       incomeSummary: recRes.incomeSummary,
     };
 
-    // Transición automática a CONSTRUCCION tras recibir los recursos
     state.currentPhase = 'CONSTRUCCION';
     logs.push(createLog(state.matchId, 'phase', 'Sistema', `⚡ Nueva fase: CONSTRUCCION`));
 
-    // Re-aplicar auto-ready en la fase CONSTRUCCION (la RECAUDACION fue automática)
     autoReadyEliminatedPlayers(state);
   }
 

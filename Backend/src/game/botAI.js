@@ -6,8 +6,6 @@ function delay(ms) {
   return new Promise(resolve => setTimeout(resolve, ms));
 }
 
-// Function that will be called by the game event loop or handler
-// after a phase change to trigger bot actions
 async function runBotsForCurrentPhase(matchId, emitUpdateAndLog, emitSummary) {
   const state = getMatch(matchId);
   if (!state || state.isFinished) return;
@@ -16,13 +14,11 @@ async function runBotsForCurrentPhase(matchId, emitUpdateAndLog, emitSummary) {
   if (bots.length === 0) return;
 
   for (const bot of bots) {
-    if (bot.isReady) continue; // Already acted
+    if (bot.isReady) continue;
 
-    // Random delay between 1 and 3 seconds
     const waitTime = Math.floor(Math.random() * 2000) + 1000;
     await delay(waitTime);
 
-    // Re-fetch state in case it changed during delay
     const currentState = getMatch(matchId);
     if (!currentState || currentState.currentPhase !== state.currentPhase) return;
 
@@ -39,7 +35,6 @@ async function runBotsForCurrentPhase(matchId, emitUpdateAndLog, emitSummary) {
         res = botActionMovimiento(currentState, bot);
         break;
       case 'RECAUDACION':
-        // Nothing special to do, just get ready
         res = { state: currentState, logs: [] };
         break;
     }
@@ -49,20 +44,17 @@ async function runBotsForCurrentPhase(matchId, emitUpdateAndLog, emitSummary) {
         res.logs.forEach(log => emitUpdateAndLog(null, log));
       }
       
-      // Finally, set the bot as ready
       const readyRes = gameEngine.applyPlayerReady(getMatch(matchId), bot.id);
       if (readyRes.logs && readyRes.logs.length > 0) {
         readyRes.logs.forEach(log => emitUpdateAndLog(null, log));
       }
 
       if (readyRes.phaseAdvanced) {
-        // Si hubo recaudación, emitir resumen antes del estado
         if (readyRes.recaudacionSummary && emitSummary) {
           emitSummary(readyRes.recaudacionSummary, readyRes.combatResults);
         } else if (readyRes.combatResults && emitSummary) {
           emitSummary(null, readyRes.combatResults);
         }
-        // Emit state update as phase advanced
         const updatedState = getMatch(matchId);
         if (!updatedState) break;
         const winnerId = refreshWinnerState(updatedState);
@@ -78,11 +70,9 @@ async function runBotsForCurrentPhase(matchId, emitUpdateAndLog, emitSummary) {
           });
           break;
         }
-        // Trigger bots for the new phase
         setTimeout(() => runBotsForCurrentPhase(matchId, emitUpdateAndLog, emitSummary), 0);
         break;
       } else {
-        // Even if phase didn't advance, emit state update to show bot is ready
         emitUpdateAndLog(getMatch(matchId), null);
       }
     }
@@ -90,8 +80,6 @@ async function runBotsForCurrentPhase(matchId, emitUpdateAndLog, emitSummary) {
 }
 
 function botActionConstruccion(state, bot) {
-  // Simple AI: Try to build a FACTORY or MURO if we have enough credits
-  // and we have a territory without building.
   let logs = [];
   const owned = state.territories.filter(t => t.ownerId === bot.id && !t.buildingType && !t.isRefinery && !t.hasSupremeBase);
   

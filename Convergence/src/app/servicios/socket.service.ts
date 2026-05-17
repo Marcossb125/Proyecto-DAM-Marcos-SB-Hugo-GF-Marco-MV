@@ -8,13 +8,10 @@ import { environment } from '../../environments/environment';
   providedIn: 'root',
 })
 export class SocketService {
-  /** Socket sin autenticación, sólo para register y login */
   public readonly authSocket: Socket = io(environment.backendUrl, { transports: ['websocket'] });
 
-  /** Socket autenticado, se crea tras el login con el token JWT */
   private socket!: Socket;
 
-  /** Subject que emite cada vez que el servidor envía GAME_STATE_UPDATE */
   public readonly gameStateUpdates$ = new Subject<any>();
 
   private readonly STORAGE_KEY_token = 'convergence_token';
@@ -38,10 +35,6 @@ export class SocketService {
     }
   }
 
-  /**
-   * Inicializa el socket autenticado enviando el token en el handshake de
-   * socket.io (opción auth). Debe llamarse tras un login exitoso.
-   */
   public conectar(token: string): void {
     this.socket = io(environment.backendUrl, {
       auth: { token },
@@ -56,7 +49,6 @@ export class SocketService {
       console.error('Error de conexión autenticada:', err.message);
     });
 
-    // Adjuntar el listener aquí garantiza que nunca se pierda un evento
     this.socket.on('GAME_STATE_UPDATE', (state: any) => {
       console.log('[SocketService] GAME_STATE_UPDATE recibido. Fase:', state?.currentPhase);
       this.gameStateUpdates$.next(state);
@@ -70,10 +62,6 @@ export class SocketService {
     }
   }
 
-  /**
-   * Escucha un evento del servidor y lo expone como Observable de RxJS.
-   * Al desuscribirse, elimina automáticamente el listener específico (no todos).
-   */
   public listen(event: string): Observable<any> {
     return new Observable((subscriber) => {
       if (!this.socket) {
@@ -88,10 +76,6 @@ export class SocketService {
     });
   }
 
-  /**
-   * Como listen(), pero espera hasta que el socket esté disponible (polling cada 500ms).
-   * Útil para efectos que se crean antes de que el usuario haga login.
-   */
   public listenForGame(event: string): Observable<any> {
     return new Observable((subscriber) => {
       let handler: ((data: any) => void) | null = null;
@@ -123,9 +107,6 @@ export class SocketService {
     });
   }
 
-  /**
-   * Emite un evento al servidor a través del socket autenticado o del socket de auth.
-   */
   public emit(event: string, data: any, useAuthSocket: boolean = false): void {
     const s = useAuthSocket ? this.authSocket : this.socket;
     if (!s) {
@@ -135,9 +116,6 @@ export class SocketService {
     s.emit(event, data);
   }
 
-  /**
-   * Emite un evento con callback. Si data es null o undefined, emite solo el callback.
-   */
   public emitWithCallback(event: string, data: any, callback: (response: any) => void, useAuthSocket: boolean = false): void {
     const s = useAuthSocket ? this.authSocket : this.socket;
     if (!s) {

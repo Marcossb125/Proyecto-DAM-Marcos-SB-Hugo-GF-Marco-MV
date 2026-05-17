@@ -43,7 +43,6 @@ public class SnapshotController {
             return ResponseEntity.badRequest().body("matchId y stateJson son obligatorios");
         }
 
-        // Check if snapshot for this match already exists
         Optional<MatchSnapshot> existing = snapshotRepository.findByMatchId(req.matchId);
         MatchSnapshot snapshot;
 
@@ -57,7 +56,6 @@ public class SnapshotController {
 
         snapshotRepository.save(snapshot);
 
-        // Si hay ganador, actualizar la partida en SQL
         if (req.idGanador != null && !req.idGanador.isBlank()) {
             Optional<Partida> partidaOpt = partidaRepository.findById(req.matchId);
             if (partidaOpt.isPresent()) {
@@ -69,7 +67,6 @@ public class SnapshotController {
                 partida.setEstado("Finalizada");
                 partidaRepository.save(partida);
 
-                // Sync partida actualizada a MongoDB
                 try {
                     mongoSyncService.syncPartida(partida);
                 } catch (Exception e) {
@@ -78,7 +75,6 @@ public class SnapshotController {
             }
         }
 
-        // Sync snapshot a MongoDB
         try {
             mongoSyncService.syncMatchSnapshot(snapshot);
         } catch (Exception e) {

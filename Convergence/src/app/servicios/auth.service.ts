@@ -37,14 +37,13 @@ export class AuthService {
             localStorage.setItem(this.STORAGE_KEY_token, JSON.stringify(response.data));
           }
 
-          // Conectar el socket autenticado usando el token recibido
           this.socketService.conectar(response.data);
           resolve(true);
         } else {
           console.error('Error en el login:', response.error);
           resolve(false);
         }
-      }, true); // useAuthSocket = true
+      }, true);
     });
   }
 
@@ -54,7 +53,6 @@ export class AuthService {
       localStorage.removeItem(this.STORAGE_KEY_user);
     }
     this.socketService.desconectar();
-    console.log('Sesión cerrada y socket desconectado');
   }
 
   guardarNombreUsuario(nombre: string): void {
@@ -67,7 +65,6 @@ export class AuthService {
     const user = localStorage.getItem(this.STORAGE_KEY_user);
     if (!user) return '';
     try {
-      // Intentar parsear por si está guardado como JSON string (como en loginUser)
       return JSON.parse(user);
     } catch {
       return user;
