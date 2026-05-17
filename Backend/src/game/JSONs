@@ -1,0 +1,100 @@
+{
+  "matchId": "45",
+  "playerId": "MarcosSB",
+  "armyId": "army_MarcosSB_1",
+  "toTerritoryId": "T04"
+}
+
+{
+  "matchId": "45",
+  "playerId": "MarcosSB",
+  "territoryId": "T03",
+  "buildingType": "MINA"
+}
+
+{
+  "matchId": "45",
+  "playerId": "MarcosSB"
+}
+
+{
+  "matchId": "45",
+  "timestamp": "2026-05-17T03:39:15Z",
+  "type": "gameplay",
+  "actorName": "MarcosSB",
+  "message": "MarcosSB ha construido una MINA en Base Central"
+}
+
+[
+  {
+    "matchId": "45",
+    "type": "battle",
+    "territoryId": "T04",
+    "territoryLabel": "Llanura del Norte",
+    "attackerId": "HugoGF",
+    "defenderId": "MarcosSB",
+    "initialAttackerSize": 10,
+    "initialDefenderSize": 6,
+    "survivingAttackerSize": 4,
+    "survivingDefenderSize": 0,
+    "winnerId": "HugoGF",
+    "combatLog": [
+      "Ronda 1: Atacante causa 3 bajas, Defensor causa 2 bajas...",
+      "Victoria del Atacante"
+    ]
+  }
+]
+
+{
+  "matchId": "45",
+  "name": "Sala Batalla Épica",
+  "isFinished": false,
+  "winnerId": null,
+  "currentPhase": "CONSTRUCCION",
+  "currentPlayerId": "HugoGF",
+  "players": [
+    {
+      "id": "HugoGF",
+      "name": "HugoGF",
+      "gold": 250,
+      "isBot": false,
+      "isConnected": true,
+      "matchGeneralId": 1,
+      "faction": "Imperio"
+    },
+    {
+      "id": "MarcosSB",
+      "name": "MarcosSB",
+      "gold": 180,
+      "isBot": false,
+      "isConnected": true,
+      "matchGeneralId": 3,
+      "faction": "Alianza"
+    }
+  ],
+  "territories": [
+    {
+      "id": "T01",
+      "label": "Base Central",
+      "ownerId": "HugoGF",
+      "hasSupremeBase": true,
+      "buildingType": "MURO"
+    },
+    {
+      "id": "T02",
+      "label": "Mina de Oro",
+      "ownerId": "HugoGF",
+      "hasSupremeBase": false,
+      "buildingType": "MINA"
+    }
+  ],
+  "armies": [
+    {
+      "id": "army_HugoGF_1",
+      "ownerId": "HugoGF",
+      "territoryId": "T01",
+      "troopSize": 12,
+      "queuedMoveTo": null
+    }
+  ]
+}

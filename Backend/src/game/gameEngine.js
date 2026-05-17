@@ -438,6 +438,19 @@ function resolveMovementPhase(state) {
   return { state, combatResults, logs };
 }
 
+/**
+ * Marca automáticamente como listos a los jugadores que no controlan ningún territorio.
+ * Se aplica al inicio de cada fase para que no bloqueen el avance.
+ */
+function autoReadyEliminatedPlayers(state) {
+  state.players.forEach(player => {
+    const hasTerritories = state.territories.some(t => t.ownerId === player.id);
+    if (!hasTerritories && !player.isReady) {
+      player.isReady = true;
+    }
+  });
+}
+
 function advancePhase(state) {
   let logs = [];
   let recaudacionSummary = null;
@@ -467,6 +480,9 @@ function advancePhase(state) {
   state.currentPhase = nextPhase;
   state.players.forEach(p => p.isReady = false);
 
+  // Auto-ready jugadores sin territorios al inicio de la nueva fase
+  autoReadyEliminatedPlayers(state);
+
   logs.push(createLog(state.matchId, 'phase', 'Sistema', `⚡ Nueva fase: ${nextPhase}`));
 
   if (nextPhase === 'RECAUDACION') {
@@ -481,6 +497,9 @@ function advancePhase(state) {
     // Transición automática a CONSTRUCCION tras recibir los recursos
     state.currentPhase = 'CONSTRUCCION';
     logs.push(createLog(state.matchId, 'phase', 'Sistema', `⚡ Nueva fase: CONSTRUCCION`));
+
+    // Re-aplicar auto-ready en la fase CONSTRUCCION (la RECAUDACION fue automática)
+    autoReadyEliminatedPlayers(state);
   }
 
   return { state, logs, recaudacionSummary, combatResults };
