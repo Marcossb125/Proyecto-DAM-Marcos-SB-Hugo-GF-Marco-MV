@@ -22,11 +22,17 @@ public class GeneralController {
     @Autowired
     private com.convergence.convergence.service.MongoSyncService mongoSyncService;
 
+    /**
+     * DTO para recibir la petición de guardado de general.
+     */
     public static class GeneralRequest {
         public String nickname;
         public Long generalId;
     }
 
+    /**
+     * Guarda el general seleccionado de un usuario.
+     */
     @PutMapping("/guardar")
     public ResponseEntity<?> guardarGeneral(@RequestBody GeneralRequest req) {
         if (req.nickname == null || req.nickname.isEmpty()) {
@@ -60,6 +66,9 @@ public class GeneralController {
         return ResponseEntity.ok(response);
     }
 
+    /**
+     * Obtiene el general de un usuario por su nickname.
+     */
     @GetMapping("/{nickname}")
     public ResponseEntity<?> obtenerGeneral(@PathVariable String nickname) {
         Optional<User> userOpt = userRepository.findByNickname(nickname);

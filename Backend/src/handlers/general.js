@@ -10,6 +10,7 @@ export default (io, socket) => {
         return;
       }
       
+      // Update Java Backend
       const response = await apiClient.put(
         `/general/guardar`,
         {

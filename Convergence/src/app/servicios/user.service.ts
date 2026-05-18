@@ -10,6 +10,9 @@ export class UserService {
 
   constructor() { }
 
+  /**
+   * Guarda la bandera del usuario en la base de datos.
+   */
   guardarBandera(nickname: string, bandera: { layout: string; nombre: string; colors: string[] }): Observable<any> {
     return new Observable((subscriber) => {
       this.socketService.emitWithCallback('guardarBandera', {
@@ -27,6 +30,9 @@ export class UserService {
     });
   }
 
+  /**
+   * Obtiene la bandera del usuario desde la base de datos.
+   */
   obtenerBandera(nickname: string): Observable<any> {
     return new Observable((subscriber) => {
       this.socketService.emitWithCallback('obtenerBandera', { nickname }, (response: any) => {
@@ -40,6 +46,9 @@ export class UserService {
     });
   }
 
+  /**
+   * Guarda el general seleccionado por el usuario en la base de datos.
+   */
   guardarGeneral(nickname: string, generalId: number): Observable<any> {
     return new Observable((subscriber) => {
       this.socketService.emitWithCallback('guardarGeneral', { nickname, generalId }, (response: any) => {
@@ -53,6 +62,9 @@ export class UserService {
     });
   }
 
+  /**
+   * Obtiene el general seleccionado por el usuario desde la base de datos.
+   */
   obtenerGeneral(nickname: string): Observable<any> {
     return new Observable((subscriber) => {
       this.socketService.emitWithCallback('obtenerGeneral', { nickname }, (response: any) => {
@@ -66,6 +78,9 @@ export class UserService {
     });
   }
 
+  /**
+   * Obtiene el ranking global de usuarios desde MongoDB.
+   */
   getRanking(): Observable<any[]> {
     return new Observable((subscriber) => {
       this.socketService.emitWithCallback('getRanking', null, (response: any) => {
@@ -79,6 +94,9 @@ export class UserService {
     });
   }
 
+  /**
+   * Obtiene el perfil de un usuario en el ranking (con bandera y facción) desde MongoDB.
+   */
   getRankingUserProfile(nickname: string): Observable<any> {
     return new Observable((subscriber) => {
       this.socketService.emitWithCallback('getRankingUserProfile', nickname, (response: any) => {

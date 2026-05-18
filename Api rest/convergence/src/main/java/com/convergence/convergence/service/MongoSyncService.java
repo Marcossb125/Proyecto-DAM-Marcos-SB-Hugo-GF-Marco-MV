@@ -18,6 +18,11 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 
+/**
+ * Servicio centralizado de sincronización SQL → MongoDB.
+ * Vuelca los IDs y campos equivalentes de User, Partida y MatchSnapshot
+ * a las colecciones 'usuarios', 'partidas' y 'match_snapshots' de MongoDB.
+ */
 @Service
 public class MongoSyncService {
 
@@ -39,6 +44,8 @@ public class MongoSyncService {
     @Autowired
     private MatchSnapshotMongoRepository matchSnapshotMongoRepository;
 
+    // ─── Volcado automático al arrancar la API ────────────────────────
+
     @PostConstruct
     public void init() {
         try {
@@ -53,12 +60,20 @@ public class MongoSyncService {
         }
     }
 
+    // ─── Volcado completo de todas las tablas ───────────────────────────
+
+    /**
+     * Ejecuta un volcado completo de SQL a MongoDB para las 3 tablas.
+     * Retorna un resumen con el número de documentos sincronizados.
+     */
     public SyncResult syncAll() {
         int usuarios = syncAllUsuarios();
         int partidas = syncAllPartidas();
         int snapshots = syncAllMatchSnapshots();
         return new SyncResult(usuarios, partidas, snapshots);
     }
+
+    // ─── Sincronización individual: Usuarios ────────────────────────────
 
     public int syncAllUsuarios() {
         List<User> users = userRepository.findAll();
@@ -75,6 +90,10 @@ public class MongoSyncService {
         return count;
     }
 
+    /**
+     * Sincroniza un usuario individual de SQL a MongoDB.
+     * Usa el nickname como _id. Solo actualiza Id_general y victorias (si no existe, pone 0).
+     */
     public void syncUsuario(User user) {
         UsuarioMongo mongo = usuarioMongoRepository.findById(user.getNickname()).orElse(null);
         if (mongo == null) {
@@ -82,11 +101,17 @@ public class MongoSyncService {
             mongo.setId(user.getNickname());
             mongo.setVictorias(0);
         }
+        // Sincronizar el generalId de SQL
         mongo.setIdGeneral(user.getGeneralId() != null ? user.getGeneralId().intValue() : 0);
+        
+        // Sincronizar bandera y facción
         mongo.setBandera(user.getBandera());
         mongo.setFaccion(user.getFaccion());
+        
         usuarioMongoRepository.save(mongo);
     }
+
+    // ─── Sincronización individual: Partidas ────────────────────────────
 
     public int syncAllPartidas() {
         List<Partida> partidas = partidaRepository.findAll();
@@ -115,17 +140,19 @@ public class MongoSyncService {
         } else {
             mongo = existing;
         }
-
+        // Buscar el nickname del host
         userRepository.findById(partida.getHostId()).ifPresent(host -> mongo.setIdHost(host.getNickname()));
-
+        // Sincronizar ganador si existe
         if (partida.getIdGanador() != null) {
-            userRepository.findById(partida.getIdGanador()).ifPresent(winner ->
-                mongo.setIdGanador(winner.getNickname())
-            );
+            userRepository.findById(partida.getIdGanador()).ifPresent(winner -> {
+                // "el Id_ganador sea el Id del jugador que ha ganado"
+                // In MongoDB, the player's ID is their nickname
+                mongo.setIdGanador(winner.getNickname());
+            });
         }
         partidaMongoRepository.save(mongo);
 
-        // Si hay un nuevo ganador, incrementar sus victorias en MongoDB
+        // Tras el volcado, si hay un nuevo ganador, sumar 1 a la columna de victorias en MongoDB
         if (mongo.getIdGanador() != null && !mongo.getIdGanador().equals(previousWinner)) {
             usuarioMongoRepository.findById(mongo.getIdGanador()).ifPresent(usuarioMongo -> {
                 int victoriasActuales = usuarioMongo.getVictorias() != null ? usuarioMongo.getVictorias() : 0;
@@ -134,6 +161,8 @@ public class MongoSyncService {
             });
         }
     }
+
+    // ─── Sincronización individual: MatchSnapshots ──────────────────────
 
     public int syncAllMatchSnapshots() {
         List<MatchSnapshot> snapshots = matchSnapshotRepository.findAll();
@@ -150,6 +179,10 @@ public class MongoSyncService {
         return count;
     }
 
+    /**
+     * Sincroniza un snapshot individual de SQL a MongoDB.
+     * Usa el ID numérico (como String) para _id. Sincroniza match_id, ronda, stateJson y timestamp.
+     */
     public void syncMatchSnapshot(MatchSnapshot snapshot) {
         String mongoId = snapshot.getId().toString();
         MatchSnapshotMongo mongo = matchSnapshotMongoRepository.findById(mongoId).orElse(null);
@@ -163,6 +196,8 @@ public class MongoSyncService {
         mongo.setTimestamp(snapshot.getTimestamp());
         matchSnapshotMongoRepository.save(mongo);
     }
+
+    // ─── Resultado del volcado ──────────────────────────────────────────
 
     public static class SyncResult {
         public int usuariosSincronizados;

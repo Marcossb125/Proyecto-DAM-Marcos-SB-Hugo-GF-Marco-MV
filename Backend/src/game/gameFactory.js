@@ -1,6 +1,7 @@
 import { buildTerritoriesForPlayerCount } from './mapDefinition.js';
 
 
+// faction es placeholder para bots; al unirse un humano se sustituye por usuario.Faccion (API).
 const ALL_PLAYERS = [
   { id: 'p1', name: 'Bot Alpha', faction: 'Warlord', matchGeneralId: null, color: '#00ff41', credits: 500, manpower: 200, isReady: false, isBot: true, isConnected: false, socketId: null },
   { id: 'p2', name: 'Bot Delta', faction: 'Trader', matchGeneralId: null, color: '#ff4444', credits: 500, manpower: 200, isReady: false, isBot: true, isConnected: false, socketId: null },
@@ -18,11 +19,14 @@ const ALL_ARMIES = [
 function createInitialGameState(matchId, limiteJugadores = 4) {
   const count = Math.max(2, Math.min(4, limiteJugadores));
 
+  // Generate map with correct ownership for this player count
   const territories = buildTerritoriesForPlayerCount(count);
 
+  // Only include active players and armies
   const players = JSON.parse(JSON.stringify(ALL_PLAYERS.slice(0, count)));
   const armies = JSON.parse(JSON.stringify(ALL_ARMIES.slice(0, count)));
 
+  // Link armies to territories
   territories.forEach(t => {
     const army = armies.find(a => a.territoryId === t.id);
     if (army) {

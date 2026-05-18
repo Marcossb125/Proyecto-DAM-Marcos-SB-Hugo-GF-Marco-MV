@@ -11,6 +11,7 @@ import { createServer } from 'http';
 import { Server } from 'socket.io';
 import { authenticateBackend } from './config/apiClient.js';
 
+// Import handlers
 import registerAuthHandlers from './handlers/auth.js';
 import registerPartidaHandlers from './handlers/partidas.js';
 import registerBanderaHandlers from './handlers/bandera.js';
@@ -21,7 +22,7 @@ const app = express();
 const httpServer = createServer(app);
 const io = new Server(httpServer, {
   cors: {
-    origin: "*",
+    origin: "*", // Allow all origins for development
     methods: ["GET", "POST"]
   }
 });
@@ -33,6 +34,7 @@ io.on('connection', (socket) => {
   console.log('Cliente conectado:', socket.id);
   console.log('Total clientes:', io.engine.clientsCount);
 
+  // Register all handlers
   registerAuthHandlers(io, socket);
   registerPartidaHandlers(io, socket);
   registerBanderaHandlers(io, socket);
@@ -44,6 +46,7 @@ io.on('connection', (socket) => {
   });
 });
 
+// Startup
 authenticateBackend()
   .then(() => {
     httpServer.listen(PORT, () => {

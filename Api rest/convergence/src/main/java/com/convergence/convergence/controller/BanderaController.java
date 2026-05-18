@@ -25,12 +25,20 @@ public class BanderaController {
 
     private final ObjectMapper objectMapper = new ObjectMapper();
 
+    /**
+     * DTO para recibir la petición de guardado de bandera.
+     * Contiene el nickname del usuario y el objeto bandera con layout, nombre y colores.
+     */
     public static class BanderaRequest {
         public String nickname;
         public String nombre;
         public Bandera bandera;
     }
 
+    /**
+     * Guarda la bandera de un usuario.
+     * Recibe el nickname y el objeto bandera (layout, nombre, colors).
+     */
     @PutMapping("/guardar")
     public ResponseEntity<?> guardarBandera(@RequestBody BanderaRequest req) {
         if (req.nickname == null || req.nickname.isEmpty()) {
@@ -75,6 +83,9 @@ public class BanderaController {
         }
     }
 
+    /**
+     * Obtiene la bandera de un usuario por su nickname.
+     */
     @GetMapping("/{nickname}")
     public ResponseEntity<?> obtenerBandera(@PathVariable String nickname) {
         Optional<User> userOpt = userRepository.findByNickname(nickname);

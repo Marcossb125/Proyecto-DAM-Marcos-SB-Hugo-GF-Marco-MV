@@ -32,6 +32,8 @@ export class PartidaService {
 
   constructor() { }
 
+  // ── WebSocket wrappers ──────────────────────────────────────────────────
+
   public listen(event: string): Observable<any> {
     return this.socketService.listen(event);
   }
@@ -40,12 +42,20 @@ export class PartidaService {
     this.socketService.emit(event, data);
   }
 
+  // ── Partidas (localStorage) ──────────────────────────────────────────────
+
+  /**
+   * Elimina una partida por su id del localStorage.
+   */
   eliminarPartidaPorId(id: number): void {
     const partidas = this.obtenerPartidas();
     const nuevasPartidas = partidas.filter((p) => p.id !== id);
     localStorage.setItem(this.STORAGE_KEY, JSON.stringify(nuevasPartidas));
   }
 
+  /**
+   * Obtiene todas las partidas guardadas en localStorage.
+   */
   obtenerPartidas(): Partida[] {
     if (!isPlatformBrowser(this.platformId)) return [];
     const data = localStorage.getItem(this.STORAGE_KEY);
@@ -57,6 +67,9 @@ export class PartidaService {
     }
   }
 
+  /**
+   * Guarda una nueva partida en localStorage.
+   */
   guardarPartida(partida: Partida): void {
     if (!isPlatformBrowser(this.platformId)) return;
     const partidas = this.obtenerPartidas();
@@ -151,6 +164,9 @@ export class PartidaService {
     });
   }
 
+  /**
+   * Genera un ID único para una nueva partida.
+   */
   generarId(): number {
     const partidas = this.obtenerPartidas();
     if (partidas.length === 0) return 1;

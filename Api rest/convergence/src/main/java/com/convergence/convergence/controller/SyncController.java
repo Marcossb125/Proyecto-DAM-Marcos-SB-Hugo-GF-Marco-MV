@@ -7,6 +7,10 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.Map;
 
+/**
+ * Endpoint para ejecutar el volcado de sincronización SQL → MongoDB.
+ * Permite sincronizar todas las tablas de golpe o individualmente.
+ */
 @RestController
 @RequestMapping("/sync")
 public class SyncController {
@@ -14,6 +18,10 @@ public class SyncController {
     @Autowired
     private MongoSyncService mongoSyncService;
 
+    /**
+     * Volcado completo: sincroniza usuarios, partidas y match_snapshots.
+     * GET /sync/all
+     */
     @GetMapping("/all")
     public ResponseEntity<?> syncAll() {
         try {
@@ -32,6 +40,10 @@ public class SyncController {
         }
     }
 
+    /**
+     * Sincroniza solo la tabla de usuarios.
+     * GET /sync/usuarios
+     */
     @GetMapping("/usuarios")
     public ResponseEntity<?> syncUsuarios() {
         try {
@@ -45,6 +57,10 @@ public class SyncController {
         }
     }
 
+    /**
+     * Sincroniza solo la tabla de partidas.
+     * GET /sync/partidas
+     */
     @GetMapping("/partidas")
     public ResponseEntity<?> syncPartidas() {
         try {
@@ -58,6 +74,10 @@ public class SyncController {
         }
     }
 
+    /**
+     * Sincroniza solo la tabla de match_snapshots.
+     * GET /sync/snapshots
+     */
     @GetMapping("/snapshots")
     public ResponseEntity<?> syncSnapshots() {
         try {
